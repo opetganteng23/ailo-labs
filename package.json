@@ -1,0 +1,13 @@
+{
+  "name": "ailo-monorepo",
+  "version": "0.1.0",
+  "private": true,
+  "workspaces": ["apps/*"],
+  "scripts": {
+    "dev": "npm run dev --workspace @ailo/backend",
+    "build": "npm run build --workspace @ailo/backend",
+    "start": "npm run start --workspace @ailo/backend",
+    "lint": "npm run lint --workspace @ailo/backend",
+    "typecheck": "npm run typecheck --workspace @ailo/backend"
+  }
+}

@@ -1,0 +1,16 @@
+import { model, models, Schema } from "mongoose";
+
+const researchSchema = new Schema(
+  {
+    title: { type: String, required: true, trim: true },
+    slug: { type: String, required: true, unique: true, trim: true },
+    description: { type: String, required: true },
+    content: { type: String, required: true },
+    image: String,
+    relatedTeamMembers: [{ type: Schema.Types.ObjectId, ref: "Team" }],
+    status: { type: String, enum: ["draft", "published"], default: "draft", index: true },
+  },
+  { timestamps: true },
+);
+
+export const Research = models.Research || model("Research", researchSchema);
