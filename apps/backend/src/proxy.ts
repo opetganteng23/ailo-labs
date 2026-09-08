@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 
-import { SESSION_COOKIE, USER_SESSION_COOKIE, verifySessionToken, verifyUserSessionToken } from "@/lib/auth";
+import { isAdminRole, SESSION_COOKIE, verifySessionToken } from "@/lib/auth";
 import { getEnv } from "@/lib/env";
 
 async function handleAdminAuth(request: NextRequest): Promise<NextResponse | null> {
@@ -13,7 +13,7 @@ async function handleAdminAuth(request: NextRequest): Promise<NextResponse | nul
   const token = request.cookies.get(SESSION_COOKIE)?.value;
   const session = token ? await verifySessionToken(token) : null;
 
-  if (!session) {
+  if (!session || !isAdminRole(session.role)) {
     const loginUrl = request.nextUrl.clone();
     loginUrl.pathname = "/admin/login";
     loginUrl.search = `?next=${encodeURIComponent(pathname)}`;
@@ -32,8 +32,8 @@ async function handleAdminAuth(request: NextRequest): Promise<NextResponse | nul
 
 async function handleBookingAuth(request: NextRequest): Promise<NextResponse | null> {
   const { pathname } = request.nextUrl;
-  const token = request.cookies.get(USER_SESSION_COOKIE)?.value;
-  const session = token ? await verifyUserSessionToken(token) : null;
+  const token = request.cookies.get(SESSION_COOKIE)?.value;
+  const session = token ? await verifySessionToken(token) : null;
 
   if (!session) {
     const loginUrl = request.nextUrl.clone();

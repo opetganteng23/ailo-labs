@@ -4,8 +4,11 @@ import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 
 export const SESSION_COOKIE = "ailo_session";
-export const USER_SESSION_COOKIE = "ailo_user_session";
 const ALG = "HS256";
+
+export type Role = "super_admin" | "admin" | "staff_lab" | "borrower";
+
+const ADMIN_ROLES: Role[] = ["super_admin", "admin", "staff_lab"];
 
 function secretKey() {
   const secret = process.env.NEXTAUTH_SECRET;
@@ -18,22 +21,20 @@ function secretKey() {
 export type SessionPayload = {
   sub: string;
   email: string;
-  role: "super_admin" | "admin" | "staff_lab";
+  role: Role;
   name: string;
 };
 
-export type UserSessionPayload = {
-  sub: string;
-  email: string;
-  role: "borrower";
-  name: string;
-};
+export function isAdminRole(role: Role): boolean {
+  return ADMIN_ROLES.includes(role);
+}
 
 export async function createSessionToken(payload: SessionPayload) {
+  const expiresIn = isAdminRole(payload.role) ? "7d" : "30d";
   return new SignJWT({ ...payload })
     .setProtectedHeader({ alg: ALG })
     .setIssuedAt()
-    .setExpirationTime("7d")
+    .setExpirationTime(expiresIn)
     .sign(secretKey());
 }
 
@@ -54,8 +55,8 @@ export async function getSession(): Promise<SessionPayload | null> {
   return verifySessionToken(token);
 }
 
-/** Reads + authorizes the session from a NextRequest — for use in Route Handlers. */
-export async function requireAdmin(request: NextRequest, roles?: SessionPayload["role"][]) {
+/** Reads + authorizes the session from a NextRequest — for use in Route Handlers. Omit `roles` to just require any logged-in account. */
+export async function requireSession(request: NextRequest, roles?: Role[]) {
   const token = request.cookies.get(SESSION_COOKIE)?.value;
   const session = token ? await verifySessionToken(token) : null;
 
@@ -69,42 +70,7 @@ export async function requireAdmin(request: NextRequest, roles?: SessionPayload[
   return { ok: true as const, session };
 }
 
-export async function createUserSessionToken(payload: UserSessionPayload) {
-  return new SignJWT({ ...payload })
-    .setProtectedHeader({ alg: ALG })
-    .setIssuedAt()
-    .setExpirationTime("30d")
-    .sign(secretKey());
-}
-
-export async function verifyUserSessionToken(token: string): Promise<UserSessionPayload | null> {
-  try {
-    const { payload } = await jwtVerify(token, secretKey());
-    return payload as unknown as UserSessionPayload;
-  } catch {
-    return null;
-  }
-}
-
-/** Reads the borrower session from the Next.js cookies() store — for use in Server Components / Server Actions. */
-export async function getUserSession(): Promise<UserSessionPayload | null> {
-  const store = await cookies();
-  const token = store.get(USER_SESSION_COOKIE)?.value;
-  if (!token) return null;
-  return verifyUserSessionToken(token);
-}
-
-/** Reads + authorizes the borrower session from a NextRequest — for use in Route Handlers. */
-export async function requireUser(request: NextRequest) {
-  const token = request.cookies.get(USER_SESSION_COOKIE)?.value;
-  const session = token ? await verifyUserSessionToken(token) : null;
-
-  if (!session) {
-    return {
-      ok: false as const,
-      response: NextResponse.json({ success: false, error: "Unauthorized." }, { status: 401 }),
-    };
-  }
-
-  return { ok: true as const, session };
+/** Same as requireSession, but defaults to requiring one of the admin/staff roles. */
+export async function requireAdmin(request: NextRequest, roles: Role[] = ADMIN_ROLES) {
+  return requireSession(request, roles);
 }

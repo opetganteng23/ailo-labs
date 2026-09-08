@@ -17,7 +17,7 @@ function LoginFormInner() {
     const form = new FormData(event.currentTarget);
 
     try {
-      const res = await fetch("/api/auth/user-login", {
+      const res = await fetch("/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email: form.get("email"), password: form.get("password") }),
@@ -28,7 +28,8 @@ function LoginFormInner() {
         setLoading(false);
         return;
       }
-      router.push(searchParams.get("next") ?? "/");
+      const isAdmin = ["super_admin", "admin", "staff_lab"].includes(json.data?.role);
+      router.push(searchParams.get("next") ?? (isAdmin ? "/admin/dashboard" : "/"));
       router.refresh();
     } catch {
       setError("Network error, please try again.");

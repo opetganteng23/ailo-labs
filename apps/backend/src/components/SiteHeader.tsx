@@ -1,13 +1,13 @@
 import Image from "next/image";
 import Link from "next/link";
 
-import { getUserSession } from "@/lib/auth";
+import { getSession } from "@/lib/auth";
 
 import { NavLinks } from "./NavLinks";
 import { UserLogoutButton } from "./UserLogoutButton";
 
 export async function SiteHeader() {
-  const session = await getUserSession();
+  const session = await getSession();
 
   return (
     <header className="site">

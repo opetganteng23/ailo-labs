@@ -9,7 +9,7 @@ export function UserLogoutButton() {
     <button
       className="btn outline"
       onClick={async () => {
-        await fetch("/api/auth/user-logout", { method: "POST" });
+        await fetch("/api/auth/logout", { method: "POST" });
         router.push("/");
         router.refresh();
       }}

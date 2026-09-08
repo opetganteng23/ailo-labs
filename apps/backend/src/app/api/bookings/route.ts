@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 
-import { requireAdmin, requireUser } from "@/lib/auth";
+import { requireAdmin, requireSession } from "@/lib/auth";
 import { sendMail } from "@/lib/mailer";
 import { connectToDatabase } from "@/lib/mongodb";
 import { Booking } from "@/models/Booking";
@@ -47,7 +47,7 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
-  const userAuth = await requireUser(request);
+  const userAuth = await requireSession(request);
   if (!userAuth.ok) return userAuth.response;
 
   const parsed = bookingInputSchema.safeParse(await request.json());

@@ -2,7 +2,7 @@ import bcrypt from "bcryptjs";
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 
-import { createUserSessionToken, USER_SESSION_COOKIE } from "@/lib/auth";
+import { createSessionToken, SESSION_COOKIE } from "@/lib/auth";
 import { connectToDatabase } from "@/lib/mongodb";
 import { User } from "@/models/User";
 
@@ -39,7 +39,7 @@ export async function POST(request: NextRequest) {
       role: "borrower",
     });
 
-    const token = await createUserSessionToken({
+    const token = await createSessionToken({
       sub: user._id.toString(),
       email: user.email,
       role: "borrower",
@@ -50,7 +50,7 @@ export async function POST(request: NextRequest) {
       success: true,
       data: { email: user.email, name: user.name, role: user.role },
     });
-    response.cookies.set(USER_SESSION_COOKIE, token, {
+    response.cookies.set(SESSION_COOKIE, token, {
       httpOnly: true,
       sameSite: "lax",
       secure: process.env.NODE_ENV === "production",

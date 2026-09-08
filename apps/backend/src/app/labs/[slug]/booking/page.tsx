@@ -2,7 +2,7 @@ import { notFound, redirect } from "next/navigation";
 
 import { SiteFooter } from "@/components/SiteFooter";
 import { SiteHeader } from "@/components/SiteHeader";
-import { getUserSession } from "@/lib/auth";
+import { getSession } from "@/lib/auth";
 import { connectToDatabase } from "@/lib/mongodb";
 import { Device } from "@/models/Device";
 import { Lab } from "@/models/Lab";
@@ -13,7 +13,7 @@ export const dynamic = "force-dynamic";
 
 export default async function LabBookingPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const session = await getUserSession();
+  const session = await getSession();
   if (!session) {
     redirect(`/login?next=${encodeURIComponent(`/labs/${slug}/booking`)}`);
   }

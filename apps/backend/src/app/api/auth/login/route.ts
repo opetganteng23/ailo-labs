@@ -2,7 +2,7 @@ import bcrypt from "bcryptjs";
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 
-import { createSessionToken, SESSION_COOKIE } from "@/lib/auth";
+import { createSessionToken, isAdminRole, SESSION_COOKIE } from "@/lib/auth";
 import { connectToDatabase } from "@/lib/mongodb";
 import { User } from "@/models/User";
 
@@ -50,7 +50,7 @@ export async function POST(request: NextRequest) {
       sameSite: "lax",
       secure: process.env.NODE_ENV === "production",
       path: "/",
-      maxAge: 60 * 60 * 24 * 7,
+      maxAge: isAdminRole(user.role) ? 60 * 60 * 24 * 7 : 60 * 60 * 24 * 30,
     });
 
     return response;
