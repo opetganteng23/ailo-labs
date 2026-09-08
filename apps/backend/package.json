@@ -9,7 +9,8 @@
     "lint": "eslint",
     "typecheck": "tsc --noEmit",
     "seed:admin": "tsx --env-file=.env scripts/seed-admin.ts",
-    "seed:sample": "tsx --env-file=.env scripts/seed-sample-data.ts"
+    "seed:sample": "tsx --env-file=.env scripts/seed-sample-data.ts",
+    "clean:sample": "tsx --env-file=.env scripts/clean-sample-data.ts"
   },
   "dependencies": {
     "bcryptjs": "^3.0.3",
