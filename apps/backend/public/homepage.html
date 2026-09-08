@@ -107,14 +107,9 @@
   .btn-outline:hover{background:var(--ink); color:#fff;}
 
   .hero-figure{
-    position:relative; aspect-ratio:1/1; background:var(--teal);
+    position:relative; aspect-ratio:1/1; background:var(--paper-dim);
     border-radius:4px; overflow:hidden; display:flex; align-items:center; justify-content:center;
-  }
-  .hero-figure::before{
-    content:""; position:absolute; inset:0;
-    background:
-      radial-gradient(circle at 78% 18%, rgba(242,128,31,0.55), transparent 42%),
-      linear-gradient(155deg, var(--teal) 0%, var(--teal-dark) 100%);
+    border:1px solid var(--line);
   }
   .hero-figure .mark{position:relative; width:46%;}
   .stat-chip{
@@ -285,6 +280,15 @@
     animation:pulse 2.4s infinite ease-out; z-index:-1;
   }
   @keyframes pulse{0%{transform:scale(1); opacity:.55} 100%{transform:scale(1.9); opacity:0}}
+
+  .fab-panel{
+    position:fixed; bottom:98px; right:28px; z-index:200;
+    width:min(340px, calc(100vw - 48px)); max-height:60vh;
+  }
+  .fab-panel .cbody{overflow-y:auto; max-height:38vh;}
+  .fab-panel .cfoot input{flex:1; border:1px solid var(--line); border-radius:3px; padding:10px 12px; font-size:13.5px; font-family:var(--sans);}
+  .fab-panel .cfoot button{background:var(--orange); color:#fff; border:none; border-radius:3px; padding:0 16px; font-size:13.5px; font-weight:600; cursor:pointer;}
+  .fab-panel .cfoot input:disabled{opacity:.6;}
 
   @media (max-width:980px){
     .hero-grid{grid-template-columns:1fr;}
@@ -605,7 +609,18 @@
   </div>
 </footer>
 
-<button class="fab" aria-label="Open AILO chatbot">
+<div class="fab-panel chat-mock" id="fabPanel" hidden>
+  <div class="chead"><span class="pulse"></span> Ask AILO</div>
+  <div class="cbody" id="fabBody">
+    <div class="bubble bot">Halo! Saya asisten AILO. Ada yang bisa saya bantu seputar riset, proyek, tim, atau peminjaman lab?</div>
+  </div>
+  <form class="cfoot" id="fabForm">
+    <input type="text" id="fabInput" placeholder="Tanyakan sesuatu tentang AILO..." autocomplete="off">
+    <button type="submit">Send</button>
+  </form>
+</div>
+
+<button class="fab" id="fabToggle" aria-label="Open AILO chatbot" aria-expanded="false">
   <div class="fab-pulse"></div>
   <svg viewBox="0 0 24 24" fill="none"><path d="M4 12c0-4.4 3.6-8 8-8s8 3.6 8 8-3.6 8-8 8c-1.1 0-2.1-.2-3-.6L4 20l1.2-4.6c-.8-1-1.2-2.1-1.2-3.4z" stroke="white" stroke-width="1.7" stroke-linejoin="round"/><circle cx="8.5" cy="12" r="1" fill="white"/><circle cx="12" cy="12" r="1" fill="white"/><circle cx="15.5" cy="12" r="1" fill="white"/></svg>
 </button>
@@ -615,6 +630,53 @@
     var nav = document.querySelector('nav ul');
     nav.style.display = nav.style.display === 'flex' ? 'none' : 'flex';
     nav.style.cssText += 'flex-direction:column; position:absolute; top:64px; left:0; right:0; background:#FBF9F6; padding:20px 32px; gap:18px; border-bottom:1px solid rgba(18,24,27,0.12);';
+  });
+
+  var fabToggle = document.getElementById('fabToggle');
+  var fabPanel = document.getElementById('fabPanel');
+  var fabForm = document.getElementById('fabForm');
+  var fabInput = document.getElementById('fabInput');
+  var fabBody = document.getElementById('fabBody');
+
+  fabToggle.addEventListener('click', function () {
+    var open = !fabPanel.hidden;
+    fabPanel.hidden = open;
+    fabToggle.setAttribute('aria-expanded', String(!open));
+    if (!open) fabInput.focus();
+  });
+
+  function addBubble(text, who) {
+    var bubble = document.createElement('div');
+    bubble.className = 'bubble ' + who;
+    bubble.textContent = text;
+    fabBody.appendChild(bubble);
+    fabBody.scrollTop = fabBody.scrollHeight;
+  }
+
+  fabForm.addEventListener('submit', function (e) {
+    e.preventDefault();
+    var message = fabInput.value.trim();
+    if (!message) return;
+    addBubble(message, 'user');
+    fabInput.value = '';
+    fabInput.disabled = true;
+
+    fetch('/api/chatbot/ask', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ message: message }),
+    })
+      .then(function (res) { return res.json(); })
+      .then(function (data) {
+        addBubble(data.data ? data.data.answer : 'Maaf, terjadi kesalahan. Coba lagi sebentar lagi.', 'bot');
+      })
+      .catch(function () {
+        addBubble('Maaf, tidak bisa terhubung ke server sekarang.', 'bot');
+      })
+      .finally(function () {
+        fabInput.disabled = false;
+        fabInput.focus();
+      });
   });
 </script>
 
