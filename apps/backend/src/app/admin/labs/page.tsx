@@ -19,7 +19,7 @@ export default async function AdminLabsPage() {
     <div>
       <h1>Labs</h1>
       <p>
-        <Link href="/admin/labs/devices">Manage devices →</Link>
+        <Link href="/admin/labs/devices">Manage devices</Link>
       </p>
       <form className="stack" action={createLabAction} style={{ marginTop: 24 }}>
         <label>
@@ -37,6 +37,10 @@ export default async function AdminLabsPage() {
         <label>
           Description
           <textarea name="description" />
+        </label>
+        <label>
+          Facilities / specification
+          <textarea name="facilities" placeholder="e.g. 20x workstation, 4K projector, whiteboard wall" />
         </label>
         <button type="submit" className="btn">
           Create

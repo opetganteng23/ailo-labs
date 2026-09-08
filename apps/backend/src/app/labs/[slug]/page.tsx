@@ -17,6 +17,7 @@ export default async function LabDetailPage({ params }: { params: Promise<{ slug
     location?: string;
     capacity?: number;
     description?: string;
+    facilities?: string;
   }>();
 
   if (!lab) notFound();
@@ -36,6 +37,12 @@ export default async function LabDetailPage({ params }: { params: Promise<{ slug
         {lab.location && <p style={{ color: "#5b6469" }}>{lab.location}</p>}
         {lab.capacity !== undefined && <p>Capacity: {lab.capacity}</p>}
         <p style={{ marginTop: 12 }}>{lab.description}</p>
+        {lab.facilities && (
+          <p style={{ marginTop: 12, whiteSpace: "pre-line", color: "#3a4348" }}>
+            <strong>Facilities: </strong>
+            {lab.facilities}
+          </p>
+        )}
         <Link href={`/labs/${slug}/booking`} className="btn" style={{ marginTop: 20, display: "inline-block" }}>
           Ajukan Peminjaman
         </Link>

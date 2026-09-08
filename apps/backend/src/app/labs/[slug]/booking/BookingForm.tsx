@@ -4,7 +4,17 @@ import { useState } from "react";
 
 type Device = { _id: string; name: string };
 
-export function BookingForm({ labId, devices }: { labId: string; devices: Device[] }) {
+export function BookingForm({
+  labId,
+  devices,
+  defaultName,
+  defaultEmail,
+}: {
+  labId: string;
+  devices: Device[];
+  defaultName?: string;
+  defaultEmail?: string;
+}) {
   const [status, setStatus] = useState<"idle" | "submitting" | "success" | "error">("idle");
   const [message, setMessage] = useState<string>("");
 
@@ -43,7 +53,7 @@ export function BookingForm({ labId, devices }: { labId: string; devices: Device
       event.currentTarget.reset();
     } catch {
       setStatus("error");
-      setMessage("Network error - please try again.");
+      setMessage("Network error, please try again.");
     }
   }
 
@@ -55,11 +65,11 @@ export function BookingForm({ labId, devices }: { labId: string; devices: Device
     <form className="stack" onSubmit={handleSubmit}>
       <label>
         Full name
-        <input name="borrowerName" required maxLength={160} />
+        <input name="borrowerName" required maxLength={160} defaultValue={defaultName} />
       </label>
       <label>
         Email
-        <input name="borrowerEmail" type="email" required />
+        <input name="borrowerEmail" type="email" required defaultValue={defaultEmail} />
       </label>
       <label>
         Phone

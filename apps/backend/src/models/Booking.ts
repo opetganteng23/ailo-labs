@@ -5,6 +5,7 @@ const bookingSchema = new Schema(
     borrowerName: { type: String, required: true, trim: true },
     borrowerEmail: { type: String, required: true, lowercase: true, trim: true },
     borrowerPhone: { type: String, required: true, trim: true },
+    user: { type: Schema.Types.ObjectId, ref: "User", index: true },
     institution: { type: String, required: true, trim: true },
     lab: { type: Schema.Types.ObjectId, ref: "Lab", required: true, index: true },
     device: { type: Schema.Types.ObjectId, ref: "Device", index: true },

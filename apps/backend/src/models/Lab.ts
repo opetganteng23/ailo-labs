@@ -7,6 +7,7 @@ const labSchema = new Schema(
     location: String,
     capacity: Number,
     description: String,
+    facilities: String,
     photos: { type: [String], default: [] },
     devices: [{ type: Schema.Types.ObjectId, ref: "Device" }],
     isActive: { type: Boolean, default: true, index: true },

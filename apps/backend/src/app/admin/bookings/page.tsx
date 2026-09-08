@@ -63,7 +63,7 @@ export default async function AdminBookingsPage({
               <td>{b.lab?.name ?? "-"}</td>
               <td>{b.device?.name ?? "-"}</td>
               <td>
-                {new Date(b.startDateTime).toLocaleString()} → {new Date(b.endDateTime).toLocaleString()}
+                {new Date(b.startDateTime).toLocaleString()} to {new Date(b.endDateTime).toLocaleString()}
               </td>
               <td>
                 <span className={`badge ${b.status}`}>{b.status}</span>

@@ -1,6 +1,7 @@
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 
 import { SiteHeader } from "@/components/SiteHeader";
+import { getUserSession } from "@/lib/auth";
 import { connectToDatabase } from "@/lib/mongodb";
 import { Device } from "@/models/Device";
 import { Lab } from "@/models/Lab";
@@ -11,6 +12,11 @@ export const dynamic = "force-dynamic";
 
 export default async function LabBookingPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
+  const session = await getUserSession();
+  if (!session) {
+    redirect(`/login?next=${encodeURIComponent(`/labs/${slug}/booking`)}`);
+  }
+
   await connectToDatabase();
   const lab = await Lab.findOne({ slug, isActive: true }).lean<{ _id: string; name: string }>();
 
@@ -25,9 +31,14 @@ export default async function LabBookingPage({ params }: { params: Promise<{ slu
       <SiteHeader />
       <main className="wrap">
         <h1>Book {lab.name}</h1>
-        <p>Submit a request - an admin will review and approve it, then you&apos;ll get an email decision.</p>
+        <p>Submit a request, an admin will review and approve it, then you&apos;ll get an email decision.</p>
         <div style={{ marginTop: 24 }}>
-          <BookingForm labId={String(lab._id)} devices={devices.map((d) => ({ _id: String(d._id), name: d.name }))} />
+          <BookingForm
+            labId={String(lab._id)}
+            devices={devices.map((d) => ({ _id: String(d._id), name: d.name }))}
+            defaultName={session.name}
+            defaultEmail={session.email}
+          />
         </div>
       </main>
     </>

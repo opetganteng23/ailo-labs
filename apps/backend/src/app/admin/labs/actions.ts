@@ -23,6 +23,7 @@ export async function createLabAction(formData: FormData) {
     location: String(formData.get("location") ?? ""),
     capacity: Number(formData.get("capacity") ?? 0) || undefined,
     description: String(formData.get("description") ?? ""),
+    facilities: String(formData.get("facilities") ?? ""),
   });
   revalidatePath("/admin/labs");
 }
