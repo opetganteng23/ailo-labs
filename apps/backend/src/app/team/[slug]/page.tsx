@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
 
+import { SiteFooter } from "@/components/SiteFooter";
 import { SiteHeader } from "@/components/SiteHeader";
 import { connectToDatabase } from "@/lib/mongodb";
 import { Team } from "@/models/Team";
@@ -37,6 +38,7 @@ export default async function TeamDetailPage({ params }: { params: Promise<{ slu
           <p>Documents: {item.scopusData?.documentCount ?? "-"}</p>
         </div>
       </main>
+      <SiteFooter />
     </>
   );
 }

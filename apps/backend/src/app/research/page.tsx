@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { SiteFooter } from "@/components/SiteFooter";
 import { SiteHeader } from "@/components/SiteHeader";
 import { connectToDatabase } from "@/lib/mongodb";
 import { Research } from "@/models/Research";
@@ -28,6 +29,7 @@ export default async function ResearchListPage() {
           ))}
         </div>
       </main>
+      <SiteFooter />
     </>
   );
 }

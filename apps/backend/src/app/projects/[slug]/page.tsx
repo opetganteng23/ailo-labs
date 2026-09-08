@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
 
+import { SiteFooter } from "@/components/SiteFooter";
 import { SiteHeader } from "@/components/SiteHeader";
 import { connectToDatabase } from "@/lib/mongodb";
 import { Project } from "@/models/Project";
@@ -27,6 +28,7 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
         <p style={{ color: "#5b6469" }}>{item.description}</p>
         <div style={{ whiteSpace: "pre-wrap", marginTop: 24 }}>{item.content}</div>
       </main>
+      <SiteFooter />
     </>
   );
 }

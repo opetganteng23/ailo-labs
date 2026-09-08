@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { SiteFooter } from "@/components/SiteFooter";
 import { SiteHeader } from "@/components/SiteHeader";
 import { connectToDatabase } from "@/lib/mongodb";
 import { News } from "@/models/News";
@@ -32,6 +33,7 @@ export default async function NewsListPage() {
           ))}
         </div>
       </main>
+      <SiteFooter />
     </>
   );
 }

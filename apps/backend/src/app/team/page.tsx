@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { SiteFooter } from "@/components/SiteFooter";
 import { SiteHeader } from "@/components/SiteHeader";
 import { connectToDatabase } from "@/lib/mongodb";
 import { Team } from "@/models/Team";
@@ -29,6 +30,7 @@ export default async function TeamListPage() {
           ))}
         </div>
       </main>
+      <SiteFooter />
     </>
   );
 }

@@ -1,5 +1,6 @@
 import { notFound, redirect } from "next/navigation";
 
+import { SiteFooter } from "@/components/SiteFooter";
 import { SiteHeader } from "@/components/SiteHeader";
 import { getUserSession } from "@/lib/auth";
 import { connectToDatabase } from "@/lib/mongodb";
@@ -41,6 +42,7 @@ export default async function LabBookingPage({ params }: { params: Promise<{ slu
           />
         </div>
       </main>
+      <SiteFooter />
     </>
   );
 }

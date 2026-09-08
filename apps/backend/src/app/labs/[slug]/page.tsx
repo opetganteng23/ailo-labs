@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
+import { SiteFooter } from "@/components/SiteFooter";
 import { SiteHeader } from "@/components/SiteHeader";
 import { connectToDatabase } from "@/lib/mongodb";
 import { Device } from "@/models/Device";
@@ -70,6 +71,7 @@ export default async function LabDetailPage({ params }: { params: Promise<{ slug
           </tbody>
         </table>
       </main>
+      <SiteFooter />
     </>
   );
 }
