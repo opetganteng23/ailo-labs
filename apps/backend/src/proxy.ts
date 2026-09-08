@@ -1,13 +1,38 @@
 import { NextRequest, NextResponse } from "next/server";
 
+import { SESSION_COOKIE, verifySessionToken } from "@/lib/auth";
 import { getEnv } from "@/lib/env";
 
-export function proxy(request: NextRequest) {
+async function handleAdminAuth(request: NextRequest): Promise<NextResponse | null> {
+  const { pathname } = request.nextUrl;
+
+  if (pathname === "/admin/login") {
+    return null;
+  }
+
+  const token = request.cookies.get(SESSION_COOKIE)?.value;
+  const session = token ? await verifySessionToken(token) : null;
+
+  if (!session) {
+    const loginUrl = request.nextUrl.clone();
+    loginUrl.pathname = "/admin/login";
+    loginUrl.search = `?next=${encodeURIComponent(pathname)}`;
+    return NextResponse.redirect(loginUrl);
+  }
+
+  if (pathname.startsWith("/admin/users") && session.role !== "super_admin") {
+    const dashboardUrl = request.nextUrl.clone();
+    dashboardUrl.pathname = "/admin/dashboard";
+    dashboardUrl.search = "?error=forbidden";
+    return NextResponse.redirect(dashboardUrl);
+  }
+
+  return null;
+}
+
+function applyCors(request: NextRequest, response: NextResponse) {
   const configuredOrigin = getEnv().CORS_ORIGIN;
   const requestOrigin = request.headers.get("origin");
-  const response = request.method === "OPTIONS"
-    ? new NextResponse(null, { status: 204 })
-    : NextResponse.next();
 
   if (configuredOrigin && requestOrigin === configuredOrigin) {
     response.headers.set("Access-Control-Allow-Origin", configuredOrigin);
@@ -20,6 +45,19 @@ export function proxy(request: NextRequest) {
   return response;
 }
 
+export async function proxy(request: NextRequest) {
+  const { pathname } = request.nextUrl;
+
+  if (pathname.startsWith("/admin")) {
+    const redirect = await handleAdminAuth(request);
+    if (redirect) return redirect;
+    return NextResponse.next();
+  }
+
+  const response = request.method === "OPTIONS" ? new NextResponse(null, { status: 204 }) : NextResponse.next();
+  return applyCors(request, response);
+}
+
 export const config = {
-  matcher: "/api/:path*",
+  matcher: ["/api/:path*", "/admin/:path*"],
 };

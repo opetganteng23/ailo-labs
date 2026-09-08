@@ -1,0 +1,68 @@
+import Link from "next/link";
+import { notFound } from "next/navigation";
+
+import { SiteHeader } from "@/components/SiteHeader";
+import { connectToDatabase } from "@/lib/mongodb";
+import { Device } from "@/models/Device";
+import { Lab } from "@/models/Lab";
+
+export const dynamic = "force-dynamic";
+
+export default async function LabDetailPage({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
+  await connectToDatabase();
+  const lab = await Lab.findOne({ slug, isActive: true }).lean<{
+    _id: string;
+    name: string;
+    location?: string;
+    capacity?: number;
+    description?: string;
+  }>();
+
+  if (!lab) notFound();
+
+  const devices = (await Device.find({ lab: lab._id }).sort({ name: 1 }).lean()) as unknown as {
+    _id: string;
+    name: string;
+    specification?: string;
+    status: string;
+  }[];
+
+  return (
+    <>
+      <SiteHeader />
+      <main className="wrap">
+        <h1>{lab.name}</h1>
+        {lab.location && <p style={{ color: "#5b6469" }}>{lab.location}</p>}
+        {lab.capacity !== undefined && <p>Capacity: {lab.capacity}</p>}
+        <p style={{ marginTop: 12 }}>{lab.description}</p>
+        <Link href={`/labs/${slug}/booking`} className="btn" style={{ marginTop: 20, display: "inline-block" }}>
+          Ajukan Peminjaman
+        </Link>
+
+        <h2 style={{ marginTop: 40 }}>Devices</h2>
+        {devices.length === 0 && <p className="notice">No devices listed yet.</p>}
+        <table style={{ marginTop: 16 }}>
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Specification</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            {devices.map((d) => (
+              <tr key={d._id}>
+                <td>{d.name}</td>
+                <td>{d.specification ?? "-"}</td>
+                <td>
+                  <span className="badge">{d.status}</span>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </main>
+    </>
+  );
+}

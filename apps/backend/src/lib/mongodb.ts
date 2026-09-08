@@ -1,6 +1,17 @@
+import dns from "node:dns";
+
 import mongoose from "mongoose";
 
 import { getEnv, requireMongoUri } from "@/lib/env";
+
+// Some local/sandboxed DNS resolvers refuse SRV queries, which
+// mongodb+srv:// connection strings depend on. Fall back to a public
+// resolver so `mongodb+srv://` URIs (e.g. MongoDB Atlas) still resolve.
+try {
+  dns.setServers(["8.8.8.8", "1.1.1.1"]);
+} catch {
+  // ignore — non-fatal, connection will simply fail with the OS resolver
+}
 
 type MongooseCache = {
   conn: typeof mongoose | null;

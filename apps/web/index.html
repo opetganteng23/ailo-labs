@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AILO — AI Learning For Optimization | Telkom University</title>
+<title>AILO, AI Learning For Optimization | Telkom University</title>
 <style>
   :root{
     --teal:#0E7C8C;
@@ -13,10 +13,11 @@
     --paper:#FBF9F6;
     --paper-dim:#F1EEE8;
     --line: rgba(18,24,27,0.12);
-    --serif: "Source Serif 4", Georgia, "Times New Roman", serif;
-    --sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    --poppins: "Poppins", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    --serif: var(--poppins);
+    --sans: var(--poppins);
   }
-  @import url('https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,500;8..60,600;8..60,700&family=Inter:wght@400;500;600;700&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
   *{box-sizing:border-box; margin:0; padding:0;}
   html{scroll-behavior:smooth;}
   body{
@@ -268,6 +269,7 @@
   .foot-bottom{display:flex; justify-content:space-between; align-items:center; padding-top:24px; font-size:12.5px; color:#7a8285; flex-wrap:wrap; gap:12px;}
   .foot-bottom .socials{display:flex; gap:16px;}
   .foot-bottom .socials a{color:#9aa3a7; font-weight:600;}
+  .foot-bottom .socials .social-pending{color:#9aa3a7; font-weight:600; opacity:.55; cursor:default;}
 
   /* ===== Floating chatbot FAB ===== */
   .fab{
@@ -303,16 +305,16 @@
   }
 </style>
 </head>
-<body>
+<body id="top">
 
 <header>
   <div class="nav-row">
-    <a href="#" class="brand">
+    <a href="#top" class="brand">
       <img src="Logo AILO Horizontal.png" alt="AILO logo">
     </a>
     <nav>
       <ul>
-        <li><a href="#" class="active">Home</a></li>
+        <li><a href="#top" class="active">Home</a></li>
         <li><a href="#research">Research</a></li>
         <li><a href="#projects">Projects</a></li>
         <li><a href="#team">Team</a></li>
@@ -331,9 +333,9 @@
 <section class="hero">
   <div class="wrap hero-grid">
     <div>
-      <div class="kicker"><span class="dot"></span>TELKOM UNIVERSITY — CENTER OF EXCELLENCE</div>
+      <div class="kicker"><span class="dot"></span>TELKOM UNIVERSITY, CENTER OF EXCELLENCE</div>
       <h1>Learning systems that <em>optimize</em> how research gets done.</h1>
-      <p class="lede">AILO designs and applies AI-driven optimization methods across research, teaching labs, and campus infrastructure — turning open questions into working systems.</p>
+      <p class="lede">AILO designs and applies AI-driven optimization methods across research, teaching labs, and campus infrastructure, turning open questions into working systems.</p>
       <div class="hero-actions">
         <a href="#research" class="btn btn-primary">Explore our research</a>
         <a href="#labs" class="btn btn-outline">Book a lab</a>
@@ -352,14 +354,14 @@
 
 <div class="strip">
   <div class="strip-inner" id="marquee">
-    <span><b>Optimization</b> — Reinforcement Learning</span>
-    <span><b>NLP</b> — Retrieval-Augmented Generation</span>
-    <span><b>Computer Vision</b> — Edge Deployment</span>
-    <span><b>Applied ML</b> — Smart Campus Systems</span>
-    <span><b>Optimization</b> — Reinforcement Learning</span>
-    <span><b>NLP</b> — Retrieval-Augmented Generation</span>
-    <span><b>Computer Vision</b> — Edge Deployment</span>
-    <span><b>Applied ML</b> — Smart Campus Systems</span>
+    <span><b>Optimization</b>, Reinforcement Learning</span>
+    <span><b>NLP</b>, Retrieval-Augmented Generation</span>
+    <span><b>Computer Vision</b>, Edge Deployment</span>
+    <span><b>Applied ML</b>, Smart Campus Systems</span>
+    <span><b>Optimization</b>, Reinforcement Learning</span>
+    <span><b>NLP</b>, Retrieval-Augmented Generation</span>
+    <span><b>Computer Vision</b>, Edge Deployment</span>
+    <span><b>Applied ML</b>, Smart Campus Systems</span>
   </div>
 </div>
 
@@ -368,9 +370,9 @@
     <div class="sec-head">
       <div>
         <h2>Four research areas, one lab.</h2>
-        <p>Each track pairs theory with a deployable system — built, tested, and iterated on inside AILO's own labs.</p>
+        <p>Each track pairs theory with a deployable system, built, tested, and iterated on inside AILO's own labs.</p>
       </div>
-      <a href="#" class="sec-link">View all research areas</a>
+      <a href="http://localhost:3000/research" class="sec-link">View all research areas</a>
     </div>
     <div class="research-grid">
       <div class="rcard">
@@ -404,7 +406,7 @@
         <h2>18+ projects, from research to production.</h2>
         <p>Ongoing collaborations and applied builds that carry our research areas into deployable systems.</p>
       </div>
-      <a href="#" class="sec-link">View all projects</a>
+      <a href="http://localhost:3000/projects" class="sec-link">View all projects</a>
     </div>
     <div class="research-grid">
       <div class="rcard">
@@ -449,7 +451,7 @@
     <div class="feature-text">
       <div class="eyebrow">AI ASSISTANT</div>
       <h2>An AI chatbot that actually knows AILO.</h2>
-      <p>Built on retrieval over our own research, projects, and lab pages — so every answer is grounded in what AILO has actually published, not a guess.</p>
+      <p>Built on retrieval over our own research, projects, and lab pages, so every answer is grounded in what AILO has actually published, not a guess.</p>
       <ul class="flist">
         <li><span class="fi"><svg viewBox="0 0 12 12" fill="none"><path d="M2 6L5 9L10 3" stroke="white" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Answers grounded in AILO's own content, refreshed automatically</li>
         <li><span class="fi"><svg viewBox="0 0 12 12" fill="none"><path d="M2 6L5 9L10 3" stroke="white" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Available on every page, no sign-in required</li>
@@ -464,9 +466,9 @@
     <div class="sec-head">
       <div>
         <h2>Latest from the lab.</h2>
-        <p>Research updates, publications, and lab announcements — drafted with AI, reviewed by our team before it goes live.</p>
+        <p>Research updates, publications, and lab announcements, drafted with AI, reviewed by our team before it goes live.</p>
       </div>
-      <a href="#" class="sec-link">Browse all news</a>
+      <a href="http://localhost:3000/news" class="sec-link">Browse all news</a>
     </div>
     <div class="news-grid">
       <div class="ncard">
@@ -505,8 +507,8 @@
     <div>
       <div class="eyebrow">LABS &amp; EQUIPMENT</div>
       <h2>Reserve a lab or device in minutes.</h2>
-      <p>Every AILO lab and its equipment is listed here with live availability — submit a request and get a confirmation by email, no account needed.</p>
-      <a href="#" class="btn btn-primary">Ajukan peminjaman</a>
+      <p>Every AILO lab and its equipment is listed here with live availability, submit a request and get a confirmation by email, no account needed.</p>
+      <a href="http://localhost:3000/labs" class="btn btn-primary">Ajukan peminjaman</a>
     </div>
     <div class="lab-list">
       <div class="lab-row">
@@ -534,9 +536,9 @@
     <div class="sec-head">
       <div>
         <h2>People behind AILO.</h2>
-        <p>Faculty, researchers, and students across our four research tracks — with publication data pulled from Scopus.</p>
+        <p>Faculty, researchers, and students across our four research tracks, with publication data pulled from Scopus.</p>
       </div>
-      <a href="#" class="sec-link">View full team</a>
+      <a href="http://localhost:3000/team" class="sec-link">View full team</a>
     </div>
     <div class="team-grid">
       <div class="tcard"><div class="tphoto"></div><h4>Dr. Andini Prasetyo</h4><div class="role">Lab Director · Optimization</div><div class="met">h-index 14 · 38 publications</div></div>
@@ -550,7 +552,7 @@
 <section class="cta-sec" id="about">
   <div class="wrap">
     <h2>Working on something AILO could help with?</h2>
-    <p>Whether it's a research collaboration, a lab booking, or a question for our chatbot — here's where to start.</p>
+    <p>Whether it's a research collaboration, a lab booking, or a question for our chatbot, here's where to start.</p>
     <div class="cta-actions">
       <a href="#contact" class="btn btn-primary">Get in touch</a>
       <a href="#projects" class="btn btn-outline">See our projects</a>
@@ -563,7 +565,7 @@
     <div class="foot-grid">
       <div class="foot-brand">
         <img src="Logo AILO Horizontal.png" alt="AILO logo">
-        <p>AI Learning For Optimization — a Center of Excellence under Telkom University, Bandung.</p>
+        <p>AI Learning For Optimization, a Center of Excellence under Telkom University, Bandung.</p>
       </div>
       <div class="foot-col">
         <h5>Explore</h5>
@@ -579,25 +581,25 @@
         <ul>
           <li><a href="#news">News</a></li>
           <li><a href="#about">About</a></li>
-          <li><a href="#">Ajukan peminjaman</a></li>
-          <li><a href="#">Admin login</a></li>
+          <li><a href="http://localhost:3000/labs">Ajukan peminjaman</a></li>
+          <li><a href="http://localhost:3000/admin/login">Admin login</a></li>
         </ul>
       </div>
       <div class="foot-col">
         <h5>Contact</h5>
         <ul>
           <li><a href="mailto:ailo@telkomuniversity.ac.id">ailo@telkomuniversity.ac.id</a></li>
-          <li><a href="#">Gedung TULT, Telkom University</a></li>
-          <li><a href="#">Bandung, Jawa Barat</a></li>
+          <li><span>Gedung TULT, Telkom University</span></li>
+          <li><span>Bandung, Jawa Barat, sample address, confirm exact wording</span></li>
         </ul>
       </div>
     </div>
     <div class="foot-bottom">
-      <span>© 2026 AILO — Telkom University's Center of Excellence.</span>
+      <span>© 2026 AILO, Telkom University's Center of Excellence.</span>
       <div class="socials">
-        <a href="#">Instagram</a>
-        <a href="#">LinkedIn</a>
-        <a href="#">YouTube</a>
+        <span class="social-pending" title="Coming soon">Instagram</span>
+        <span class="social-pending" title="Coming soon">LinkedIn</span>
+        <span class="social-pending" title="Coming soon">YouTube</span>
       </div>
     </div>
   </div>
