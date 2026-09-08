@@ -16,10 +16,10 @@ export async function SiteHeader() {
           <Image
             src="/logo-horizontal.png"
             alt="AILO"
-            width={120}
-            height={30}
+            width={200}
+            height={50}
             priority
-            style={{ height: 30, width: "auto" }}
+            style={{ height: 44, width: "auto" }}
           />
         </Link>
         <nav>

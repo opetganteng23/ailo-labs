@@ -43,7 +43,7 @@ header.site .row {
   padding: 14px 24px;
 }
 header.site .brand { display: flex; align-items: center; gap: 10px; font-weight: 700; }
-header.site .brand img { height: 30px; width: auto; display: block; }
+header.site .brand img { height: 44px; width: auto; display: block; }
 header.site nav ul {
   list-style: none;
   display: flex;
