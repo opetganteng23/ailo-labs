@@ -36,9 +36,6 @@ export async function SiteHeader() {
               Login
             </Link>
           )}
-          <Link href="/admin/login" className="btn outline">
-            Admin login
-          </Link>
         </div>
       </div>
     </header>
