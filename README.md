@@ -4,7 +4,7 @@ Monorepo for the AILO website and backend.
 
 ## Structure
 
-- `apps/web`: static AILO homepage and logo assets.
+- `apps/web`: canonical static AILO homepage (`index.html`) and logo assets.
 - `apps/backend`: TypeScript Next.js backend with MongoDB and API routes.
 - `AILO_Master_Technical_Specification .md`: project technical specification.
 
