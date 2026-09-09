@@ -1,3 +1,4 @@
+import { ImageUploadField } from "@/components/ImageUploadField";
 import { connectToDatabase } from "@/lib/mongodb";
 import { Team } from "@/models/Team";
 
@@ -33,6 +34,7 @@ export default async function AdminTeamPage() {
           Email
           <input name="email" type="email" />
         </label>
+        <ImageUploadField name="photo" label="Photo" />
         <button type="submit" className="btn">
           Create
         </button>

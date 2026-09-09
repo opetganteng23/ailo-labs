@@ -1,3 +1,4 @@
+import { ImageUploadField } from "@/components/ImageUploadField";
 import { connectToDatabase } from "@/lib/mongodb";
 import { Project } from "@/models/Project";
 
@@ -37,6 +38,7 @@ export default async function AdminProjectsPage() {
             <option value="completed">Completed</option>
           </select>
         </label>
+        <ImageUploadField name="image" label="Cover image" />
         <button type="submit" className="btn">
           Create
         </button>

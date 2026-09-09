@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 
+import { ImageUploadField } from "@/components/ImageUploadField";
+
 import { createNewsAction } from "./actions";
 
 export function NewsForm() {
@@ -70,6 +72,8 @@ export function NewsForm() {
           <option value="published">Published</option>
         </select>
       </label>
+
+      <ImageUploadField name="image" label="Cover image" />
 
       <button type="submit" className="btn">
         Save article

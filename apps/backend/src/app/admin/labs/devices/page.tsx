@@ -1,3 +1,4 @@
+import { ImageUploadField } from "@/components/ImageUploadField";
 import { connectToDatabase } from "@/lib/mongodb";
 import { Device } from "@/models/Device";
 import { Lab } from "@/models/Lab";
@@ -47,6 +48,7 @@ export default async function AdminDevicesPage() {
             <option value="maintenance">Maintenance</option>
           </select>
         </label>
+        <ImageUploadField name="photo" label="Photo" />
         <button type="submit" className="btn">
           Create
         </button>

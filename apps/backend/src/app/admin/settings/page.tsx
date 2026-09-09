@@ -1,3 +1,4 @@
+import { ImageUploadField } from "@/components/ImageUploadField";
 import { connectToDatabase } from "@/lib/mongodb";
 import { SiteSettings } from "@/models/SiteSettings";
 
@@ -9,6 +10,7 @@ type Settings = {
   contact?: { email?: string; phone?: string; address?: string };
   socialMedia?: { instagram?: string; linkedin?: string; youtube?: string };
   homepage?: {
+    heroBackgroundImage?: string;
     heroKicker?: string;
     heroTitle?: string;
     heroSubtitle?: string;
@@ -63,6 +65,7 @@ export default async function AdminSettingsPage() {
         <p style={{ color: "#5b6469", fontSize: 13, marginTop: -8 }}>
           Leave a field blank to keep the default text shown on the homepage.
         </p>
+        <ImageUploadField name="heroBackgroundImage" label="Hero background image (optional)" defaultValue={homepage.heroBackgroundImage} />
         <label>
           Kicker text (small label above the headline)
           <input name="heroKicker" placeholder="TELKOM UNIVERSITY, CENTER OF EXCELLENCE" defaultValue={homepage.heroKicker ?? ""} />

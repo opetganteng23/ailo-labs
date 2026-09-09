@@ -22,6 +22,7 @@ export async function createProjectAction(formData: FormData) {
     description: String(formData.get("description") ?? ""),
     content: String(formData.get("content") ?? ""),
     status: formData.get("status") ?? "planned",
+    images: formData.get("image") ? [String(formData.get("image"))] : [],
   });
   revalidatePath("/admin/projects");
 }

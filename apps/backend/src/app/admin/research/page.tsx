@@ -1,3 +1,4 @@
+import { ImageUploadField } from "@/components/ImageUploadField";
 import { connectToDatabase } from "@/lib/mongodb";
 import { Research } from "@/models/Research";
 
@@ -36,6 +37,7 @@ export default async function AdminResearchPage() {
             <option value="published">Published</option>
           </select>
         </label>
+        <ImageUploadField name="image" label="Cover image" />
         <button type="submit" className="btn">
           Create
         </button>

@@ -7,7 +7,7 @@ import { Team } from "@/models/Team";
 
 export const dynamic = "force-dynamic";
 
-type TeamItem = { _id: string; name: string; slug: string; position: string; scopusData?: { hIndex?: number } };
+type TeamItem = { _id: string; name: string; slug: string; position: string; photo?: string; scopusData?: { hIndex?: number } };
 
 export default async function TeamListPage() {
   await connectToDatabase();
@@ -23,6 +23,8 @@ export default async function TeamListPage() {
         <div className="grid cols-4" style={{ marginTop: 24 }}>
           {items.map((item) => (
             <Link key={item._id} href={`/team/${item.slug}`} className="card">
+              {/* eslint-disable-next-line @next/next/no-img-element -- arbitrary uploaded image, no static optimization needed */}
+              {item.photo && <img className="avatar-thumb" src={item.photo} alt={item.name} />}
               <h3>{item.name}</h3>
               <p>{item.position}</p>
               {item.scopusData?.hIndex !== undefined && <p style={{ fontSize: 12 }}>h-index {item.scopusData.hIndex}</p>}

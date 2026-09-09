@@ -7,7 +7,7 @@ import { Research } from "@/models/Research";
 
 export const dynamic = "force-dynamic";
 
-type ResearchItem = { _id: string; title: string; slug: string; description: string };
+type ResearchItem = { _id: string; title: string; slug: string; description: string; image?: string };
 
 export default async function ResearchListPage() {
   await connectToDatabase();
@@ -23,6 +23,8 @@ export default async function ResearchListPage() {
         <div className="grid cols-3" style={{ marginTop: 24 }}>
           {items.map((item) => (
             <Link key={item._id} href={`/research/${item.slug}`} className="card">
+              {/* eslint-disable-next-line @next/next/no-img-element -- arbitrary uploaded image, no static optimization needed */}
+              {item.image && <img className="card-thumb" src={item.image} alt={item.title} />}
               <h3>{item.title}</h3>
               <p>{item.description}</p>
             </Link>

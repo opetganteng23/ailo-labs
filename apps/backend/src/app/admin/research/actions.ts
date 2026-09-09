@@ -22,6 +22,7 @@ export async function createResearchAction(formData: FormData) {
     description: String(formData.get("description") ?? ""),
     content: String(formData.get("content") ?? ""),
     status: formData.get("status") === "published" ? "published" : "draft",
+    image: String(formData.get("image") ?? "") || undefined,
   });
   revalidatePath("/admin/research");
 }

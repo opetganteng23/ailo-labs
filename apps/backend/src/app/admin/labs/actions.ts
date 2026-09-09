@@ -24,6 +24,7 @@ export async function createLabAction(formData: FormData) {
     capacity: Number(formData.get("capacity") ?? 0) || undefined,
     description: String(formData.get("description") ?? ""),
     facilities: String(formData.get("facilities") ?? ""),
+    photos: formData.get("photo") ? [String(formData.get("photo"))] : [],
   });
   revalidatePath("/admin/labs");
 }
@@ -48,6 +49,7 @@ export async function createDeviceAction(formData: FormData) {
   const device = await Device.create({
     name: String(formData.get("name") ?? "").trim(),
     specification: String(formData.get("specification") ?? ""),
+    photo: String(formData.get("photo") ?? "") || undefined,
     lab: labId,
     status: formData.get("status") ?? "available",
   });

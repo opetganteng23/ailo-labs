@@ -15,6 +15,7 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
     description: string;
     content: string;
     status: string;
+    images?: string[];
   }>();
 
   if (!item) notFound();
@@ -26,6 +27,8 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
         <span className="badge">{item.status}</span>
         <h1>{item.title}</h1>
         <p style={{ color: "#5b6469" }}>{item.description}</p>
+        {/* eslint-disable-next-line @next/next/no-img-element -- arbitrary uploaded image, no static optimization needed */}
+        {item.images?.[0] && <img className="detail-thumb" src={item.images[0]} alt={item.title} />}
         <div style={{ whiteSpace: "pre-wrap", marginTop: 24 }}>{item.content}</div>
       </main>
       <SiteFooter />

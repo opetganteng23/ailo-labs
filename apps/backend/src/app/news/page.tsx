@@ -7,7 +7,7 @@ import { News } from "@/models/News";
 
 export const dynamic = "force-dynamic";
 
-type NewsItem = { _id: string; title: string; slug: string; summary: string; category: string; publishedAt?: string };
+type NewsItem = { _id: string; title: string; slug: string; summary: string; category: string; publishedAt?: string; images?: string[] };
 
 export default async function NewsListPage() {
   await connectToDatabase();
@@ -26,6 +26,8 @@ export default async function NewsListPage() {
         <div className="grid cols-3" style={{ marginTop: 24 }}>
           {items.map((item) => (
             <Link key={item._id} href={`/news/${item.slug}`} className="card">
+              {/* eslint-disable-next-line @next/next/no-img-element -- arbitrary uploaded image, no static optimization needed */}
+              {item.images?.[0] && <img className="card-thumb" src={item.images[0]} alt={item.title} />}
               <span className="badge">{item.category}</span>
               <h3>{item.title}</h3>
               <p>{item.summary}</p>

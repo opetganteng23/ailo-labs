@@ -15,6 +15,7 @@ export default async function TeamDetailPage({ params }: { params: Promise<{ slu
     position: string;
     bio?: string;
     email?: string;
+    photo?: string;
     scopusData?: { hIndex?: number; citationCount?: number; documentCount?: number };
   }>();
 
@@ -24,6 +25,8 @@ export default async function TeamDetailPage({ params }: { params: Promise<{ slu
     <>
       <SiteHeader />
       <main className="wrap">
+        {/* eslint-disable-next-line @next/next/no-img-element -- arbitrary uploaded image, no static optimization needed */}
+        {item.photo && <img className="avatar-thumb" src={item.photo} alt={item.name} style={{ width: 120, height: 120 }} />}
         <h1>{item.name}</h1>
         <p style={{ color: "#5b6469" }}>{item.position}</p>
         {item.bio && <p style={{ marginTop: 16 }}>{item.bio}</p>}

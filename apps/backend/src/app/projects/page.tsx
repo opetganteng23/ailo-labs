@@ -7,7 +7,7 @@ import { Project } from "@/models/Project";
 
 export const dynamic = "force-dynamic";
 
-type ProjectItem = { _id: string; title: string; slug: string; description: string; status: string };
+type ProjectItem = { _id: string; title: string; slug: string; description: string; status: string; images?: string[] };
 
 export default async function ProjectsListPage() {
   await connectToDatabase();
@@ -23,6 +23,8 @@ export default async function ProjectsListPage() {
         <div className="grid cols-3" style={{ marginTop: 24 }}>
           {items.map((item) => (
             <Link key={item._id} href={`/projects/${item.slug}`} className="card">
+              {/* eslint-disable-next-line @next/next/no-img-element -- arbitrary uploaded image, no static optimization needed */}
+              {item.images?.[0] && <img className="card-thumb" src={item.images[0]} alt={item.title} />}
               <span className="badge">{item.status}</span>
               <h3>{item.title}</h3>
               <p>{item.description}</p>

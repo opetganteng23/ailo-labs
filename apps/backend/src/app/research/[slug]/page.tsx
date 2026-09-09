@@ -14,6 +14,7 @@ export default async function ResearchDetailPage({ params }: { params: Promise<{
     title: string;
     description: string;
     content: string;
+    image?: string;
   }>();
 
   if (!item) notFound();
@@ -24,6 +25,8 @@ export default async function ResearchDetailPage({ params }: { params: Promise<{
       <main className="wrap">
         <h1>{item.title}</h1>
         <p style={{ color: "#5b6469" }}>{item.description}</p>
+        {/* eslint-disable-next-line @next/next/no-img-element -- arbitrary uploaded image, no static optimization needed */}
+        {item.image && <img className="detail-thumb" src={item.image} alt={item.title} />}
         <div style={{ whiteSpace: "pre-wrap", marginTop: 24 }}>{item.content}</div>
       </main>
       <SiteFooter />

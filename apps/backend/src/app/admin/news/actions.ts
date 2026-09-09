@@ -45,6 +45,7 @@ export async function createNewsAction(formData: FormData) {
     status,
     publishedAt: status === "published" ? new Date() : undefined,
     author: session.sub,
+    images: formData.get("image") ? [String(formData.get("image"))] : [],
     source5W1H: {
       what: formData.get("what"),
       who: formData.get("who"),

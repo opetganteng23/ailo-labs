@@ -21,6 +21,7 @@ export async function updateSettingsAction(formData: FormData) {
         "socialMedia.instagram": formData.get("instagram"),
         "socialMedia.linkedin": formData.get("linkedin"),
         "socialMedia.youtube": formData.get("youtube"),
+        "homepage.heroBackgroundImage": formData.get("heroBackgroundImage"),
         "homepage.heroKicker": formData.get("heroKicker"),
         "homepage.heroTitle": formData.get("heroTitle"),
         "homepage.heroSubtitle": formData.get("heroSubtitle"),

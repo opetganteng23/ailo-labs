@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { ImageUploadField } from "@/components/ImageUploadField";
 import { connectToDatabase } from "@/lib/mongodb";
 import { Lab } from "@/models/Lab";
 
@@ -42,6 +43,7 @@ export default async function AdminLabsPage() {
           Facilities / specification
           <textarea name="facilities" placeholder="e.g. 20x workstation, 4K projector, whiteboard wall" />
         </label>
+        <ImageUploadField name="photo" label="Photo" />
         <button type="submit" className="btn">
           Create
         </button>

@@ -31,6 +31,7 @@ const siteSettingsSchema = new Schema(
       quickLinks: [{ label: String, href: String }],
     },
     homepage: {
+      heroBackgroundImage: String,
       heroKicker: String,
       heroTitle: String,
       heroSubtitle: String,

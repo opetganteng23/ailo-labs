@@ -22,6 +22,7 @@ export async function createTeamAction(formData: FormData) {
     position: String(formData.get("position") ?? ""),
     bio: String(formData.get("bio") ?? ""),
     email: String(formData.get("email") ?? "") || undefined,
+    photo: String(formData.get("photo") ?? "") || undefined,
   });
   revalidatePath("/admin/team");
 }
