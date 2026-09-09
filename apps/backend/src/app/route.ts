@@ -61,7 +61,7 @@ function setElementHref(html: string, id: string, href: string | undefined): str
 
 function setHeroBackground(html: string, imageUrl: string | undefined): string {
   if (!imageUrl) return html;
-  const style = `background-image:url('${escapeHtml(imageUrl)}');background-size:cover;background-position:center;`;
+  const style = `background-image:linear-gradient(rgba(251,249,246,0.88),rgba(251,249,246,0.88)),url('${escapeHtml(imageUrl)}');background-size:cover;background-position:center;`;
   return html.replace(
     /<section class="hero" id="hero-section">/,
     `<section class="hero" id="hero-section" style="${style}">`,
