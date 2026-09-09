@@ -87,17 +87,6 @@ function setSectionBackground(html: string, sectionId: string, images: string[] 
   });
 }
 
-/** Overrides a grid's column count via inline style when it has fewer items than the design's default column count. */
-function setGridColumns(html: string, gridId: string, count: number, defaultCount: number): string {
-  if (count <= 0 || count >= defaultCount) return html;
-  const re = new RegExp(`(<div\\b[^>]*\\bid="${gridId}"[^>]*)(>)`);
-  return html.replace(re, (_match, openTag: string, close: string) => {
-    const style = `grid-template-columns:repeat(${count},1fr);`;
-    const withStyle = /style="/.test(openTag) ? openTag.replace(/style="/, `style="${style}`) : `${openTag} style="${style}"`;
-    return `${withStyle}${close}`;
-  });
-}
-
 function applyHeroSettings(html: string, hero: HomepageSettings): string {
   let out = html;
   out = setElementText(out, "hero-kicker", hero.heroKicker);
@@ -254,11 +243,6 @@ export async function GET() {
     html = replaceBlock(html, "PROJECT_CARDS", projects.html);
     html = replaceBlock(html, "TEAM_CARDS", team.html);
     html = replaceBlock(html, "NEWS_CARDS", news.html);
-
-    html = setGridColumns(html, "research-grid", research.count, 4);
-    html = setGridColumns(html, "projects-grid", projects.count, 4);
-    html = setGridColumns(html, "team-grid", team.count, 4);
-    html = setGridColumns(html, "news-grid", news.count, 3);
   } catch (error) {
     console.error("Failed to load homepage dynamic content, serving defaults", error);
   }
