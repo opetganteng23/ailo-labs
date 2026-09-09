@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { redirect } from "next/navigation";
 
 import { getSession } from "@/lib/auth";
@@ -68,7 +69,10 @@ export default async function AdminUsersPage() {
               <td>{u.name}</td>
               <td>{u.email}</td>
               <td>{u.role}</td>
-              <td>
+              <td style={{ display: "flex", gap: 8 }}>
+                <Link href={`/admin/users/${u._id}`} className="btn outline">
+                  Edit
+                </Link>
                 {session.sub !== u._id && (
                   <form action={deleteUserAction}>
                     <input type="hidden" name="id" value={u._id} />

@@ -27,6 +27,23 @@ export async function createProjectAction(formData: FormData) {
   revalidatePath("/admin/projects");
 }
 
+export async function updateProjectAction(formData: FormData) {
+  const session = await getSession();
+  if (!session) return;
+
+  await connectToDatabase();
+  const id = String(formData.get("id"));
+  await Project.findByIdAndUpdate(id, {
+    title: String(formData.get("title") ?? "").trim(),
+    description: String(formData.get("description") ?? ""),
+    content: String(formData.get("content") ?? ""),
+    status: formData.get("status") ?? "planned",
+    images: formData.get("image") ? [String(formData.get("image"))] : [],
+  });
+  revalidatePath("/admin/projects");
+  revalidatePath(`/admin/projects/${id}`);
+}
+
 export async function deleteProjectAction(formData: FormData) {
   const session = await getSession();
   if (!session) return;

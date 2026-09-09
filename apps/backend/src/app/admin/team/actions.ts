@@ -27,6 +27,24 @@ export async function createTeamAction(formData: FormData) {
   revalidatePath("/admin/team");
 }
 
+export async function updateTeamAction(formData: FormData) {
+  const session = await getSession();
+  if (!session) return;
+
+  await connectToDatabase();
+  const id = String(formData.get("id"));
+  await Team.findByIdAndUpdate(id, {
+    name: String(formData.get("name") ?? "").trim(),
+    position: String(formData.get("position") ?? ""),
+    bio: String(formData.get("bio") ?? ""),
+    email: String(formData.get("email") ?? "") || undefined,
+    photo: String(formData.get("photo") ?? "") || undefined,
+    isActive: formData.get("isActive") === "on",
+  });
+  revalidatePath("/admin/team");
+  revalidatePath(`/admin/team/${id}`);
+}
+
 export async function deleteTeamAction(formData: FormData) {
   const session = await getSession();
   if (!session) return;

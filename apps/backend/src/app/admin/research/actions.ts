@@ -27,6 +27,23 @@ export async function createResearchAction(formData: FormData) {
   revalidatePath("/admin/research");
 }
 
+export async function updateResearchAction(formData: FormData) {
+  const session = await getSession();
+  if (!session) return;
+
+  await connectToDatabase();
+  const id = String(formData.get("id"));
+  await Research.findByIdAndUpdate(id, {
+    title: String(formData.get("title") ?? "").trim(),
+    description: String(formData.get("description") ?? ""),
+    content: String(formData.get("content") ?? ""),
+    status: formData.get("status") === "published" ? "published" : "draft",
+    image: String(formData.get("image") ?? "") || undefined,
+  });
+  revalidatePath("/admin/research");
+  revalidatePath(`/admin/research/${id}`);
+}
+
 export async function deleteResearchAction(formData: FormData) {
   const session = await getSession();
   if (!session) return;

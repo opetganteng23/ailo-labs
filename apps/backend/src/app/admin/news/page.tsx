@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 import { connectToDatabase } from "@/lib/mongodb";
 import { News } from "@/models/News";
 
@@ -42,7 +44,10 @@ export default async function AdminNewsPage() {
               <td>
                 <span className="badge">{item.status}</span>
               </td>
-              <td>
+              <td style={{ display: "flex", gap: 8 }}>
+                <Link href={`/admin/news/${item._id}`} className="btn outline">
+                  Edit
+                </Link>
                 <form action={deleteNewsAction}>
                   <input type="hidden" name="id" value={item._id} />
                   <button type="submit" className="btn danger">

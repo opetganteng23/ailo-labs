@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 import { ImageUploadField } from "@/components/ImageUploadField";
 import { connectToDatabase } from "@/lib/mongodb";
 import { Team } from "@/models/Team";
@@ -53,7 +55,10 @@ export default async function AdminTeamPage() {
             <tr key={item._id}>
               <td>{item.name}</td>
               <td>{item.position}</td>
-              <td>
+              <td style={{ display: "flex", gap: 8 }}>
+                <Link href={`/admin/team/${item._id}`} className="btn outline">
+                  Edit
+                </Link>
                 <form action={deleteTeamAction}>
                   <input type="hidden" name="id" value={item._id} />
                   <button type="submit" className="btn danger">

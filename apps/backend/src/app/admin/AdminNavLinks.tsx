@@ -11,13 +11,14 @@ const LINKS = [
   { href: "/admin/team", label: "Team" },
   { href: "/admin/labs", label: "Labs" },
   { href: "/admin/bookings", label: "Bookings" },
+  { href: "/admin/messages", label: "Messages" },
   { href: "/admin/settings", label: "Settings" },
   { href: "/admin/chatbot", label: "Chatbot" },
 ];
 
 export function AdminNavLinks({ showUsers }: { showUsers: boolean }) {
   const pathname = usePathname();
-  const links = showUsers ? [...LINKS.slice(0, 8), { href: "/admin/users", label: "Users" }, LINKS[8]] : LINKS;
+  const links = showUsers ? [...LINKS.slice(0, 9), { href: "/admin/users", label: "Users" }, LINKS[9]] : LINKS;
 
   return (
     <nav>

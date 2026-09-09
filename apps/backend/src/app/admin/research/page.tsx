@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 import { ImageUploadField } from "@/components/ImageUploadField";
 import { connectToDatabase } from "@/lib/mongodb";
 import { Research } from "@/models/Research";
@@ -58,7 +60,10 @@ export default async function AdminResearchPage() {
               <td>
                 <span className="badge">{item.status}</span>
               </td>
-              <td>
+              <td style={{ display: "flex", gap: 8 }}>
+                <Link href={`/admin/research/${item._id}`} className="btn outline">
+                  Edit
+                </Link>
                 <form action={deleteResearchAction}>
                   <input type="hidden" name="id" value={item._id} />
                   <button type="submit" className="btn danger">

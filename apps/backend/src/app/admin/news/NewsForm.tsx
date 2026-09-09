@@ -4,11 +4,32 @@ import { useState } from "react";
 
 import { ImageUploadField } from "@/components/ImageUploadField";
 
-import { createNewsAction } from "./actions";
+import { createNewsAction, updateNewsAction } from "./actions";
 
-export function NewsForm() {
-  const [draft, setDraft] = useState("");
-  const [fields, setFields] = useState({ what: "", who: "", when: "", where: "", why: "", how: "" });
+type NewsFormProps = {
+  mode?: "create" | "edit";
+  initial?: {
+    _id: string;
+    title: string;
+    category: string;
+    summary: string;
+    content: string;
+    status: string;
+    images?: string[];
+    source5W1H?: { what?: string; who?: string; when?: string; where?: string; why?: string; how?: string };
+  };
+};
+
+export function NewsForm({ mode = "create", initial }: NewsFormProps) {
+  const [draft, setDraft] = useState(initial?.content ?? "");
+  const [fields, setFields] = useState({
+    what: initial?.source5W1H?.what ?? "",
+    who: initial?.source5W1H?.who ?? "",
+    when: initial?.source5W1H?.when ?? "",
+    where: initial?.source5W1H?.where ?? "",
+    why: initial?.source5W1H?.why ?? "",
+    how: initial?.source5W1H?.how ?? "",
+  });
 
   function generateDraft() {
     const lines = [
@@ -23,18 +44,19 @@ export function NewsForm() {
   }
 
   return (
-    <form className="stack" action={createNewsAction} style={{ marginTop: 16 }}>
+    <form className="stack" action={mode === "edit" ? updateNewsAction : createNewsAction} style={{ marginTop: 16 }}>
+      {mode === "edit" && initial && <input type="hidden" name="id" value={initial._id} />}
       <label>
         Title
-        <input name="title" required maxLength={200} />
+        <input name="title" required maxLength={200} defaultValue={initial?.title} />
       </label>
       <label>
         Category
-        <input name="category" required defaultValue="General" />
+        <input name="category" required defaultValue={initial?.category ?? "General"} />
       </label>
       <label>
         Summary
-        <textarea name="summary" required maxLength={500} />
+        <textarea name="summary" required maxLength={500} defaultValue={initial?.summary} />
       </label>
 
       <fieldset style={{ border: "1px solid var(--line)", padding: 12 }}>
@@ -67,16 +89,16 @@ export function NewsForm() {
 
       <label>
         Status
-        <select name="status" defaultValue="draft">
+        <select name="status" defaultValue={initial?.status ?? "draft"}>
           <option value="draft">Draft</option>
           <option value="published">Published</option>
         </select>
       </label>
 
-      <ImageUploadField name="image" label="Cover image" />
+      <ImageUploadField name="image" label="Cover image" defaultValue={initial?.images?.[0]} />
 
       <button type="submit" className="btn">
-        Save article
+        {mode === "edit" ? "Save changes" : "Save article"}
       </button>
     </form>
   );

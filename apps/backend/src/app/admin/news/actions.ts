@@ -60,6 +60,38 @@ export async function createNewsAction(formData: FormData) {
   redirect("/admin/news");
 }
 
+export async function updateNewsAction(formData: FormData) {
+  const session = await getSession();
+  if (!session) redirect("/admin/login");
+
+  await connectToDatabase();
+  const id = String(formData.get("id"));
+  const title = String(formData.get("title") ?? "").trim();
+  const status = formData.get("status") === "published" ? "published" : "draft";
+  const existing = await News.findById(id).lean<{ publishedAt?: Date }>();
+
+  await News.findByIdAndUpdate(id, {
+    title,
+    summary: String(formData.get("summary") ?? "").trim(),
+    content: String(formData.get("content") ?? "").trim(),
+    category: String(formData.get("category") ?? "General").trim(),
+    status,
+    publishedAt: status === "published" ? existing?.publishedAt ?? new Date() : undefined,
+    images: formData.get("image") ? [String(formData.get("image"))] : [],
+    source5W1H: {
+      what: formData.get("what"),
+      who: formData.get("who"),
+      when: formData.get("when"),
+      where: formData.get("where"),
+      why: formData.get("why"),
+      how: formData.get("how"),
+    },
+  });
+
+  revalidatePath("/admin/news");
+  redirect("/admin/news");
+}
+
 export async function deleteNewsAction(formData: FormData) {
   const session = await getSession();
   if (!session) redirect("/admin/login");

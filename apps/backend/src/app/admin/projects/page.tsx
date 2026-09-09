@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 import { ImageUploadField } from "@/components/ImageUploadField";
 import { connectToDatabase } from "@/lib/mongodb";
 import { Project } from "@/models/Project";
@@ -59,7 +61,10 @@ export default async function AdminProjectsPage() {
               <td>
                 <span className="badge">{item.status}</span>
               </td>
-              <td>
+              <td style={{ display: "flex", gap: 8 }}>
+                <Link href={`/admin/projects/${item._id}`} className="btn outline">
+                  Edit
+                </Link>
                 <form action={deleteProjectAction}>
                   <input type="hidden" name="id" value={item._id} />
                   <button type="submit" className="btn danger">
