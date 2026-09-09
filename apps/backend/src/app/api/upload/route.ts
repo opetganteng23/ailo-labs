@@ -5,6 +5,7 @@ import path from "node:path";
 import { NextRequest, NextResponse } from "next/server";
 
 import { requireAdmin } from "@/lib/auth";
+import { UPLOADS_DIR } from "@/lib/uploads";
 
 export const dynamic = "force-dynamic";
 
@@ -35,12 +36,11 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ success: false, error: "Unsupported file type. Use PNG, JPEG, WebP, GIF, or SVG." }, { status: 400 });
   }
 
-  const uploadsDir = path.join(process.cwd(), "public", "uploads");
-  await fs.mkdir(uploadsDir, { recursive: true });
+  await fs.mkdir(UPLOADS_DIR, { recursive: true });
 
   const filename = `${crypto.randomUUID()}.${extension}`;
   const buffer = Buffer.from(await file.arrayBuffer());
-  await fs.writeFile(path.join(uploadsDir, filename), buffer);
+  await fs.writeFile(path.join(UPLOADS_DIR, filename), buffer);
 
   return NextResponse.json({ success: true, data: { url: `/uploads/${filename}` } });
 }
