@@ -6,9 +6,17 @@ import { getSession } from "@/lib/auth";
 import { connectToDatabase } from "@/lib/mongodb";
 import { SiteSettings } from "@/models/SiteSettings";
 
+const BACKGROUND_ZONES = ["hero", "research", "projects", "team", "news"];
+
 export async function updateSettingsAction(formData: FormData) {
   const session = await getSession();
   if (!session) return;
+
+  const backgroundFields: Record<string, unknown> = {};
+  for (const zone of BACKGROUND_ZONES) {
+    backgroundFields[`homepage.${zone}BackgroundImages`] = formData.getAll(`${zone}BackgroundImages`);
+    backgroundFields[`homepage.${zone}OverlayOpacity`] = Number(formData.get(`${zone}OverlayOpacity`) ?? 88);
+  }
 
   await connectToDatabase();
   await SiteSettings.findOneAndUpdate(
@@ -21,7 +29,6 @@ export async function updateSettingsAction(formData: FormData) {
         "socialMedia.instagram": formData.get("instagram"),
         "socialMedia.linkedin": formData.get("linkedin"),
         "socialMedia.youtube": formData.get("youtube"),
-        "homepage.heroBackgroundImage": formData.get("heroBackgroundImage"),
         "homepage.heroKicker": formData.get("heroKicker"),
         "homepage.heroTitle": formData.get("heroTitle"),
         "homepage.heroSubtitle": formData.get("heroSubtitle"),
@@ -35,6 +42,7 @@ export async function updateSettingsAction(formData: FormData) {
         "homepage.stat2Label": formData.get("stat2Label"),
         "homepage.stat3Value": formData.get("stat3Value"),
         "homepage.stat3Label": formData.get("stat3Label"),
+        ...backgroundFields,
         updatedBy: session.sub,
       },
     },

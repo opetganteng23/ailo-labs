@@ -1,4 +1,4 @@
-import { ImageUploadField } from "@/components/ImageUploadField";
+import { MultiImageUploadField } from "@/components/MultiImageUploadField";
 import { connectToDatabase } from "@/lib/mongodb";
 import { SiteSettings } from "@/models/SiteSettings";
 
@@ -10,7 +10,16 @@ type Settings = {
   contact?: { email?: string; phone?: string; address?: string };
   socialMedia?: { instagram?: string; linkedin?: string; youtube?: string };
   homepage?: {
-    heroBackgroundImage?: string;
+    heroBackgroundImages?: string[];
+    heroOverlayOpacity?: number;
+    researchBackgroundImages?: string[];
+    researchOverlayOpacity?: number;
+    projectsBackgroundImages?: string[];
+    projectsOverlayOpacity?: number;
+    teamBackgroundImages?: string[];
+    teamOverlayOpacity?: number;
+    newsBackgroundImages?: string[];
+    newsOverlayOpacity?: number;
     heroKicker?: string;
     heroTitle?: string;
     heroSubtitle?: string;
@@ -26,6 +35,35 @@ type Settings = {
     stat3Label?: string;
   };
 };
+
+function SectionBackgroundFields({
+  zone,
+  label,
+  images,
+  opacity,
+}: {
+  zone: string;
+  label: string;
+  images?: string[];
+  opacity?: number;
+}) {
+  return (
+    <div style={{ border: "1px solid var(--line)", borderRadius: 4, padding: 14 }}>
+      <p style={{ fontSize: 13, fontWeight: 600, marginBottom: 8 }}>{label} background</p>
+      <MultiImageUploadField name={`${zone}BackgroundImages`} label="Images (add more than one to slide)" defaultValues={images} />
+      <label style={{ marginTop: 10 }}>
+        Overlay opacity ({opacity ?? 88}%)
+        <input
+          type="range"
+          name={`${zone}OverlayOpacity`}
+          min={0}
+          max={100}
+          defaultValue={opacity ?? 88}
+        />
+      </label>
+    </div>
+  );
+}
 
 export default async function AdminSettingsPage() {
   await connectToDatabase();
@@ -65,7 +103,7 @@ export default async function AdminSettingsPage() {
         <p style={{ color: "#5b6469", fontSize: 13, marginTop: -8 }}>
           Leave a field blank to keep the default text shown on the homepage.
         </p>
-        <ImageUploadField name="heroBackgroundImage" label="Hero background image (optional)" defaultValue={homepage.heroBackgroundImage} />
+        <SectionBackgroundFields zone="hero" label="Hero" images={homepage.heroBackgroundImages} opacity={homepage.heroOverlayOpacity} />
         <label>
           Kicker text (small label above the headline)
           <input name="heroKicker" placeholder="TELKOM UNIVERSITY, CENTER OF EXCELLENCE" defaultValue={homepage.heroKicker ?? ""} />
@@ -125,6 +163,15 @@ export default async function AdminSettingsPage() {
             <input name="stat3Label" placeholder="Labs & facilities" defaultValue={homepage.stat3Label ?? ""} />
           </label>
         </div>
+
+        <h2 style={{ marginTop: 16 }}>Other section backgrounds</h2>
+        <p style={{ color: "#5b6469", fontSize: 13, marginTop: -8 }}>
+          Optional. Leave empty to keep each section&apos;s plain background.
+        </p>
+        <SectionBackgroundFields zone="research" label="Research" images={homepage.researchBackgroundImages} opacity={homepage.researchOverlayOpacity} />
+        <SectionBackgroundFields zone="projects" label="Projects" images={homepage.projectsBackgroundImages} opacity={homepage.projectsOverlayOpacity} />
+        <SectionBackgroundFields zone="team" label="Team" images={homepage.teamBackgroundImages} opacity={homepage.teamOverlayOpacity} />
+        <SectionBackgroundFields zone="news" label="News" images={homepage.newsBackgroundImages} opacity={homepage.newsOverlayOpacity} />
 
         <button type="submit" className="btn">
           Save

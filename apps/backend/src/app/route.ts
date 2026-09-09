@@ -12,8 +12,17 @@ const homepagePath = path.join(process.cwd(), "public", "homepage.html");
 
 export const dynamic = "force-dynamic";
 
-type HeroSettings = {
-  heroBackgroundImage?: string;
+type HomepageSettings = {
+  heroBackgroundImages?: string[];
+  heroOverlayOpacity?: number;
+  researchBackgroundImages?: string[];
+  researchOverlayOpacity?: number;
+  projectsBackgroundImages?: string[];
+  projectsOverlayOpacity?: number;
+  teamBackgroundImages?: string[];
+  teamOverlayOpacity?: number;
+  newsBackgroundImages?: string[];
+  newsOverlayOpacity?: number;
   heroKicker?: string;
   heroTitle?: string;
   heroSubtitle?: string;
@@ -28,6 +37,8 @@ type HeroSettings = {
   stat3Value?: string;
   stat3Label?: string;
 };
+
+type CardResult = { html: string | null; count: number };
 
 function escapeHtml(value: string): string {
   return value
@@ -59,18 +70,36 @@ function setElementHref(html: string, id: string, href: string | undefined): str
   });
 }
 
-function setHeroBackground(html: string, imageUrl: string | undefined): string {
-  if (!imageUrl) return html;
-  const style = `background-image:linear-gradient(rgba(251,249,246,0.88),rgba(251,249,246,0.88)),url('${escapeHtml(imageUrl)}');background-size:cover;background-position:center;`;
-  return html.replace(
-    /<section class="hero" id="hero-section">/,
-    `<section class="hero" id="hero-section" style="${style}">`,
-  );
+/** Injects a background image (+slideshow if >1 image) and paper-color overlay behind a <section id="..."> element's content. */
+function setSectionBackground(html: string, sectionId: string, images: string[] | undefined, opacityPercent: number | undefined): string {
+  const list = (images ?? []).filter(Boolean);
+  if (list.length === 0) return html;
+
+  const opacity = Math.max(0, Math.min(100, opacityPercent ?? 88)) / 100;
+  const layers = `<div class="section-bg-layer" data-bg-images='${escapeHtml(JSON.stringify(list))}' style="background-image:url('${escapeHtml(list[0])}')"></div><div class="section-bg-overlay" style="background:rgba(251,249,246,${opacity})"></div>`;
+
+  const re = new RegExp(`(<section\\b[^>]*\\bid="${sectionId}"[^>]*)(>)`);
+  return html.replace(re, (_match, openTag: string, close: string) => {
+    const withPosition = /style="/.test(openTag)
+      ? openTag.replace(/style="/, 'style="position:relative;overflow:hidden;')
+      : `${openTag} style="position:relative;overflow:hidden;"`;
+    return `${withPosition}${close}${layers}`;
+  });
 }
 
-function applyHeroSettings(html: string, hero: HeroSettings): string {
+/** Overrides a grid's column count via inline style when it has fewer items than the design's default column count. */
+function setGridColumns(html: string, gridId: string, count: number, defaultCount: number): string {
+  if (count <= 0 || count >= defaultCount) return html;
+  const re = new RegExp(`(<div\\b[^>]*\\bid="${gridId}"[^>]*)(>)`);
+  return html.replace(re, (_match, openTag: string, close: string) => {
+    const style = `grid-template-columns:repeat(${count},1fr);`;
+    const withStyle = /style="/.test(openTag) ? openTag.replace(/style="/, `style="${style}`) : `${openTag} style="${style}"`;
+    return `${withStyle}${close}`;
+  });
+}
+
+function applyHeroSettings(html: string, hero: HomepageSettings): string {
   let out = html;
-  out = setHeroBackground(out, hero.heroBackgroundImage);
   out = setElementText(out, "hero-kicker", hero.heroKicker);
   out = setElementText(out, "hero-title", hero.heroTitle);
   out = setElementText(out, "hero-lede", hero.heroSubtitle);
@@ -94,16 +123,16 @@ function replaceBlock(html: string, marker: string, replacement: string | null):
   return html.replace(re, replacement);
 }
 
-async function buildResearchCards(): Promise<string | null> {
+async function buildResearchCards(): Promise<CardResult> {
   const items = await Research.find({ status: "published" })
     .sort({ createdAt: -1 })
     .limit(4)
     .select("title description slug")
     .lean<{ title: string; description: string; slug: string }[]>();
 
-  if (items.length === 0) return null;
+  if (items.length === 0) return { html: null, count: 0 };
 
-  return items
+  const html = items
     .map(
       (item, i) => `
       <a class="rcard" href="/research/${escapeHtml(item.slug)}">
@@ -113,18 +142,19 @@ async function buildResearchCards(): Promise<string | null> {
       </a>`,
     )
     .join("\n");
+  return { html, count: items.length };
 }
 
-async function buildProjectCards(): Promise<string | null> {
+async function buildProjectCards(): Promise<CardResult> {
   const items = await Project.find()
     .sort({ createdAt: -1 })
     .limit(4)
     .select("title description slug")
     .lean<{ title: string; description: string; slug: string }[]>();
 
-  if (items.length === 0) return null;
+  if (items.length === 0) return { html: null, count: 0 };
 
-  return items
+  const html = items
     .map(
       (item, i) => `
       <a class="rcard" href="/projects/${escapeHtml(item.slug)}">
@@ -134,18 +164,19 @@ async function buildProjectCards(): Promise<string | null> {
       </a>`,
     )
     .join("\n");
+  return { html, count: items.length };
 }
 
-async function buildTeamCards(): Promise<string | null> {
+async function buildTeamCards(): Promise<CardResult> {
   const items = await Team.find({ isActive: true })
     .sort({ name: 1 })
     .limit(4)
     .select("name position slug photo scopusData")
     .lean<{ name: string; position: string; slug: string; photo?: string; scopusData?: { hIndex?: number; documentCount?: number } }[]>();
 
-  if (items.length === 0) return null;
+  if (items.length === 0) return { html: null, count: 0 };
 
-  return items
+  const html = items
     .map((item) => {
       const photoStyle = item.photo
         ? ` style="background-image:url('${escapeHtml(item.photo)}');background-size:cover;background-position:center;"`
@@ -163,18 +194,19 @@ async function buildTeamCards(): Promise<string | null> {
       </a>`;
     })
     .join("\n");
+  return { html, count: items.length };
 }
 
-async function buildNewsCards(): Promise<string | null> {
+async function buildNewsCards(): Promise<CardResult> {
   const items = await News.find({ status: "published" })
     .sort({ publishedAt: -1 })
     .limit(3)
     .select("title summary slug category publishedAt")
     .lean<{ title: string; summary: string; slug: string; category: string; publishedAt?: Date }[]>();
 
-  if (items.length === 0) return null;
+  if (items.length === 0) return { html: null, count: 0 };
 
-  return items
+  const html = items
     .map((item) => {
       const date = item.publishedAt
         ? new Date(item.publishedAt).toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric" })
@@ -191,6 +223,7 @@ async function buildNewsCards(): Promise<string | null> {
       </a>`;
     })
     .join("\n");
+  return { html, count: items.length };
 }
 
 export async function GET() {
@@ -199,21 +232,33 @@ export async function GET() {
   try {
     await connectToDatabase();
 
-    const [settings, researchCards, projectCards, teamCards, newsCards] = await Promise.all([
-      SiteSettings.findOne({ key: "global" }).lean<{ homepage?: HeroSettings }>(),
+    const [settingsDoc, research, projects, team, news] = await Promise.all([
+      SiteSettings.findOne({ key: "global" }).lean<{ homepage?: HomepageSettings }>(),
       buildResearchCards(),
       buildProjectCards(),
       buildTeamCards(),
       buildNewsCards(),
     ]);
 
-    if (settings?.homepage) {
-      html = applyHeroSettings(html, settings.homepage);
+    const homepage = settingsDoc?.homepage;
+    if (homepage) {
+      html = applyHeroSettings(html, homepage);
+      html = setSectionBackground(html, "hero-section", homepage.heroBackgroundImages, homepage.heroOverlayOpacity);
+      html = setSectionBackground(html, "research", homepage.researchBackgroundImages, homepage.researchOverlayOpacity);
+      html = setSectionBackground(html, "projects", homepage.projectsBackgroundImages, homepage.projectsOverlayOpacity);
+      html = setSectionBackground(html, "team", homepage.teamBackgroundImages, homepage.teamOverlayOpacity);
+      html = setSectionBackground(html, "news", homepage.newsBackgroundImages, homepage.newsOverlayOpacity);
     }
-    html = replaceBlock(html, "RESEARCH_CARDS", researchCards);
-    html = replaceBlock(html, "PROJECT_CARDS", projectCards);
-    html = replaceBlock(html, "TEAM_CARDS", teamCards);
-    html = replaceBlock(html, "NEWS_CARDS", newsCards);
+
+    html = replaceBlock(html, "RESEARCH_CARDS", research.html);
+    html = replaceBlock(html, "PROJECT_CARDS", projects.html);
+    html = replaceBlock(html, "TEAM_CARDS", team.html);
+    html = replaceBlock(html, "NEWS_CARDS", news.html);
+
+    html = setGridColumns(html, "research-grid", research.count, 4);
+    html = setGridColumns(html, "projects-grid", projects.count, 4);
+    html = setGridColumns(html, "team-grid", team.count, 4);
+    html = setGridColumns(html, "news-grid", news.count, 3);
   } catch (error) {
     console.error("Failed to load homepage dynamic content, serving defaults", error);
   }

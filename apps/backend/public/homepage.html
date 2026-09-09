@@ -65,6 +65,11 @@
   .burger{display:none; flex-direction:column; gap:5px; cursor:pointer; background:none; border:none;}
   .burger span{width:24px; height:2px; background:var(--ink); display:block;}
 
+  /* ===== Section background slideshow ===== */
+  .section-bg-layer{position:absolute; inset:0; background-size:cover; background-position:center; transition:opacity 1s ease; z-index:0;}
+  .section-bg-overlay{position:absolute; inset:0; z-index:1;}
+  section > .wrap{position:relative; z-index:2;}
+
   /* ===== Hero ===== */
   .hero{
     position:relative; overflow:hidden;
@@ -376,7 +381,7 @@
       </div>
       <a href="/research" class="sec-link">View all research areas</a>
     </div>
-    <div class="research-grid">
+    <div class="research-grid" id="research-grid">
 <!--RESEARCH_CARDS_START-->
       <div class="rcard">
         <div class="num">01</div>
@@ -412,7 +417,7 @@
       </div>
       <a href="/projects" class="sec-link">View all projects</a>
     </div>
-    <div class="research-grid">
+    <div class="research-grid" id="projects-grid">
 <!--PROJECT_CARDS_START-->
       <div class="rcard">
         <div class="num">P1</div>
@@ -476,7 +481,7 @@
       </div>
       <a href="/news" class="sec-link">Browse all news</a>
     </div>
-    <div class="news-grid">
+    <div class="news-grid" id="news-grid">
 <!--NEWS_CARDS_START-->
       <div class="ncard">
         <div class="nthumb"><span class="tag">Research</span></div>
@@ -548,7 +553,7 @@
       </div>
       <a href="/team" class="sec-link">View full team</a>
     </div>
-    <div class="team-grid">
+    <div class="team-grid" id="team-grid">
 <!--TEAM_CARDS_START-->
       <div class="tcard"><div class="tphoto"></div><h4>Dr. Andini Prasetyo</h4><div class="role">Lab Director · Optimization</div><div class="met">h-index 14 · 38 publications</div></div>
       <div class="tcard"><div class="tphoto"></div><h4>Dr. Rangga Wibisono</h4><div class="role">NLP Research Lead</div><div class="met">h-index 9 · 21 publications</div></div>
@@ -683,6 +688,23 @@
         fabInput.disabled = false;
         fabInput.focus();
       });
+  });
+</script>
+
+<script>
+  document.querySelectorAll('.section-bg-layer[data-bg-images]').forEach(function (layer) {
+    var images;
+    try { images = JSON.parse(layer.getAttribute('data-bg-images')); } catch (e) { images = []; }
+    if (images.length < 2) return;
+    var index = 0;
+    setInterval(function () {
+      layer.style.opacity = '0';
+      setTimeout(function () {
+        index = (index + 1) % images.length;
+        layer.style.backgroundImage = "url('" + images[index] + "')";
+        layer.style.opacity = '1';
+      }, 600);
+    }, 5000);
   });
 </script>
 
