@@ -1,7 +1,7 @@
 import Image from "next/image";
 import type { ReactNode } from "react";
 
-import { getSession } from "@/lib/auth";
+import { getSession, isAdminRole } from "@/lib/auth";
 
 import { AdminNavLinks } from "./AdminNavLinks";
 import { LogoutButton } from "./LogoutButton";
@@ -9,8 +9,11 @@ import { LogoutButton } from "./LogoutButton";
 export default async function AdminLayout({ children }: { children: ReactNode }) {
   const session = await getSession();
 
-  // /admin/login renders its own standalone layout (no session yet).
-  if (!session) {
+  // Only show the admin shell (sidebar, nav) for an actual admin/staff session.
+  // A borrower session is also a valid "session" (shared cookie), so this must
+  // check the role, not just whether a session exists - otherwise a logged-in
+  // borrower visiting /admin/login would see the admin sidebar around it.
+  if (!session || !isAdminRole(session.role)) {
     return <>{children}</>;
   }
 

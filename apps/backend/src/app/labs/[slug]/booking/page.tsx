@@ -7,6 +7,7 @@ import { connectToDatabase } from "@/lib/mongodb";
 import { Device } from "@/models/Device";
 import { Lab } from "@/models/Lab";
 
+import { AvailabilityCalendar } from "./AvailabilityCalendar";
 import { BookingForm } from "./BookingForm";
 
 export const dynamic = "force-dynamic";
@@ -33,13 +34,16 @@ export default async function LabBookingPage({ params }: { params: Promise<{ slu
       <main className="wrap">
         <h1>Book {lab.name}</h1>
         <p>Submit a request, an admin will review and approve it, then you&apos;ll get an email decision.</p>
-        <div style={{ marginTop: 24 }}>
-          <BookingForm
-            labId={String(lab._id)}
-            devices={devices.map((d) => ({ _id: String(d._id), name: d.name }))}
-            defaultName={session.name}
-            defaultEmail={session.email}
-          />
+        <div style={{ marginTop: 24, display: "flex", gap: 32, flexWrap: "wrap", alignItems: "flex-start" }}>
+          <div style={{ flex: "1 1 320px", minWidth: 320 }}>
+            <BookingForm
+              labId={String(lab._id)}
+              devices={devices.map((d) => ({ _id: String(d._id), name: d.name }))}
+              defaultName={session.name}
+              defaultEmail={session.email}
+            />
+          </div>
+          <AvailabilityCalendar labSlug={slug} />
         </div>
       </main>
       <SiteFooter />

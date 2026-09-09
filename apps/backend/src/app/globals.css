@@ -152,6 +152,34 @@ textarea { min-height: 100px; }
 .badge.approved { background: #d9f2e3; color: #146c43; }
 .badge.rejected { background: #fbdada; color: #9d1b1b; }
 .notice { background: #fdecd2; border: 1px solid #f2c477; padding: 10px 14px; border-radius: 4px; font-size: 13px; }
+
+/* ===== Availability calendar ===== */
+.availability-cal { border: 1px solid var(--line); background: #fff; border-radius: 4px; padding: 20px; max-width: 420px; }
+.availability-cal-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+.availability-cal-head .btn { padding: 6px 12px; }
+.availability-cal-legend { display: flex; flex-wrap: wrap; gap: 14px; font-size: 12px; color: #5b6469; margin-bottom: 14px; }
+.availability-cal-legend span { display: flex; align-items: center; gap: 6px; }
+.availability-cal-legend .dot { width: 9px; height: 9px; border-radius: 50%; display: inline-block; }
+.availability-cal-legend .dot.available { background: #d9f2e3; border: 1px solid #146c43; }
+.availability-cal-legend .dot.pending { background: #fdecd2; border: 1px solid #92600c; }
+.availability-cal-legend .dot.booked { background: #fbdada; border: 1px solid #9d1b1b; }
+.availability-cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
+.availability-cal-weekday { font-size: 11px; font-weight: 600; text-align: center; color: #8f979a; padding-bottom: 4px; }
+.availability-cal-day {
+  aspect-ratio: 1 / 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 3px;
+  font-size: 13px;
+  background: var(--paper-dim);
+  color: var(--ink);
+}
+.availability-cal-day.empty { background: transparent; }
+.availability-cal-day.loading { opacity: 0.4; }
+.availability-cal-day.available { background: #d9f2e3; color: #146c43; }
+.availability-cal-day.pending { background: #fdecd2; color: #92600c; }
+.availability-cal-day.booked { background: #fbdada; color: #9d1b1b; font-weight: 600; }
 .error-text { color: #9d1b1b; font-size: 13px; }
 
 /* ===== Admin shell ===== */
