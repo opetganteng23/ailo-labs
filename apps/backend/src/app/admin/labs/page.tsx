@@ -19,8 +19,9 @@ export default async function AdminLabsPage() {
   return (
     <div>
       <h1>Labs</h1>
-      <p>
-        <Link href="/admin/labs/devices">Manage devices</Link>
+      <p style={{ color: "#5b6469", fontSize: 13 }}>
+        Click a lab&apos;s name below to edit its details and manage its devices, or{" "}
+        <Link href="/admin/labs/devices">see every device across all labs</Link>.
       </p>
       <form className="stack" action={createLabAction} style={{ marginTop: 24 }}>
         <label>
@@ -60,7 +61,9 @@ export default async function AdminLabsPage() {
         <tbody>
           {items.map((item) => (
             <tr key={item._id}>
-              <td>{item.name}</td>
+              <td>
+                <Link href={`/admin/labs/${item._id}`}>{item.name}</Link>
+              </td>
               <td>{item.location ?? "-"}</td>
               <td>
                 <form action={deleteLabAction}>

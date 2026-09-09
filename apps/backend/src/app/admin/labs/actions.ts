@@ -29,6 +29,24 @@ export async function createLabAction(formData: FormData) {
   revalidatePath("/admin/labs");
 }
 
+export async function updateLabAction(formData: FormData) {
+  const session = await getSession();
+  if (!session) return;
+
+  await connectToDatabase();
+  const id = String(formData.get("id"));
+  const photo = String(formData.get("photo") ?? "");
+  await Lab.findByIdAndUpdate(id, {
+    location: String(formData.get("location") ?? ""),
+    capacity: Number(formData.get("capacity") ?? 0) || undefined,
+    description: String(formData.get("description") ?? ""),
+    facilities: String(formData.get("facilities") ?? ""),
+    photos: photo ? [photo] : [],
+  });
+  revalidatePath("/admin/labs");
+  revalidatePath(`/admin/labs/${id}`);
+}
+
 export async function deleteLabAction(formData: FormData) {
   const session = await getSession();
   if (!session) return;
@@ -55,6 +73,24 @@ export async function createDeviceAction(formData: FormData) {
   });
   await Lab.findByIdAndUpdate(labId, { $push: { devices: device._id } });
   revalidatePath("/admin/labs/devices");
+  revalidatePath(`/admin/labs/${labId}`);
+}
+
+export async function updateDeviceAction(formData: FormData) {
+  const session = await getSession();
+  if (!session) return;
+
+  await connectToDatabase();
+  const id = String(formData.get("id"));
+  const labId = String(formData.get("lab"));
+  await Device.findByIdAndUpdate(id, {
+    name: String(formData.get("name") ?? "").trim(),
+    specification: String(formData.get("specification") ?? ""),
+    photo: String(formData.get("photo") ?? "") || undefined,
+    status: formData.get("status") ?? "available",
+  });
+  revalidatePath("/admin/labs/devices");
+  revalidatePath(`/admin/labs/${labId}`);
 }
 
 export async function deleteDeviceAction(formData: FormData) {
@@ -62,6 +98,12 @@ export async function deleteDeviceAction(formData: FormData) {
   if (!session) return;
 
   await connectToDatabase();
-  await Device.findByIdAndDelete(String(formData.get("id")));
+  const id = String(formData.get("id"));
+  const labId = String(formData.get("lab") ?? "");
+  await Device.findByIdAndDelete(id);
+  if (labId) {
+    await Lab.findByIdAndUpdate(labId, { $pull: { devices: id } });
+  }
   revalidatePath("/admin/labs/devices");
+  if (labId) revalidatePath(`/admin/labs/${labId}`);
 }

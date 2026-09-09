@@ -15,7 +15,7 @@ export default async function AdminDevicesPage() {
     name: string;
     specification?: string;
     status: string;
-    lab?: { name?: string };
+    lab?: { _id?: string; name?: string };
   }[];
 
   return (
@@ -74,6 +74,7 @@ export default async function AdminDevicesPage() {
               <td>
                 <form action={deleteDeviceAction}>
                   <input type="hidden" name="id" value={d._id} />
+                  <input type="hidden" name="lab" value={d.lab?._id ?? ""} />
                   <button type="submit" className="btn danger">
                     Delete
                   </button>
