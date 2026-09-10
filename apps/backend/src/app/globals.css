@@ -91,15 +91,15 @@ h1, h2, h3 { line-height: 1.2; }
   font-weight: 600;
   font-size: 14px;
   cursor: pointer;
-  border: 1px solid var(--ink);
-  background: var(--ink);
+  border: 1px solid var(--teal);
+  background: var(--teal);
   color: #fff;
   text-decoration: none;
   font-family: var(--sans);
 }
 .btn:hover { background: var(--teal-dark); border-color: var(--teal-dark); }
 .btn.outline { background: transparent; color: var(--ink); }
-.btn.outline:hover { background: var(--ink); color: #fff; }
+.btn.outline:hover { background: var(--teal); border-color: var(--teal); color: #fff; }
 .btn.primary { background: var(--orange); border-color: var(--orange); color: #fff; }
 .btn.primary:hover { background: #d9700f; border-color: #d9700f; }
 .btn.danger { background: #b3261e; border-color: #b3261e; }
