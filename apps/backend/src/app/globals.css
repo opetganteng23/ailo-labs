@@ -108,7 +108,7 @@ h1, h2, h3 { line-height: 1.2; }
 .card {
   display: block;
   border: 1px solid var(--line);
-  background: #fff;
+  background: var(--paper);
   padding: 22px;
   border-radius: 4px;
   transition: background 0.2s ease, box-shadow 0.2s ease;
@@ -137,7 +137,7 @@ input, textarea, select {
   padding: 9px 10px;
   border: 1px solid var(--line);
   border-radius: 3px;
-  background: #fff;
+  background: var(--paper);
   color: var(--ink);
 }
 input:focus, textarea:focus, select:focus {
@@ -154,7 +154,7 @@ textarea { min-height: 100px; }
 .notice { background: #fdecd2; border: 1px solid #f2c477; padding: 10px 14px; border-radius: 4px; font-size: 13px; }
 
 /* ===== Availability calendar ===== */
-.availability-cal { border: 1px solid var(--line); background: #fff; border-radius: 4px; padding: 20px; max-width: 420px; }
+.availability-cal { border: 1px solid var(--line); background: var(--paper); border-radius: 4px; padding: 20px; max-width: 420px; }
 .availability-cal-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
 .availability-cal-head .btn { padding: 6px 12px; }
 .availability-cal-legend { display: flex; flex-wrap: wrap; gap: 14px; font-size: 12px; color: #5b6469; margin-bottom: 14px; }

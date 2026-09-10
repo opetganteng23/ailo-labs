@@ -54,32 +54,35 @@ export default async function LabDetailPage({ params }: { params: Promise<{ slug
         </Link>
 
         <h2 style={{ marginTop: 40 }}>Devices</h2>
-        {devices.length === 0 && <p className="notice">No devices listed yet.</p>}
-        <table style={{ marginTop: 16 }}>
-          <thead>
-            <tr>
-              <th>Photo</th>
-              <th>Name</th>
-              <th>Specification</th>
-              <th>Status</th>
-            </tr>
-          </thead>
-          <tbody>
-            {devices.map((d) => (
-              <tr key={d._id}>
-                <td>
-                  {/* eslint-disable-next-line @next/next/no-img-element -- arbitrary uploaded image, no static optimization needed */}
-                  {d.photo ? <img src={d.photo} alt={d.name} style={{ width: 56, height: 40, objectFit: "cover", borderRadius: 3 }} /> : "-"}
-                </td>
-                <td>{d.name}</td>
-                <td>{d.specification ?? "-"}</td>
-                <td>
-                  <span className="badge">{d.status}</span>
-                </td>
+        {devices.length === 0 ? (
+          <p className="notice">No devices listed yet.</p>
+        ) : (
+          <table style={{ marginTop: 16 }}>
+            <thead>
+              <tr>
+                <th>Photo</th>
+                <th>Name</th>
+                <th>Specification</th>
+                <th>Status</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {devices.map((d) => (
+                <tr key={d._id}>
+                  <td>
+                    {/* eslint-disable-next-line @next/next/no-img-element -- arbitrary uploaded image, no static optimization needed */}
+                    {d.photo ? <img src={d.photo} alt={d.name} style={{ width: 56, height: 40, objectFit: "cover", borderRadius: 3 }} /> : "-"}
+                  </td>
+                  <td>{d.name}</td>
+                  <td>{d.specification ?? "-"}</td>
+                  <td>
+                    <span className="badge">{d.status}</span>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
 
         <h2 style={{ marginTop: 40 }}>Availability</h2>
         <p style={{ color: "#5b6469", fontSize: 13, marginTop: -8, marginBottom: 16 }}>

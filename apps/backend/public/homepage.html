@@ -154,7 +154,7 @@
   /* ===== Research grid ===== */
   .research-grid{display:grid; grid-template-columns:repeat(auto-fill, minmax(240px, 1fr)); gap:1px; background:var(--line); border:1px solid var(--line);}
   .rcard{display:block; background:var(--paper); padding:34px 28px; transition:background .2s ease;}
-  .rcard:hover{background:#fff;}
+  .rcard:hover{background:var(--paper-dim);}
   .rcard .num{font-family:var(--serif); font-size:13px; color:var(--orange); font-weight:600; margin-bottom:20px;}
   .rcard h3{font-size:17px; font-weight:600; margin-bottom:10px; line-height:1.3;}
   .rcard p{font-size:13.5px; color:#5b6469; line-height:1.55;}
@@ -164,7 +164,7 @@
     display:grid; grid-template-columns:0.9fr 1.1fr; gap:64px; align-items:center;
   }
   .chat-mock{
-    background:#fff; border:1px solid var(--line); border-radius:6px;
+    background:var(--paper); border:1px solid var(--line); border-radius:6px;
     box-shadow:0 30px 60px -30px rgba(18,24,27,0.25);
     overflow:hidden;
   }
@@ -198,7 +198,7 @@
 
   /* ===== News ===== */
   .news-grid{display:grid; grid-template-columns:repeat(auto-fill, minmax(280px, 1fr)); gap:32px;}
-  .ncard{border:1px solid var(--line); background:#fff; display:flex; flex-direction:column;}
+  .ncard{border:1px solid var(--line); background:var(--paper); display:flex; flex-direction:column;}
   .nthumb{aspect-ratio:16/10; background:linear-gradient(135deg,var(--teal) 0%, var(--teal-dark) 100%); position:relative;}
   .nthumb .tag{
     position:absolute; top:14px; left:14px; background:var(--orange); color:#fff;
