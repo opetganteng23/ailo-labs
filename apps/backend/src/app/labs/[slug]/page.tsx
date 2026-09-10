@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
+import { AvailabilityCalendar } from "@/components/AvailabilityCalendar";
 import { SiteFooter } from "@/components/SiteFooter";
 import { SiteHeader } from "@/components/SiteHeader";
 import { connectToDatabase } from "@/lib/mongodb";
@@ -79,6 +80,12 @@ export default async function LabDetailPage({ params }: { params: Promise<{ slug
             ))}
           </tbody>
         </table>
+
+        <h2 style={{ marginTop: 40 }}>Availability</h2>
+        <p style={{ color: "#5b6469", fontSize: 13, marginTop: -8, marginBottom: 16 }}>
+          Schedule for {lab.name}. Sign in and submit a request to reserve an open slot.
+        </p>
+        <AvailabilityCalendar labSlug={slug} />
       </main>
       <SiteFooter />
     </>

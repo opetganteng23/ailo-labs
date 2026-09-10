@@ -1,5 +1,6 @@
 import { notFound, redirect } from "next/navigation";
 
+import { AvailabilityCalendar } from "@/components/AvailabilityCalendar";
 import { SiteFooter } from "@/components/SiteFooter";
 import { SiteHeader } from "@/components/SiteHeader";
 import { getSession } from "@/lib/auth";
@@ -7,7 +8,6 @@ import { connectToDatabase } from "@/lib/mongodb";
 import { Device } from "@/models/Device";
 import { Lab } from "@/models/Lab";
 
-import { AvailabilityCalendar } from "./AvailabilityCalendar";
 import { BookingForm } from "./BookingForm";
 
 export const dynamic = "force-dynamic";
