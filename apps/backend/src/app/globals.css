@@ -128,7 +128,7 @@ a.card:hover { background: var(--paper-dim); box-shadow: 0 10px 24px -16px rgba(
 .lab-card {
   position: relative;
   display: block;
-  aspect-ratio: 4 / 3;
+  aspect-ratio: 3 / 4;
   border-radius: 4px;
   overflow: hidden;
   border: 1px solid var(--line);
