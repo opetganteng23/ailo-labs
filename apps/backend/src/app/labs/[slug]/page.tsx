@@ -88,7 +88,26 @@ export default async function LabDetailPage({ params }: { params: Promise<{ slug
         <p style={{ color: "#5b6469", fontSize: 13, marginTop: -8, marginBottom: 16 }}>
           Schedule for {lab.name}. Sign in and submit a request to reserve an open slot.
         </p>
-        <AvailabilityCalendar labSlug={slug} />
+        <div style={{ display: "flex", gap: 32, flexWrap: "wrap", alignItems: "stretch" }}>
+          <div style={{ flex: "0 1 420px" }}>
+            <AvailabilityCalendar labSlug={slug} />
+          </div>
+          <div className="card" style={{ flex: "1 1 280px" }}>
+            <h3>Ready to reserve {lab.name}?</h3>
+            <p>
+              Pick an open date above, then submit a request with your details. An admin reviews it and you&apos;ll get an
+              email once it&apos;s approved or declined.
+            </p>
+            <ul style={{ margin: "16px 0", paddingLeft: 18, color: "#3a4348", fontSize: 14, lineHeight: 1.7 }}>
+              <li>No account fees, just a quick sign-in</li>
+              <li>Book the whole lab or a single device</li>
+              {lab.location && <li>Located at {lab.location}</li>}
+            </ul>
+            <Link href={`/labs/${slug}/booking`} className="btn">
+              Ajukan Peminjaman
+            </Link>
+          </div>
+        </div>
       </main>
       <SiteFooter />
     </>

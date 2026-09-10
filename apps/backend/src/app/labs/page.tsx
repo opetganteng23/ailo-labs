@@ -23,11 +23,14 @@ export default async function LabsListPage() {
         <div className="grid cols-3" style={{ marginTop: 24 }}>
           {items.map((item) => (
             <Link key={item._id} href={`/labs/${item.slug}`} className="card">
-              {/* eslint-disable-next-line @next/next/no-img-element -- arbitrary uploaded image, no static optimization needed */}
-              {item.photos?.[0] && <img className="card-thumb" src={item.photos[0]} alt={item.name} />}
+              {item.photos?.[0] ? (
+                // eslint-disable-next-line @next/next/no-img-element -- arbitrary uploaded image, no static optimization needed
+                <img className="card-thumb" src={item.photos[0]} alt={item.name} />
+              ) : (
+                <div className="card-thumb" />
+              )}
               <h3>{item.name}</h3>
               {item.location && <p style={{ fontSize: 13, color: "#5b6469" }}>{item.location}</p>}
-              <p>{item.description}</p>
             </Link>
           ))}
         </div>
