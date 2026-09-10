@@ -125,6 +125,43 @@ a.card:hover { background: var(--paper-dim); box-shadow: 0 10px 24px -16px rgba(
   object-fit: cover;
   background: var(--paper-dim);
 }
+.lab-card {
+  position: relative;
+  display: block;
+  aspect-ratio: 4 / 3;
+  border-radius: 4px;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  background: var(--paper-dim);
+}
+.lab-card img,
+.lab-card-placeholder {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  background: var(--paper-dim);
+}
+.lab-card-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(18, 24, 27, 0.88) 0%, rgba(18, 24, 27, 0.4) 45%, rgba(18, 24, 27, 0) 72%);
+  transition: background 0.2s ease;
+}
+.lab-card:hover .lab-card-overlay {
+  background: linear-gradient(to top, rgba(18, 24, 27, 0.94) 0%, rgba(18, 24, 27, 0.5) 45%, rgba(18, 24, 27, 0) 72%);
+}
+.lab-card-body {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 20px;
+}
+.lab-card-body h3 { color: #fff; font-size: 17px; font-weight: 600; margin-bottom: 4px; }
+.lab-card-body p { color: rgba(255, 255, 255, 0.85); font-size: 13px; }
+
 .detail-thumb { width: 100%; max-height: 360px; object-fit: cover; border-radius: 4px; margin: 20px 0; }
 .avatar-thumb { width: 72px; height: 72px; object-fit: cover; border-radius: 50%; margin-bottom: 12px; }
 
@@ -199,7 +236,7 @@ textarea { min-height: 100px; }
   width: 240px;
   height: 100vh;
   overflow-y: auto;
-  background: var(--ink);
+  background: var(--teal-dark);
   color: #fff;
   padding: 22px 16px;
   font-family: var(--sans);
@@ -237,7 +274,7 @@ textarea { min-height: 100px; }
 }
 
 /* ===== Footer ===== */
-footer.site { background: var(--ink); color: #c3c9cb; padding: 56px 0 24px; margin-top: 48px; }
+footer.site { background: var(--teal-dark); color: #c3c9cb; padding: 56px 0 24px; margin-top: 48px; }
 footer.site a { color: #9aa3a7; }
 footer.site a:hover { color: #fff; }
 footer.site .foot-grid {
