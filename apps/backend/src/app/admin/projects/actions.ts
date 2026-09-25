@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 
-import { getSession } from "@/lib/auth";
+import { getSession, isAdminRole } from "@/lib/auth";
 import { connectToDatabase } from "@/lib/mongodb";
 import { Project } from "@/models/Project";
 
@@ -12,7 +12,7 @@ function slugify(input: string) {
 
 export async function createProjectAction(formData: FormData) {
   const session = await getSession();
-  if (!session) return;
+  if (!session || !isAdminRole(session.role)) return;
 
   await connectToDatabase();
   const title = String(formData.get("title") ?? "").trim();
@@ -29,7 +29,7 @@ export async function createProjectAction(formData: FormData) {
 
 export async function updateProjectAction(formData: FormData) {
   const session = await getSession();
-  if (!session) return;
+  if (!session || !isAdminRole(session.role)) return;
 
   await connectToDatabase();
   const id = String(formData.get("id"));
@@ -46,7 +46,7 @@ export async function updateProjectAction(formData: FormData) {
 
 export async function deleteProjectAction(formData: FormData) {
   const session = await getSession();
-  if (!session) return;
+  if (!session || !isAdminRole(session.role)) return;
 
   await connectToDatabase();
   await Project.findByIdAndDelete(String(formData.get("id")));

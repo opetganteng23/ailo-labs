@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 
-import { getSession } from "@/lib/auth";
+import { getSession, isAdminRole } from "@/lib/auth";
 import { sendMail } from "@/lib/mailer";
 import { connectToDatabase } from "@/lib/mongodb";
 import { Booking } from "@/models/Booking";
@@ -10,7 +10,7 @@ import { Device } from "@/models/Device";
 
 export async function reviewBookingAction(formData: FormData) {
   const session = await getSession();
-  if (!session) return;
+  if (!session || !isAdminRole(session.role)) return;
 
   const status = String(formData.get("status"));
   if (!["approved", "rejected"].includes(status)) return;

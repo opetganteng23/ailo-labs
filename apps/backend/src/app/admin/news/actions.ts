@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
-import { getSession } from "@/lib/auth";
+import { getSession, isAdminRole } from "@/lib/auth";
 import { connectToDatabase } from "@/lib/mongodb";
 import { formatDraftFromFiveW1H } from "@/lib/newsDraft";
 import { News } from "@/models/News";
@@ -30,7 +30,7 @@ export async function generateDraftAction(_prevState: unknown, formData: FormDat
 
 export async function createNewsAction(formData: FormData) {
   const session = await getSession();
-  if (!session) redirect("/admin/login");
+  if (!session || !isAdminRole(session.role)) redirect("/admin/login");
 
   await connectToDatabase();
   const title = String(formData.get("title") ?? "").trim();
@@ -62,7 +62,7 @@ export async function createNewsAction(formData: FormData) {
 
 export async function updateNewsAction(formData: FormData) {
   const session = await getSession();
-  if (!session) redirect("/admin/login");
+  if (!session || !isAdminRole(session.role)) redirect("/admin/login");
 
   await connectToDatabase();
   const id = String(formData.get("id"));
@@ -94,7 +94,7 @@ export async function updateNewsAction(formData: FormData) {
 
 export async function deleteNewsAction(formData: FormData) {
   const session = await getSession();
-  if (!session) redirect("/admin/login");
+  if (!session || !isAdminRole(session.role)) redirect("/admin/login");
 
   await connectToDatabase();
   await News.findByIdAndDelete(String(formData.get("id")));

@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 
-import { getSession } from "@/lib/auth";
+import { getSession, isAdminRole } from "@/lib/auth";
 import { connectToDatabase } from "@/lib/mongodb";
 import { Device } from "@/models/Device";
 import { Lab } from "@/models/Lab";
@@ -13,7 +13,7 @@ function slugify(input: string) {
 
 export async function createLabAction(formData: FormData) {
   const session = await getSession();
-  if (!session) return;
+  if (!session || !isAdminRole(session.role)) return;
 
   await connectToDatabase();
   const name = String(formData.get("name") ?? "").trim();
@@ -31,7 +31,7 @@ export async function createLabAction(formData: FormData) {
 
 export async function updateLabAction(formData: FormData) {
   const session = await getSession();
-  if (!session) return;
+  if (!session || !isAdminRole(session.role)) return;
 
   await connectToDatabase();
   const id = String(formData.get("id"));
@@ -49,7 +49,7 @@ export async function updateLabAction(formData: FormData) {
 
 export async function deleteLabAction(formData: FormData) {
   const session = await getSession();
-  if (!session) return;
+  if (!session || !isAdminRole(session.role)) return;
 
   await connectToDatabase();
   const id = String(formData.get("id"));
@@ -60,7 +60,7 @@ export async function deleteLabAction(formData: FormData) {
 
 export async function createDeviceAction(formData: FormData) {
   const session = await getSession();
-  if (!session) return;
+  if (!session || !isAdminRole(session.role)) return;
 
   await connectToDatabase();
   const labId = String(formData.get("lab"));
@@ -78,7 +78,7 @@ export async function createDeviceAction(formData: FormData) {
 
 export async function updateDeviceAction(formData: FormData) {
   const session = await getSession();
-  if (!session) return;
+  if (!session || !isAdminRole(session.role)) return;
 
   await connectToDatabase();
   const id = String(formData.get("id"));
@@ -95,7 +95,7 @@ export async function updateDeviceAction(formData: FormData) {
 
 export async function deleteDeviceAction(formData: FormData) {
   const session = await getSession();
-  if (!session) return;
+  if (!session || !isAdminRole(session.role)) return;
 
   await connectToDatabase();
   const id = String(formData.get("id"));

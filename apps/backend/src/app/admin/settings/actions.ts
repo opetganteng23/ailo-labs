@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 
-import { getSession } from "@/lib/auth";
+import { getSession, isAdminRole } from "@/lib/auth";
 import { connectToDatabase } from "@/lib/mongodb";
 import { SiteSettings } from "@/models/SiteSettings";
 
@@ -10,7 +10,7 @@ const BACKGROUND_ZONES = ["hero", "research", "projects", "team", "news"];
 
 export async function updateSettingsAction(formData: FormData) {
   const session = await getSession();
-  if (!session) return;
+  if (!session || !isAdminRole(session.role)) return;
 
   const backgroundFields: Record<string, unknown> = {};
   for (const zone of BACKGROUND_ZONES) {

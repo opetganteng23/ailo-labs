@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 
-import { getSession } from "@/lib/auth";
+import { getSession, isAdminRole } from "@/lib/auth";
 import { connectToDatabase } from "@/lib/mongodb";
 import { Team } from "@/models/Team";
 
@@ -12,7 +12,7 @@ function slugify(input: string) {
 
 export async function createTeamAction(formData: FormData) {
   const session = await getSession();
-  if (!session) return;
+  if (!session || !isAdminRole(session.role)) return;
 
   await connectToDatabase();
   const name = String(formData.get("name") ?? "").trim();
@@ -29,7 +29,7 @@ export async function createTeamAction(formData: FormData) {
 
 export async function updateTeamAction(formData: FormData) {
   const session = await getSession();
-  if (!session) return;
+  if (!session || !isAdminRole(session.role)) return;
 
   await connectToDatabase();
   const id = String(formData.get("id"));
@@ -47,7 +47,7 @@ export async function updateTeamAction(formData: FormData) {
 
 export async function deleteTeamAction(formData: FormData) {
   const session = await getSession();
-  if (!session) return;
+  if (!session || !isAdminRole(session.role)) return;
 
   await connectToDatabase();
   await Team.findByIdAndDelete(String(formData.get("id")));
