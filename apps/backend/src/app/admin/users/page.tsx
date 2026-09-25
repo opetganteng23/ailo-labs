@@ -27,7 +27,7 @@ export default async function AdminUsersPage() {
   return (
     <div>
       <h1>Users</h1>
-      <p style={{ fontSize: 13, color: "#5b6469" }}>Only super_admin accounts can manage users.</p>
+      <p style={{ fontSize: 13, color: "#5b6469" }}>Create and manage admin and staff accounts here.</p>
       <form className="stack" action={createUserAction} style={{ marginTop: 24 }}>
         <label>
           Name

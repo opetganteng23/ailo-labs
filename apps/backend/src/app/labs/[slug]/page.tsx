@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
+import { AvailabilityCalendar } from "@/components/AvailabilityCalendar";
 import { SiteFooter } from "@/components/SiteFooter";
 import { SiteHeader } from "@/components/SiteHeader";
 import { connectToDatabase } from "@/lib/mongodb";
@@ -53,32 +54,60 @@ export default async function LabDetailPage({ params }: { params: Promise<{ slug
         </Link>
 
         <h2 style={{ marginTop: 40 }}>Devices</h2>
-        {devices.length === 0 && <p className="notice">No devices listed yet.</p>}
-        <table style={{ marginTop: 16 }}>
-          <thead>
-            <tr>
-              <th>Photo</th>
-              <th>Name</th>
-              <th>Specification</th>
-              <th>Status</th>
-            </tr>
-          </thead>
-          <tbody>
-            {devices.map((d) => (
-              <tr key={d._id}>
-                <td>
-                  {/* eslint-disable-next-line @next/next/no-img-element -- arbitrary uploaded image, no static optimization needed */}
-                  {d.photo ? <img src={d.photo} alt={d.name} style={{ width: 56, height: 40, objectFit: "cover", borderRadius: 3 }} /> : "-"}
-                </td>
-                <td>{d.name}</td>
-                <td>{d.specification ?? "-"}</td>
-                <td>
-                  <span className="badge">{d.status}</span>
-                </td>
+        {devices.length === 0 ? (
+          <p className="notice">No devices listed yet.</p>
+        ) : (
+          <table style={{ marginTop: 16 }}>
+            <thead>
+              <tr>
+                <th>Photo</th>
+                <th>Name</th>
+                <th>Specification</th>
+                <th>Status</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {devices.map((d) => (
+                <tr key={d._id}>
+                  <td>
+                    {/* eslint-disable-next-line @next/next/no-img-element -- arbitrary uploaded image, no static optimization needed */}
+                    {d.photo ? <img src={d.photo} alt={d.name} style={{ width: 56, height: 40, objectFit: "cover", borderRadius: 3 }} /> : "-"}
+                  </td>
+                  <td>{d.name}</td>
+                  <td>{d.specification ?? "-"}</td>
+                  <td>
+                    <span className="badge">{d.status}</span>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
+
+        <h2 style={{ marginTop: 40 }}>Availability</h2>
+        <p style={{ color: "#5b6469", fontSize: 13, marginTop: -8, marginBottom: 16 }}>
+          Schedule for {lab.name}. Sign in and submit a request to reserve an open slot.
+        </p>
+        <div style={{ display: "flex", gap: 32, flexWrap: "wrap", alignItems: "stretch" }}>
+          <div style={{ flex: "0 1 420px" }}>
+            <AvailabilityCalendar labSlug={slug} />
+          </div>
+          <div className="card" style={{ flex: "1 1 280px" }}>
+            <h3>Ready to reserve {lab.name}?</h3>
+            <p>
+              Pick an open date above, then submit a request with your details. An admin reviews it and you&apos;ll get an
+              email once it&apos;s approved or declined.
+            </p>
+            <ul style={{ margin: "16px 0", paddingLeft: 18, color: "#3a4348", fontSize: 14, lineHeight: 1.7 }}>
+              <li>No account fees, just a quick sign-in</li>
+              <li>Book the whole lab or a single device</li>
+              {lab.location && <li>Located at {lab.location}</li>}
+            </ul>
+            <Link href={`/labs/${slug}/booking`} className="btn">
+              Ajukan Peminjaman
+            </Link>
+          </div>
+        </div>
       </main>
       <SiteFooter />
     </>

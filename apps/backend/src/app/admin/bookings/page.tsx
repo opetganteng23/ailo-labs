@@ -11,6 +11,7 @@ export default async function AdminBookingsPage({
   searchParams: Promise<{ status?: string }>;
 }) {
   const { status } = await searchParams;
+  const currentStatus = status ?? "all";
   await connectToDatabase();
   const filter = status && status !== "all" ? { status } : {};
   const items = (await Booking.find(filter)
@@ -33,12 +34,15 @@ export default async function AdminBookingsPage({
   return (
     <div>
       <h1>Bookings</h1>
-      <div style={{ display: "flex", gap: 10, margin: "16px 0" }}>
+      <div style={{ display: "flex", gap: 10, margin: "16px 0", flexWrap: "wrap", alignItems: "center" }}>
         {filters.map((f) => (
           <a key={f} href={`/admin/bookings?status=${f}`} className="btn outline">
             {f}
           </a>
         ))}
+        <a href={`/api/admin/bookings/export?status=${currentStatus}`} className="btn" style={{ marginLeft: "auto" }}>
+          Download report (CSV)
+        </a>
       </div>
 
       <table>

@@ -1,13 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 
-import { isAdminRole, SESSION_COOKIE, verifySessionToken } from "@/lib/auth";
+import { ADMIN_IDLE_SECONDS, createSessionToken, isAdminRole, SESSION_COOKIE, verifySessionToken } from "@/lib/auth";
 import { getEnv } from "@/lib/env";
 
-async function handleAdminAuth(request: NextRequest): Promise<NextResponse | null> {
+async function handleAdminAuth(request: NextRequest): Promise<NextResponse> {
   const { pathname } = request.nextUrl;
 
   if (pathname === "/admin/login") {
-    return null;
+    return NextResponse.next();
   }
 
   const token = request.cookies.get(SESSION_COOKIE)?.value;
@@ -27,7 +27,19 @@ async function handleAdminAuth(request: NextRequest): Promise<NextResponse | nul
     return NextResponse.redirect(dashboardUrl);
   }
 
-  return null;
+  // Idle-timeout session: sliding renewal. Every admin request while the
+  // token is still valid re-issues it with a fresh expiry, so staying active
+  // keeps the session alive; ADMIN_IDLE_SECONDS of no requests lets it expire.
+  const response = NextResponse.next();
+  const renewedToken = await createSessionToken(session);
+  response.cookies.set(SESSION_COOKIE, renewedToken, {
+    httpOnly: true,
+    sameSite: "lax",
+    secure: process.env.NODE_ENV === "production",
+    path: "/",
+    maxAge: ADMIN_IDLE_SECONDS,
+  });
+  return response;
 }
 
 async function handleBookingAuth(request: NextRequest): Promise<NextResponse | null> {
@@ -64,9 +76,7 @@ export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   if (pathname.startsWith("/admin")) {
-    const redirect = await handleAdminAuth(request);
-    if (redirect) return redirect;
-    return NextResponse.next();
+    return handleAdminAuth(request);
   }
 
   if (/^\/labs\/[^/]+\/booking\/?$/.test(pathname)) {

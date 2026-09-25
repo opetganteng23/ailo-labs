@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
 
-import { requireSession } from "@/lib/auth";
 import { connectToDatabase } from "@/lib/mongodb";
 import { Booking } from "@/models/Booking";
 import { Lab } from "@/models/Lab";
@@ -9,13 +8,11 @@ export const dynamic = "force-dynamic";
 
 /**
  * Returns booking date ranges + status for a lab within a month, so the
- * booking page can render a calendar of full/pending/available days.
- * Only exposes schedule info (no borrower name/email/phone/purpose).
+ * booking page and lab detail page can render a calendar of
+ * full/pending/available days. Public: only exposes schedule info (no
+ * borrower name/email/phone/purpose), so no login is required to view it.
  */
 export async function GET(request: NextRequest, { params }: { params: Promise<{ slug: string }> }) {
-  const auth = await requireSession(request);
-  if (!auth.ok) return auth.response;
-
   const { slug } = await params;
   const monthParam = request.nextUrl.searchParams.get("month");
   const month = monthParam && /^\d{4}-\d{2}$/.test(monthParam) ? monthParam : new Date().toISOString().slice(0, 7);

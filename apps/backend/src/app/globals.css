@@ -91,15 +91,15 @@ h1, h2, h3 { line-height: 1.2; }
   font-weight: 600;
   font-size: 14px;
   cursor: pointer;
-  border: 1px solid var(--ink);
-  background: var(--ink);
+  border: 1px solid var(--teal);
+  background: var(--teal);
   color: #fff;
   text-decoration: none;
   font-family: var(--sans);
 }
 .btn:hover { background: var(--teal-dark); border-color: var(--teal-dark); }
 .btn.outline { background: transparent; color: var(--ink); }
-.btn.outline:hover { background: var(--ink); color: #fff; }
+.btn.outline:hover { background: var(--teal); border-color: var(--teal); color: #fff; }
 .btn.primary { background: var(--orange); border-color: var(--orange); color: #fff; }
 .btn.primary:hover { background: #d9700f; border-color: #d9700f; }
 .btn.danger { background: #b3261e; border-color: #b3261e; }
@@ -107,8 +107,9 @@ h1, h2, h3 { line-height: 1.2; }
 /* ===== Cards ===== */
 .card {
   display: block;
+  overflow: hidden;
   border: 1px solid var(--line);
-  background: #fff;
+  background: var(--paper);
   padding: 22px;
   border-radius: 4px;
   transition: background 0.2s ease, box-shadow 0.2s ease;
@@ -116,7 +117,51 @@ h1, h2, h3 { line-height: 1.2; }
 a.card:hover { background: var(--paper-dim); box-shadow: 0 10px 24px -16px rgba(18, 24, 27, 0.35); }
 .card h3 { font-size: 17px; font-weight: 600; margin-bottom: 8px; }
 .card p { font-size: 13.5px; color: #5b6469; line-height: 1.55; }
-.card-thumb { width: 100%; aspect-ratio: 16 / 10; object-fit: cover; border-radius: 3px; margin-bottom: 14px; background: var(--paper-dim); }
+.card-thumb {
+  display: block;
+  width: calc(100% + 44px);
+  margin: -22px -22px 16px -22px;
+  aspect-ratio: 16 / 10;
+  object-fit: cover;
+  background: var(--paper-dim);
+}
+.lab-card {
+  position: relative;
+  display: block;
+  aspect-ratio: 3 / 4;
+  border-radius: 4px;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  background: var(--paper-dim);
+}
+.lab-card img,
+.lab-card-placeholder {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  background: var(--paper-dim);
+}
+.lab-card-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(18, 24, 27, 0.88) 0%, rgba(18, 24, 27, 0.4) 45%, rgba(18, 24, 27, 0) 72%);
+  transition: background 0.2s ease;
+}
+.lab-card:hover .lab-card-overlay {
+  background: linear-gradient(to top, rgba(18, 24, 27, 0.94) 0%, rgba(18, 24, 27, 0.5) 45%, rgba(18, 24, 27, 0) 72%);
+}
+.lab-card-body {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 20px;
+}
+.lab-card-body h3 { color: #fff; font-size: 17px; font-weight: 600; margin-bottom: 4px; }
+.lab-card-body p { color: rgba(255, 255, 255, 0.85); font-size: 13px; }
+
 .detail-thumb { width: 100%; max-height: 360px; object-fit: cover; border-radius: 4px; margin: 20px 0; }
 .avatar-thumb { width: 72px; height: 72px; object-fit: cover; border-radius: 50%; margin-bottom: 12px; }
 
@@ -137,7 +182,7 @@ input, textarea, select {
   padding: 9px 10px;
   border: 1px solid var(--line);
   border-radius: 3px;
-  background: #fff;
+  background: var(--paper);
   color: var(--ink);
 }
 input:focus, textarea:focus, select:focus {
@@ -154,7 +199,7 @@ textarea { min-height: 100px; }
 .notice { background: #fdecd2; border: 1px solid #f2c477; padding: 10px 14px; border-radius: 4px; font-size: 13px; }
 
 /* ===== Availability calendar ===== */
-.availability-cal { border: 1px solid var(--line); background: #fff; border-radius: 4px; padding: 20px; max-width: 420px; }
+.availability-cal { border: 1px solid var(--line); background: var(--paper); border-radius: 4px; padding: 20px; max-width: 420px; }
 .availability-cal-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
 .availability-cal-head .btn { padding: 6px 12px; }
 .availability-cal-legend { display: flex; flex-wrap: wrap; gap: 14px; font-size: 12px; color: #5b6469; margin-bottom: 14px; }
@@ -191,7 +236,7 @@ textarea { min-height: 100px; }
   width: 240px;
   height: 100vh;
   overflow-y: auto;
-  background: var(--ink);
+  background: var(--teal-dark);
   color: #fff;
   padding: 22px 16px;
   font-family: var(--sans);
@@ -229,7 +274,7 @@ textarea { min-height: 100px; }
 }
 
 /* ===== Footer ===== */
-footer.site { background: var(--ink); color: #c3c9cb; padding: 56px 0 24px; margin-top: 48px; }
+footer.site { background: var(--teal-dark); color: #c3c9cb; padding: 56px 0 24px; margin-top: 48px; }
 footer.site a { color: #9aa3a7; }
 footer.site a:hover { color: #fff; }
 footer.site .foot-grid {

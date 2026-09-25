@@ -10,6 +10,9 @@ export type Role = "super_admin" | "admin" | "staff_lab" | "borrower";
 
 const ADMIN_ROLES: Role[] = ["super_admin", "admin", "staff_lab"];
 
+/** Admin/staff sessions expire after this many idle seconds; renewed on every admin request while active. */
+export const ADMIN_IDLE_SECONDS = 5 * 60;
+
 function secretKey() {
   const secret = process.env.NEXTAUTH_SECRET;
   if (!secret) {
@@ -30,7 +33,7 @@ export function isAdminRole(role: Role): boolean {
 }
 
 export async function createSessionToken(payload: SessionPayload) {
-  const expiresIn = isAdminRole(payload.role) ? "7d" : "30d";
+  const expiresIn = isAdminRole(payload.role) ? `${ADMIN_IDLE_SECONDS}s` : "30d";
   return new SignJWT({ ...payload })
     .setProtectedHeader({ alg: ALG })
     .setIssuedAt()
