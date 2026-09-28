@@ -1,11 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { Suspense, useState } from "react";
 
+import { safeNextPath } from "@/lib/safeRedirect";
+
 function RegisterFormInner() {
-  const router = useRouter();
   const searchParams = useSearchParams();
   const [error, setError] = useState<string>("");
   const [loading, setLoading] = useState(false);
@@ -33,8 +34,9 @@ function RegisterFormInner() {
         setLoading(false);
         return;
       }
-      router.push(searchParams.get("next") ?? "/");
-      router.refresh();
+      // Hard navigation avoids a stale router-cache 404 right after the
+      // session cookie changes (see AdminLoginForm for the same fix).
+      window.location.href = safeNextPath(searchParams.get("next"), "/");
     } catch {
       setError("Network error, please try again.");
       setLoading(false);

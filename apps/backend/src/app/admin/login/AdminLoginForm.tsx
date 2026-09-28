@@ -1,10 +1,11 @@
 "use client";
 
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { Suspense, useState } from "react";
 
+import { safeNextPath } from "@/lib/safeRedirect";
+
 function LoginFormInner() {
-  const router = useRouter();
   const searchParams = useSearchParams();
   const [error, setError] = useState<string>("");
   const [loading, setLoading] = useState(false);
@@ -27,8 +28,11 @@ function LoginFormInner() {
         setLoading(false);
         return;
       }
-      router.push(searchParams.get("next") ?? "/admin/dashboard");
-      router.refresh();
+      // Hard navigation: a client-side router.push right after the session
+      // cookie is set can race with Next's router cache and briefly render
+      // a stale not-found for the target route. A full navigation always
+      // picks up the new cookie cleanly.
+      window.location.href = safeNextPath(searchParams.get("next"), "/admin/dashboard");
     } catch {
       setError("Network error - please try again.");
       setLoading(false);
