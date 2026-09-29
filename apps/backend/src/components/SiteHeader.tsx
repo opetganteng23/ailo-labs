@@ -19,7 +19,7 @@ export async function SiteHeader() {
             width={200}
             height={50}
             priority
-            style={{ height: 44, width: "auto" }}
+            style={{ height: 48, width: "auto" }}
           />
         </Link>
         <input type="checkbox" id="nav-toggle" className="nav-toggle-checkbox" />
@@ -32,14 +32,17 @@ export async function SiteHeader() {
           <nav>
             <NavLinks />
           </nav>
-          <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+            <Link href="/join" className="btn-outline-dark" style={{ height: 40, padding: "0 16px", fontSize: 13.5 }}>
+              Join AILO
+            </Link>
             {session ? (
               <>
                 <span style={{ fontSize: 13.5, fontWeight: 600 }}>{session.name}</span>
                 <UserLogoutButton />
               </>
             ) : (
-              <Link href="/login" className="btn outline">
+              <Link href="/login" className="btn-primary" style={{ height: 40, padding: "0 16px", fontSize: 13.5 }}>
                 Login
               </Link>
             )}

@@ -11,7 +11,7 @@ export function SiteFooter() {
             <p>AI Learning For Optimization, a Center of Excellence under Telkom University, Bandung.</p>
           </div>
           <div className="foot-col">
-            <h5>Explore</h5>
+            <h5>EXPLORE</h5>
             <ul>
               <li><Link href="/research">Research</Link></li>
               <li><Link href="/projects">Projects</Link></li>
@@ -20,16 +20,16 @@ export function SiteFooter() {
             </ul>
           </div>
           <div className="foot-col">
-            <h5>Lab</h5>
+            <h5>AILO</h5>
             <ul>
               <li><Link href="/news">News</Link></li>
+              <li><Link href="/#about">About</Link></li>
+              <li><Link href="/join">Become a member</Link></li>
               <li><Link href="/labs">Ajukan peminjaman</Link></li>
-              <li><Link href="/join">Join AILO</Link></li>
-              <li><Link href="/admin/login">Admin login</Link></li>
             </ul>
           </div>
           <div className="foot-col">
-            <h5>Contact</h5>
+            <h5>CONTACT</h5>
             <ul>
               <li><a href="mailto:ailo@telkomuniversity.ac.id">ailo@telkomuniversity.ac.id</a></li>
               <li><span>Gedung TULT, Telkom University</span></li>
@@ -38,11 +38,12 @@ export function SiteFooter() {
           </div>
         </div>
         <div className="foot-bottom">
-          <span>© 2026 AILO, Telkom University&apos;s Center of Excellence.</span>
+          <span>© 2026 AILO · Telkom University Center of Excellence</span>
           <div className="socials">
             <span className="social-pending" title="Coming soon">Instagram</span>
             <span className="social-pending" title="Coming soon">LinkedIn</span>
             <span className="social-pending" title="Coming soon">YouTube</span>
+            <Link href="/admin/login" className="admin-link">Admin login</Link>
           </div>
         </div>
       </div>
