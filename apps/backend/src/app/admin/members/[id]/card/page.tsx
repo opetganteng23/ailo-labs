@@ -17,6 +17,7 @@ export default async function AdminMemberCardPage({ params }: { params: Promise<
     name: string;
     approvedAs?: string;
     requestedAs: string;
+    affiliation?: string;
     photo?: string;
     cardId?: string;
     validUntil?: Date;
@@ -30,16 +31,21 @@ export default async function AdminMemberCardPage({ params }: { params: Promise<
 
   return (
     <div>
-      <p>
-        <Link href="/admin/members?status=approved">Members</Link> / {member.name}
-      </p>
-      <h1>Digital member card</h1>
-      <div style={{ marginTop: 24 }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 14, color: "#5b6664", marginBottom: 20 }}>
+        <Link href="/admin/members?status=approved" style={{ color: "#5b6664", fontWeight: 500 }}>
+          Members
+        </Link>
+        <span>/</span>
+        <span style={{ color: "#15201f", fontWeight: 600 }}>{member.name}</span>
+      </div>
+      <h1 style={{ fontSize: 24, fontWeight: 800, marginBottom: 20 }}>Digital member card</h1>
+      <div>
         <MemberCard
           data={{
             name: member.name,
             cardId: member.cardId,
             category: member.approvedAs ?? member.requestedAs,
+            affiliation: member.affiliation,
             photo: member.photo,
             validUntil: member.validUntil,
             verifyUrl,

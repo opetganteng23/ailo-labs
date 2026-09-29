@@ -14,6 +14,7 @@ export default async function VerifyMemberPage({ params }: { params: Promise<{ c
     name: string;
     approvedAs?: string;
     requestedAs: string;
+    affiliation?: string;
     photo?: string;
     cardId?: string;
     validUntil?: Date;
@@ -44,6 +45,7 @@ export default async function VerifyMemberPage({ params }: { params: Promise<{ c
                 name: member.name,
                 cardId: member.cardId!,
                 category: member.approvedAs ?? member.requestedAs,
+                affiliation: member.affiliation,
                 photo: member.photo,
                 validUntil: member.validUntil,
                 verifyUrl: `${await getBaseUrl()}/verify/${member.cardId}`,
