@@ -10,6 +10,15 @@ async function handleAdminAuth(request: NextRequest): Promise<NextResponse> {
     return NextResponse.next();
   }
 
+  // /admin has no page of its own (only the shell layout) - it must always
+  // land on a real page, whether or not the visitor is logged in yet, or
+  // Next.js renders a bare 404 inside the admin shell.
+  if (pathname === "/admin" || pathname === "/admin/") {
+    const target = request.nextUrl.clone();
+    target.pathname = "/admin/dashboard";
+    return NextResponse.redirect(target);
+  }
+
   const token = request.cookies.get(SESSION_COOKIE)?.value;
   const session = token ? await verifySessionToken(token) : null;
 

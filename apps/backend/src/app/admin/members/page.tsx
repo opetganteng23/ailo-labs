@@ -56,6 +56,11 @@ export default async function AdminMembersPage({
           <h1>Members</h1>
           <p>Review sign-ups from the public site. Approving one generates and sends a digital member card.</p>
         </div>
+        <div className="admin2-actions">
+          <a href={`/api/admin/members/export?status=${current}`} className="admin2-btn outline">
+            Export CSV
+          </a>
+        </div>
       </div>
 
       <div style={{ display: "grid", gridTemplateColumns: "minmax(0, 1fr) 460px", gap: 24, alignItems: "start" }}>
