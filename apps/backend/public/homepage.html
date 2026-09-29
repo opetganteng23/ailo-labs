@@ -47,33 +47,41 @@
   .btn-solid-dark{background:var(--teal-darker); color:#fff;}
   .btn-solid-dark:hover{background:#083137;}
 
-  /* ===== Hero (header overlays a dark photo) ===== */
+  /* ===== Header (classic standalone sticky bar, outside the hero) ===== */
+  header.site{
+    position:sticky; top:0; z-index:100;
+    background:rgba(251,249,246,0.92);
+    backdrop-filter:blur(10px);
+    border-bottom:1px solid var(--line);
+  }
+  .nav-row{
+    display:flex; align-items:center; justify-content:space-between;
+    padding:16px 32px; max-width:1180px; margin:0 auto;
+  }
+  .brand{display:flex; align-items:center; gap:10px;}
+  .brand img.logo{height:40px; width:auto;}
+  nav.main-nav ul{list-style:none; display:flex; gap:32px; align-items:center;}
+  nav.main-nav a{font-size:14.5px; font-weight:500; color:var(--ink); position:relative; padding:4px 0;}
+  nav.main-nav a.active{color:var(--teal-dark); font-weight:600;}
+  nav.main-nav a::after{
+    content:""; position:absolute; left:0; right:0; bottom:-2px; height:2px;
+    background:var(--orange); transform:scaleX(0); transform-origin:left;
+    transition:transform .25s ease;
+  }
+  nav.main-nav a:hover::after, nav.main-nav a.active::after{transform:scaleX(1);}
+  .burger{display:none; flex-direction:column; gap:5px; cursor:pointer; background:none; border:none;}
+  .burger span{width:24px; height:2px; background:var(--ink); display:block;}
+
+  /* ===== Hero (photo section below the header) ===== */
   .hero{
     position:relative; overflow:hidden;
     background:linear-gradient(160deg, var(--teal-darker) 0%, #123b40 60%, var(--teal-dark) 100%);
     color:#fff;
   }
   .hero-scrim{position:absolute; inset:0; background:rgba(6,32,36,0.55); z-index:1;}
-  .hero > *:not(header){position:relative; z-index:2;}
-  header.site-nav{
-    position:sticky; top:0; z-index:50;
-    display:flex; align-items:center; gap:40px;
-    padding:0 32px; height:76px; width:100%; box-sizing:border-box;
-    background:#0A3F46;
-    border-bottom:1px solid rgba(255,255,255,0.14);
-  }
-  header.site-nav > .nav-inner{display:flex; align-items:center; gap:40px; width:100%; max-width:1180px; margin:0 auto;}
-  .brand{display:flex; align-items:center; gap:10px; color:#fff;}
-  .brand .mark{width:38px; height:38px; border-radius:10px; background:#fff; display:flex; align-items:center; justify-content:center; flex-shrink:0; overflow:hidden;}
-  .brand .mark img{width:100%; height:100%; object-fit:contain; padding:4px;}
-  .brand .name{font-size:20px; font-weight:800; letter-spacing:.02em;}
-  nav.main-nav ul{list-style:none; display:flex; gap:28px; align-items:center;}
-  nav.main-nav a{font-size:14px; font-weight:600; color:#C9DCDC; padding:6px 0; position:relative;}
-  nav.main-nav a.active{color:#fff; box-shadow:inset 0 -2px 0 var(--orange);}
-  .burger{display:none; flex-direction:column; gap:5px; cursor:pointer; background:none; border:none;}
-  .burger span{width:24px; height:2px; background:#fff; display:block;}
+  .hero > *{position:relative; z-index:2;}
 
-  .hero-copy{max-width:820px; width:100%; padding:96px 32px 0; margin:0 auto; box-sizing:border-box;}
+  .hero-copy{max-width:820px; width:100%; padding:80px 32px 0; margin:0 auto; box-sizing:border-box;}
   .kicker{display:flex; align-items:center; gap:12px; font-size:13px; font-weight:700; letter-spacing:.14em; color:#F7B77F; margin-bottom:24px;}
   .kicker .dash{width:28px; height:2px; background:var(--orange);}
   .hero h1{font-family:var(--serif); font-weight:800; font-size:clamp(36px,5.6vw,68px); line-height:1.06; letter-spacing:-0.02em; max-width:15ch;}
@@ -292,7 +300,7 @@
   @media (max-width:720px){
     nav.main-nav ul{display:none;}
     .burger{display:flex;}
-    header.site-nav > div:last-child a.btn{display:none;}
+    header.site .nav-row > div:last-child a.btn{display:none;}
     .wrap{padding:0 20px;}
     section{padding:64px 0;}
     .hero-copy{padding-left:20px; padding-right:20px; padding-top:56px;}
@@ -303,33 +311,32 @@
 </head>
 <body id="top">
 
+<header class="site">
+  <div class="nav-row">
+    <a href="#top" class="brand">
+      <img class="logo" src="/logo-horizontal.png" alt="AILO logo">
+    </a>
+    <nav class="main-nav">
+      <ul>
+        <li><a href="#top" class="active">Home</a></li>
+        <li><a href="#research">Research</a></li>
+        <li><a href="#projects">Projects</a></li>
+        <li><a href="#team">Team</a></li>
+        <li><a href="#labs">Labs</a></li>
+        <li><a href="#news">News</a></li>
+        <li><a href="#about">About</a></li>
+      </ul>
+    </nav>
+    <div style="display:flex; align-items:center; gap:12px;">
+      <a href="/join" class="btn btn-outline-dark" style="height:40px; padding:0 16px; font-size:13.5px;">Join AILO</a>
+      <a href="#contact" class="btn btn-primary" style="height:40px; padding:0 16px; font-size:13.5px;">Contact us</a>
+      <button class="burger" aria-label="Menu"><span></span><span></span><span></span></button>
+    </div>
+  </div>
+</header>
+
 <section class="hero" id="hero-section">
   <div class="hero-scrim"></div>
-  <header class="site-nav">
-    <div class="nav-inner">
-      <a href="#top" class="brand">
-        <span class="mark"><img src="/logo-square.png" alt="AILO"></span>
-        <span class="name">AILO</span>
-      </a>
-      <nav class="main-nav">
-        <ul>
-          <li><a href="#top" class="active">Home</a></li>
-          <li><a href="#research">Research</a></li>
-          <li><a href="#projects">Projects</a></li>
-          <li><a href="#team">Team</a></li>
-          <li><a href="#labs">Labs</a></li>
-          <li><a href="#news">News</a></li>
-          <li><a href="#about">About</a></li>
-        </ul>
-      </nav>
-      <div style="margin-left:auto; display:flex; align-items:center; gap:10px;">
-        <a href="/join" class="btn btn-outline-light" style="height:44px; padding:0 18px;">Join AILO</a>
-        <a href="#contact" class="btn btn-primary" style="height:44px; padding:0 18px;">Contact us</a>
-        <button class="burger" aria-label="Menu"><span></span><span></span><span></span></button>
-      </div>
-    </div>
-  </header>
-
   <div class="hero-copy">
     <div class="kicker"><span class="dash"></span><span id="hero-kicker">TELKOM UNIVERSITY · CENTER OF EXCELLENCE</span></div>
     <h1 id="hero-title">Learning systems that <em>optimize</em> how research gets done.</h1>
@@ -701,7 +708,7 @@
     var nav = document.querySelector('nav.main-nav ul');
     var isOpen = nav.style.display === 'flex';
     nav.style.display = isOpen ? 'none' : 'flex';
-    nav.style.cssText += 'flex-direction:column; position:absolute; top:76px; left:0; right:0; background:' + getComputedStyle(document.documentElement).getPropertyValue('--teal-darker') + '; padding:20px 32px; gap:18px; z-index:50;';
+    nav.style.cssText += 'flex-direction:column; position:absolute; top:100%; left:0; right:0; background:var(--paper); padding:20px 32px; gap:18px; z-index:99; border-bottom:1px solid var(--line);';
   });
 
   document.getElementById('teamFilters').addEventListener('click', function (e) {
