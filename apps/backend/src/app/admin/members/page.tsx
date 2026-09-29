@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { ConfirmSubmit } from "@/components/ConfirmSubmit";
 import { getBaseUrl } from "@/lib/baseUrl";
 import { connectToDatabase } from "@/lib/mongodb";
 import { MEMBER_CATEGORIES, Member } from "@/models/Member";
@@ -243,9 +244,9 @@ export default async function AdminMembersPage({
                     </form>
                     <form action={revokeMemberAction}>
                       <input type="hidden" name="id" value={selected._id} />
-                      <button type="submit" className="admin2-btn danger" style={{ height: 42, fontSize: 13, width: "100%" }}>
+                      <ConfirmSubmit title="Revoke this membership?" message="The member card will show as expired on the verification page." confirmLabel="Revoke" className="admin2-btn danger" style={{ height: 42, fontSize: 13, width: "100%" }}>
                         Revoke
-                      </button>
+                      </ConfirmSubmit>
                     </form>
                   </div>
                 </div>

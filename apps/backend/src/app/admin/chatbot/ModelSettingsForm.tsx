@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useFormStatus } from "react-dom";
 
 import { saveModelSettingsAction } from "./actions";
 
@@ -28,7 +29,20 @@ type Settings = {
   tokensUsedThisMonth: number;
 };
 
+function SaveBar({ dirty }: { dirty: boolean }) {
+  const { pending } = useFormStatus();
+  return (
+    <div className="admin2-sticky-save">
+      <span>{pending ? "Saving…" : dirty ? "You have unsaved changes." : "All changes are saved when you press Save."}</span>
+      <button type="submit" className="admin2-btn" disabled={pending}>
+        {pending ? "Saving…" : "Save changes"}
+      </button>
+    </div>
+  );
+}
+
 export function ModelSettingsForm({ settings }: { settings: Settings }) {
+  const [dirty, setDirty] = useState(false);
   const [provider, setProvider] = useState(settings.provider);
   const [apiKey, setApiKey] = useState("");
   const [showKey, setShowKey] = useState(false);
@@ -59,179 +73,174 @@ export function ModelSettingsForm({ settings }: { settings: Settings }) {
   }
 
   return (
-    <form action={saveModelSettingsAction}>
+    <form action={saveModelSettingsAction} onChange={() => setDirty(true)} onSubmit={() => setDirty(false)}>
       <input type="hidden" name="provider" value={provider} />
-      <div className="admin2-editor-grid">
-        <div style={{ display: "flex", flexDirection: "column", gap: 20, minWidth: 0 }}>
-          <section className="admin2-section">
-            <div>
-              <h2 style={{ fontSize: 17 }}>1 · Provider</h2>
-              <p style={{ margin: 0, fontSize: 14, color: "#5b6664" }}>Where answers and embeddings come from.</p>
-            </div>
-            <div className="admin2-provider-grid" role="radiogroup" aria-label="AI provider">
-              {PROVIDERS.map((p) => (
-                <button
-                  key={p.key}
-                  type="button"
-                  role="radio"
-                  aria-checked={provider === p.key}
-                  className={`admin2-provider-card${provider === p.key ? " active" : ""}`}
-                  onClick={() => setProvider(p.key)}
-                >
-                  <span className="name-row">
-                    <span className="name">{p.name}</span>
-                    {provider === p.key && (
-                      <span className="check">
-                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-                          <path d="M5 12l5 5 9-10" />
-                        </svg>
-                      </span>
-                    )}
-                  </span>
-                  <span className="sub">{p.sub}</span>
-                </button>
-              ))}
-            </div>
-          </section>
+      {/* Two columns of panels with one sticky Save bar, instead of one long column (QA LAIN-03). */}
+      <div className="admin2-settings-grid">
+        <section className="admin2-section">
+          <div>
+            <h2 style={{ fontSize: 17 }}>1 · Provider</h2>
+            <p style={{ margin: 0, fontSize: 14, color: "#5b6664" }}>Where answers and embeddings come from.</p>
+          </div>
+          <div className="admin2-provider-grid" role="radiogroup" aria-label="AI provider">
+            {PROVIDERS.map((p) => (
+              <button
+                key={p.key}
+                type="button"
+                role="radio"
+                aria-checked={provider === p.key}
+                className={`admin2-provider-card${provider === p.key ? " active" : ""}`}
+                onClick={() => {
+                  setProvider(p.key);
+                  setDirty(true);
+                }}
+              >
+                <span className="name-row">
+                  <span className="name">{p.name}</span>
+                  {provider === p.key && (
+                    <span className="check">
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M5 12l5 5 9-10" />
+                      </svg>
+                    </span>
+                  )}
+                </span>
+                <span className="sub">{p.sub}</span>
+              </button>
+            ))}
+          </div>
+        </section>
 
-          <section className="admin2-section">
-            <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-              <div style={{ display: "flex", flexDirection: "column", gap: 2, flexGrow: 1 }}>
-                <h2 style={{ fontSize: 17 }}>2 · API key</h2>
-                <p style={{ margin: 0, fontSize: 14, color: "#5b6664" }}>Stored encrypted on the server. Never sent to visitors&apos; browsers.</p>
+        <section className="admin2-section">
+          <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+            <div style={{ display: "flex", flexDirection: "column", gap: 2, flexGrow: 1 }}>
+              <h2 style={{ fontSize: 17 }}>2 · API key</h2>
+              <p style={{ margin: 0, fontSize: 14, color: "#5b6664" }}>Stored encrypted on the server. Never sent to visitors&apos; browsers.</p>
+            </div>
+            <span className={`admin2-chip-status ${settings.hasApiKey ? "connected" : "not-connected"}`}>
+              <span className="dot" />
+              {settings.hasApiKey ? `Connected · •••• ${settings.apiKeyLast4}` : "Not connected"}
+            </span>
+          </div>
+          <div className="admin2-field">
+            <label htmlFor="apikey">Secret key</label>
+            <div className="admin2-key-input-row">
+              <div className="admin2-key-input-wrap">
+                <svg className="lock" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                  <circle cx="8" cy="15" r="4" />
+                  <path d="M10.8 12.2L20 3M16 7l3 3M18 5l2 2" />
+                </svg>
+                <input
+                  id="apikey"
+                  name="apiKey"
+                  type={showKey ? "text" : "password"}
+                  placeholder={settings.hasApiKey ? "Leave blank to keep current key" : "Paste your API key"}
+                  value={apiKey}
+                  onChange={(e) => setApiKey(e.target.value)}
+                />
+                <button type="button" className="admin2-key-toggle" aria-label={showKey ? "Hide key" : "Show key"} onClick={() => setShowKey((s) => !s)}>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z" />
+                    <circle cx="12" cy="12" r="3" />
+                  </svg>
+                </button>
               </div>
-              <span className={`admin2-chip-status ${settings.hasApiKey ? "connected" : "not-connected"}`}>
-                <span className="dot" />
-                {settings.hasApiKey ? `Connected · •••• ${settings.apiKeyLast4}` : "Not connected"}
+              <button type="button" className="admin2-btn teal-outline" onClick={testConnection} disabled={testing}>
+                {testing ? "Testing…" : "Test connection"}
+              </button>
+            </div>
+            {testStatus && (
+              <span style={{ fontSize: 13, fontWeight: 600, color: testStatus.ok ? "#146c43" : "#9d1b1b" }}>{testStatus.message}</span>
+            )}
+          </div>
+          <div className="admin2-field">
+            <label htmlFor="baseurl">
+              Base URL <span style={{ fontWeight: 500, color: "#6b7573" }}>— only for custom endpoints</span>
+            </label>
+            <input id="baseurl" name="baseUrl" type="url" placeholder="https://api.example.com/v1" defaultValue={settings.baseUrl} disabled={provider !== "custom"} />
+          </div>
+        </section>
+
+        <section className="admin2-section admin2-span-2">
+          <div>
+            <h2 style={{ fontSize: 17 }}>3 · Models &amp; answer style</h2>
+            <p style={{ margin: 0, fontSize: 14, color: "#5b6664" }}>Set the model identifiers exactly as your provider names them.</p>
+          </div>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: 16 }}>
+            <div className="admin2-field">
+              <label htmlFor="chatm">Chat model</label>
+              <input id="chatm" name="chatModel" type="text" placeholder="e.g. gpt-4o-mini" defaultValue={settings.chatModel} />
+            </div>
+            <div className="admin2-field">
+              <label htmlFor="embm">Embedding model</label>
+              <input id="embm" name="embeddingModel" type="text" placeholder="e.g. text-embedding-3-small" defaultValue={settings.embeddingModel} />
+            </div>
+          </div>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(3, minmax(0, 1fr))", gap: 16 }}>
+            <div className="admin2-field">
+              <label htmlFor="temp" style={{ display: "flex" }}>
+                Creativity<span style={{ marginLeft: "auto", color: "#15201f" }}>{temperature.toFixed(1)}</span>
+              </label>
+              <input
+                id="temp"
+                name="temperature"
+                type="range"
+                min={0}
+                max={1}
+                step={0.1}
+                value={temperature}
+                onChange={(e) => setTemperature(Number(e.target.value))}
+                style={{ accentColor: "#0e6b73", margin: 0, background: "none", border: 0, padding: 0, height: "auto" }}
+              />
+              <span style={{ display: "flex", fontSize: 12, color: "#6b7573" }}>
+                <span>Precise</span>
+                <span style={{ marginLeft: "auto" }}>Creative</span>
               </span>
             </div>
             <div className="admin2-field">
-              <label htmlFor="apikey">Secret key</label>
-              <div className="admin2-key-input-row">
-                <div className="admin2-key-input-wrap">
-                  <svg className="lock" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-                    <circle cx="8" cy="15" r="4" />
-                    <path d="M10.8 12.2L20 3M16 7l3 3M18 5l2 2" />
-                  </svg>
-                  <input
-                    id="apikey"
-                    name="apiKey"
-                    type={showKey ? "text" : "password"}
-                    placeholder={settings.hasApiKey ? "Leave blank to keep current key" : "Paste your API key"}
-                    value={apiKey}
-                    onChange={(e) => setApiKey(e.target.value)}
-                  />
-                  <button type="button" className="admin2-key-toggle" aria-label={showKey ? "Hide key" : "Show key"} onClick={() => setShowKey((s) => !s)}>
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z" />
-                      <circle cx="12" cy="12" r="3" />
-                    </svg>
-                  </button>
-                </div>
-                <button type="button" className="admin2-btn teal-outline" onClick={testConnection} disabled={testing}>
-                  {testing ? "Testing…" : "Test connection"}
-                </button>
-              </div>
-              {testStatus && (
-                <span style={{ fontSize: 13, fontWeight: 600, color: testStatus.ok ? "#146c43" : "#9d1b1b" }}>{testStatus.message}</span>
-              )}
+              <label htmlFor="maxt">Max answer length</label>
+              <input id="maxt" name="maxTokens" type="number" defaultValue={settings.maxTokens} />
             </div>
             <div className="admin2-field">
-              <label htmlFor="baseurl">
-                Base URL <span style={{ fontWeight: 500, color: "#6b7573" }}>— only for custom endpoints</span>
-              </label>
-              <input id="baseurl" name="baseUrl" type="url" placeholder="https://api.example.com/v1" defaultValue={settings.baseUrl} disabled={provider !== "custom"} />
+              <label htmlFor="topk">Sources per answer</label>
+              <input id="topk" name="topK" type="number" defaultValue={settings.topK} />
             </div>
-          </section>
+          </div>
+          <div className="admin2-field">
+            <label htmlFor="persona">Instructions (system prompt)</label>
+            <textarea id="persona" name="systemPrompt" rows={5} defaultValue={settings.systemPrompt} />
+          </div>
+          <div className="admin2-field">
+            <label htmlFor="fallback">Fallback reply when no answer is found</label>
+            <input id="fallback" name="fallbackReply" type="text" defaultValue={settings.fallbackReply} />
+          </div>
+        </section>
 
-          <section className="admin2-section">
-            <div>
-              <h2 style={{ fontSize: 17 }}>3 · Models &amp; answer style</h2>
-              <p style={{ margin: 0, fontSize: 14, color: "#5b6664" }}>Set the model identifiers exactly as your provider names them.</p>
-            </div>
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: 16 }}>
-              <div className="admin2-field">
-                <label htmlFor="chatm">Chat model</label>
-                <input id="chatm" name="chatModel" type="text" placeholder="e.g. gpt-4o-mini" defaultValue={settings.chatModel} />
-              </div>
-              <div className="admin2-field">
-                <label htmlFor="embm">Embedding model</label>
-                <input id="embm" name="embeddingModel" type="text" placeholder="e.g. text-embedding-3-small" defaultValue={settings.embeddingModel} />
-              </div>
-            </div>
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(3, minmax(0, 1fr))", gap: 16 }}>
-              <div className="admin2-field">
-                <label htmlFor="temp" style={{ display: "flex" }}>
-                  Creativity<span style={{ marginLeft: "auto", color: "#15201f" }}>{temperature.toFixed(1)}</span>
-                </label>
-                <input
-                  id="temp"
-                  name="temperature"
-                  type="range"
-                  min={0}
-                  max={1}
-                  step={0.1}
-                  value={temperature}
-                  onChange={(e) => setTemperature(Number(e.target.value))}
-                  style={{ accentColor: "#0e6b73", margin: 0, background: "none", border: 0, padding: 0, height: "auto" }}
-                />
-                <span style={{ display: "flex", fontSize: 12, color: "#6b7573" }}>
-                  <span>Precise</span>
-                  <span style={{ marginLeft: "auto" }}>Creative</span>
-                </span>
-              </div>
-              <div className="admin2-field">
-                <label htmlFor="maxt">Max answer length</label>
-                <input id="maxt" name="maxTokens" type="number" defaultValue={settings.maxTokens} />
-              </div>
-              <div className="admin2-field">
-                <label htmlFor="topk">Sources per answer</label>
-                <input id="topk" name="topK" type="number" defaultValue={settings.topK} />
-              </div>
+        <section className="admin2-section">
+          <div>
+            <h2 style={{ fontSize: 17 }}>4 · Usage limits</h2>
+            <p style={{ margin: 0, fontSize: 14, color: "#5b6664" }}>Keep costs predictable. The bot switches to the fallback reply when a limit is hit.</p>
+          </div>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: 16 }}>
+            <div className="admin2-field">
+              <label htmlFor="budget">Monthly token budget</label>
+              <input id="budget" name="monthlyTokenBudget" type="number" placeholder="e.g. 2000000" defaultValue={settings.monthlyTokenBudget} />
             </div>
             <div className="admin2-field">
-              <label htmlFor="persona">Instructions (system prompt)</label>
-              <textarea id="persona" name="systemPrompt" rows={5} defaultValue={settings.systemPrompt} />
+              <label htmlFor="rate">Messages per visitor per day</label>
+              <input id="rate" name="perVisitorDailyLimit" type="number" defaultValue={settings.perVisitorDailyLimit} />
             </div>
-            <div className="admin2-field">
-              <label htmlFor="fallback">Fallback reply when no answer is found</label>
-              <input id="fallback" name="fallbackReply" type="text" defaultValue={settings.fallbackReply} />
+          </div>
+          <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+            <div style={{ display: "flex", fontSize: 13 }}>
+              <span style={{ fontWeight: 600, color: "#5b6664" }}>Used this month</span>
+              <span style={{ marginLeft: "auto", fontWeight: 700 }}>{settings.tokensUsedThisMonth.toLocaleString()} tokens</span>
             </div>
-          </section>
-
-          <section className="admin2-section">
-            <div>
-              <h2 style={{ fontSize: 17 }}>4 · Usage limits</h2>
-              <p style={{ margin: 0, fontSize: 14, color: "#5b6664" }}>Keep costs predictable. The bot switches to the fallback reply when a limit is hit.</p>
-            </div>
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: 16 }}>
-              <div className="admin2-field">
-                <label htmlFor="budget">Monthly token budget</label>
-                <input id="budget" name="monthlyTokenBudget" type="number" placeholder="e.g. 2000000" defaultValue={settings.monthlyTokenBudget} />
-              </div>
-              <div className="admin2-field">
-                <label htmlFor="rate">Messages per visitor per day</label>
-                <input id="rate" name="perVisitorDailyLimit" type="number" defaultValue={settings.perVisitorDailyLimit} />
-              </div>
-            </div>
-            <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-              <div style={{ display: "flex", fontSize: 13 }}>
-                <span style={{ fontWeight: 600, color: "#5b6664" }}>Used this month</span>
-                <span style={{ marginLeft: "auto", fontWeight: 700 }}>{settings.tokensUsedThisMonth.toLocaleString()} tokens</span>
-              </div>
-              <div style={{ height: 8, borderRadius: 999, background: "#eeece6" }} />
-            </div>
-          </section>
-        </div>
-
-        <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
-          <section className="admin2-section pad-sm">
-            <button type="submit" className="admin2-btn" style={{ width: "100%", justifyContent: "center" }}>
-              Save changes
-            </button>
-          </section>
-        </div>
+            <div style={{ height: 8, borderRadius: 999, background: "#eeece6" }} />
+          </div>
+        </section>
       </div>
+      <SaveBar dirty={dirty} />
     </form>
   );
 }

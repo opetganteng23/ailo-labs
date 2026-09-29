@@ -1,6 +1,7 @@
 import Image from "next/image";
 import type { ReactNode } from "react";
 
+import { Toaster } from "@/components/Toaster";
 import { getSession, isAdminRole } from "@/lib/auth";
 import { connectToDatabase } from "@/lib/mongodb";
 import { Member } from "@/models/Member";
@@ -50,6 +51,7 @@ export default async function AdminLayout({ children }: { children: ReactNode })
         </div>
       </aside>
       <main>{children}</main>
+      <Toaster />
     </div>
   );
 }

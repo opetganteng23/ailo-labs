@@ -1,12 +1,15 @@
 "use client";
 
 import { ImageUploadField } from "@/components/ImageUploadField";
+import { TagInput } from "@/components/TagInput";
 import { TEAM_CATEGORIES } from "@/models/teamCategories";
 
 import { createTeamAction, updateTeamAction } from "./actions";
 
 type TeamFormProps = {
   mode?: "create" | "edit";
+  /** Interests already used by other members, offered as suggestions. */
+  interestSuggestions?: string[];
   initial?: {
     _id: string;
     name: string;
@@ -16,6 +19,7 @@ type TeamFormProps = {
     studyProgram?: string;
     displayOrder?: number;
     bio?: string;
+    researchInterests?: string[];
     email?: string;
     photo?: string;
     profiles?: { linkedin?: string; orcid?: string; googleScholar?: string; sinta?: string; scopus?: string };
@@ -23,7 +27,7 @@ type TeamFormProps = {
   };
 };
 
-export function TeamForm({ mode = "create", initial }: TeamFormProps) {
+export function TeamForm({ mode = "create", initial, interestSuggestions = [] }: TeamFormProps) {
   const profiles = initial?.profiles ?? {};
 
   return (
@@ -34,11 +38,15 @@ export function TeamForm({ mode = "create", initial }: TeamFormProps) {
         <div style={{ display: "flex", flexDirection: "column", gap: 20, minWidth: 0 }}>
           <section className="admin2-section">
             <div className="admin2-field">
-              <label htmlFor="name">Name</label>
+              <label htmlFor="name">
+                Name<span className="req">*</span>
+              </label>
               <input id="name" name="name" type="text" required maxLength={160} defaultValue={initial?.name} />
             </div>
             <div className="admin2-field">
-              <label htmlFor="position">Position</label>
+              <label htmlFor="position">
+                Position<span className="req">*</span>
+              </label>
               <input id="position" name="position" type="text" required maxLength={160} defaultValue={initial?.position} />
             </div>
             <div style={{ display: "grid", gridTemplateColumns: "repeat(3, minmax(0, 1fr))", gap: 16 }}>
@@ -58,6 +66,12 @@ export function TeamForm({ mode = "create", initial }: TeamFormProps) {
             <div className="admin2-field">
               <label htmlFor="email">Email</label>
               <input id="email" name="email" type="email" defaultValue={initial?.email} />
+            </div>
+            <div className="admin2-field">
+              <label>
+                Research interests <span style={{ fontWeight: 500, color: "#6b7573" }}>(tags, used for filtering on the public team page)</span>
+              </label>
+              <TagInput name="researchInterests" defaultValue={initial?.researchInterests} suggestions={interestSuggestions} placeholder="e.g. NLP, Computer Vision…" />
             </div>
             <div className="admin2-field">
               <label htmlFor="bio">Bio</label>
@@ -106,7 +120,7 @@ export function TeamForm({ mode = "create", initial }: TeamFormProps) {
 
           <section className="admin2-section pad-sm">
             <h2>Photo</h2>
-            <ImageUploadField name="photo" label="" defaultValue={initial?.photo} />
+            <ImageUploadField name="photo" label="" defaultValue={initial?.photo} hint="Square portrait - PNG, JPG or WEBP" />
           </section>
 
           {mode === "edit" && (

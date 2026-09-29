@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { ConfirmSubmit } from "@/components/ConfirmSubmit";
 import { connectToDatabase } from "@/lib/mongodb";
 import { ContactMessage } from "@/models/ContactMessage";
 import { SiteSettings } from "@/models/SiteSettings";
@@ -48,13 +49,24 @@ export default async function AdminMessagesPage({
     unread: all.filter((m) => !m.isRead && !m.archived).length,
   };
 
-  const selected = id ? all.find((m) => m._id === id) : filtered[0];
+  const selected = id ? all.find((m) => String(m._id) === id) : filtered[0];
+  // Opening a message (clicking it in the list) marks it read.
+  if (id && selected && !selected.isRead) {
+    await ContactMessage.findByIdAndUpdate(selected._id, { isRead: true });
+    selected.isRead = true;
+  }
 
   return (
     <div>
       <div style={{ marginBottom: 20 }}>
         <h1 style={{ margin: 0, fontSize: 30, fontWeight: 800, letterSpacing: "-0.01em" }}>Messages</h1>
-        <p style={{ margin: "4px 0 0", fontSize: 15, color: "#5b6664" }}>Everything sent through the public contact form.</p>
+        <p style={{ margin: "4px 0 0", fontSize: 15, color: "#5b6664" }}>
+          Messages visitors send from the{" "}
+          <a href="/contact" target="_blank" rel="noopener noreferrer" style={{ color: "#00809d", fontWeight: 600 }}>
+            Contact form
+          </a>{" "}
+          on the public site (&quot;Contact us&quot; / &quot;Get in touch&quot;). New messages stay <strong>Unread</strong> until you open them; replies are sent by email.
+        </p>
       </div>
 
       <section style={{ background: "#fff", border: "1px solid #e3e1da", borderRadius: 16, overflow: "hidden", display: "flex", minHeight: 520 }}>
@@ -109,7 +121,10 @@ export default async function AdminMessagesPage({
                   {!m.isRead && <span style={{ width: 8, height: 8, borderRadius: 999, background: "#d9731f", flexShrink: 0, marginTop: 5 }} />}
                 </div>
                 <span style={{ display: "block", fontSize: 13, fontWeight: m.isRead ? 500 : 700, color: "#3b4947", marginTop: 2 }}>{m.subject}</span>
-                <span style={{ display: "block", fontSize: 12, color: "#6b7573", marginTop: 2 }}>{new Date(m.createdAt).toLocaleString("en-GB")}</span>
+                <span style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 12, color: "#6b7573", marginTop: 4 }}>
+                  {new Date(m.createdAt).toLocaleString("en-GB")}
+                  <span className={`msg-status ${m.repliedAt ? "replied" : m.isRead ? "read" : "unread"}`}>{m.repliedAt ? "Replied" : m.isRead ? "Read" : "Unread"}</span>
+                </span>
               </a>
             ))}
           </div>
@@ -139,7 +154,12 @@ export default async function AdminMessagesPage({
                   <h2 style={{ margin: 0, fontSize: 18, fontWeight: 700 }}>{selected.subject}</h2>
                   <p style={{ margin: "4px 0 0", fontSize: 13, color: "#5b6664" }}>
                     {selected.name} &lt;{selected.email}&gt; · {new Date(selected.createdAt).toLocaleString("en-GB")}
-                    {selected.repliedAt && <span style={{ color: "#146c43", fontWeight: 600 }}> · Replied</span>}
+                  </p>
+                  <p style={{ margin: "8px 0 0", display: "flex", gap: 8, alignItems: "center", fontSize: 12.5, color: "#5b6664" }}>
+                    <span className="msg-source">Source: website contact form</span>
+                    <span className={`msg-status ${selected.repliedAt ? "replied" : selected.isRead ? "read" : "unread"}`}>
+                      {selected.repliedAt ? `Replied ${new Date(selected.repliedAt).toLocaleDateString("en-GB")}` : selected.isRead ? "Read" : "Unread"}
+                    </span>
                   </p>
                 </div>
                 <form action={markMessageReadAction}>
@@ -158,9 +178,9 @@ export default async function AdminMessagesPage({
                 </form>
                 <form action={deleteMessageAction}>
                   <input type="hidden" name="id" value={selected._id} />
-                  <button type="submit" className="admin2-btn danger" style={{ height: 38, fontSize: 13 }}>
+                  <ConfirmSubmit title="Delete this message?" message="The message will be permanently removed." confirmLabel="Delete" className="admin2-btn danger" style={{ height: 38, fontSize: 13 }}>
                     Delete
-                  </button>
+                  </ConfirmSubmit>
                 </form>
               </div>
 

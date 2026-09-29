@@ -43,29 +43,33 @@ export function KnowledgeSourcesForm({
 
   return (
     <form ref={formRef} action={saveKnowledgeSourcesAction}>
-      <div style={{ display: "flex", flexDirection: "column" }}>
-        {SOURCES.map((s) => (
-          <label key={s.key} className="admin2-source-row">
-            <span className="admin2-source-icon">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-                <path d={s.icon} />
-              </svg>
-            </span>
-            <span style={{ display: "flex", flexDirection: "column", flexGrow: 1 }}>
-              <span style={{ fontSize: 15, fontWeight: 600 }}>{s.label}</span>
-              <span style={{ fontSize: 13, color: "#6b7573" }}>{counts[s.key]}</span>
-            </span>
-            <input
-              className="switch"
-              type="checkbox"
-              name="source"
-              value={s.key}
-              defaultChecked={enabled.includes(s.key)}
-              aria-label={`Include ${s.label}`}
-              onChange={() => formRef.current?.requestSubmit()}
-            />
-          </label>
-        ))}
+      {/* Grid of cards so every content type fits on one screen (QA LAIN-02). */}
+      <div className="admin2-source-grid">
+        {SOURCES.map((s) => {
+          const on = enabled.includes(s.key);
+          return (
+            <label key={s.key} className="admin2-source-card">
+              <span className="admin2-source-card-top">
+                <span className="admin2-source-icon">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                    <path d={s.icon} />
+                  </svg>
+                </span>
+                <input
+                  className="switch"
+                  type="checkbox"
+                  name="source"
+                  value={s.key}
+                  defaultChecked={on}
+                  aria-label={`Include ${s.label}`}
+                  onChange={() => formRef.current?.requestSubmit()}
+                />
+              </span>
+              <span style={{ fontSize: 15, fontWeight: 700 }}>{s.label}</span>
+              <span style={{ fontSize: 12.5, lineHeight: 1.4, color: "#6b7573" }}>{counts[s.key]}</span>
+            </label>
+          );
+        })}
       </div>
     </form>
   );

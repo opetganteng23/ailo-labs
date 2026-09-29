@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { ConfirmSubmit } from "@/components/ConfirmSubmit";
 import { ImageUploadField } from "@/components/ImageUploadField";
 import { connectToDatabase } from "@/lib/mongodb";
 import { Device } from "@/models/Device";
@@ -93,11 +94,11 @@ export default async function AdminDevicesPage() {
             <form action={deleteDeviceAction}>
               <input type="hidden" name="id" value={d._id} />
               <input type="hidden" name="lab" value={d.lab?._id ?? ""} />
-              <button type="submit" aria-label="Delete device" className="admin2-btn ghost" style={{ padding: 0, width: 40, height: 40, justifyContent: "center", color: "#9d1b1b" }}>
+              <ConfirmSubmit title="Delete this device?" message="It will be removed from its lab and can't be booked anymore." confirmLabel="Delete" ariaLabel="Delete device" className="admin2-btn ghost" style={{ padding: 0, width: 40, height: 40, justifyContent: "center", color: "#9d1b1b" }}>
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M3 6h18M8 6V4a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2m2 0v14a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V6z" />
                 </svg>
-              </button>
+              </ConfirmSubmit>
             </form>
           </div>
         ))}

@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useState } from "react";
 
 import { MemberCardFront } from "@/components/MemberCardFront";
+import { PasswordInput } from "@/components/PasswordInput";
 
 const CATEGORY_DEFS = [
   { name: "Peneliti Mahasiswa", hint: "S1, S2 or S3 student doing research with AILO" },
@@ -300,11 +301,11 @@ export function JoinForm() {
               </div>
               <div className="join-field">
                 <label htmlFor="jpw">Password</label>
-                <input id="jpw" type="password" placeholder="At least 8 characters" autoComplete="new-password" value={state.password} onChange={(e) => set("password", e.target.value)} />
+                <PasswordInput id="jpw" placeholder="At least 8 characters" autoComplete="new-password" value={state.password} onChange={(e) => set("password", e.target.value)} />
               </div>
               <div className="join-field">
                 <label htmlFor="jpw2">Confirm password</label>
-                <input id="jpw2" type="password" autoComplete="new-password" value={state.passwordConfirm} onChange={(e) => set("passwordConfirm", e.target.value)} />
+                <PasswordInput id="jpw2" autoComplete="new-password" value={state.passwordConfirm} onChange={(e) => set("passwordConfirm", e.target.value)} />
                 {state.passwordConfirm && state.password !== state.passwordConfirm && <span className="error-text">Passwords don&apos;t match.</span>}
               </div>
             </div>

@@ -49,21 +49,22 @@ export function ResearchDrawer({ mode, initial }: ResearchDrawerProps) {
           <input type="hidden" name="status" value={status} />
 
           <div className="admin2-field">
-            <label htmlFor="title">Title</label>
+            <label htmlFor="title">
+              Title<span className="req">*</span>
+            </label>
             <input id="title" name="title" type="text" required maxLength={200} placeholder="Research topic name" defaultValue={initial?.title} />
           </div>
           <div className="admin2-field">
-            <label htmlFor="description">Short description</label>
+            <label htmlFor="description">
+              Short description<span className="req">*</span>
+            </label>
             <textarea id="description" name="description" required maxLength={500} rows={2} placeholder="One or two sentences shown on cards" defaultValue={initial?.description} />
           </div>
           <div className="admin2-field">
             <label htmlFor="content">Content</label>
             <RichTextEditor name="content" defaultValue={initial?.content} placeholder="Background, methods, publications…" minHeight={160} />
           </div>
-          <div className="admin2-field">
-            <label>Cover image</label>
-            <ImageUploadField name="image" label="" defaultValue={initial?.image} />
-          </div>
+          <ImageUploadField name="image" label="Cover image" defaultValue={initial?.image} hint="16:9 works best - PNG, JPG or WEBP" />
         </form>
 
         <div className="drawer-foot">

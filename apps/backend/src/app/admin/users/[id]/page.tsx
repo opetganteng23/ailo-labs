@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 
+import { ImageUploadField } from "@/components/ImageUploadField";
+import { PasswordInput } from "@/components/PasswordInput";
 import { getSession } from "@/lib/auth";
 import { connectToDatabase } from "@/lib/mongodb";
 import { User } from "@/models/User";
@@ -22,6 +24,7 @@ export default async function AdminUserEditPage({ params }: { params: Promise<{ 
     name: string;
     email: string;
     role: string;
+    photo?: string;
     isActive: boolean;
   }>();
   if (!user) notFound();
@@ -38,20 +41,25 @@ export default async function AdminUserEditPage({ params }: { params: Promise<{ 
         <span style={{ color: "#15201f", fontWeight: 600 }}>{user.name}</span>
       </div>
 
-      <section className="admin2-section" style={{ maxWidth: 480 }}>
+      <section className="admin2-section" style={{ maxWidth: 560 }}>
         <form action={updateUserAction} style={{ display: "flex", flexDirection: "column", gap: 20 }}>
           <input type="hidden" name="id" value={user._id} />
           <div className="admin2-field">
-            <label htmlFor="name">Name</label>
+            <label htmlFor="name">
+              Name<span className="req">*</span>
+            </label>
             <input id="name" name="name" required maxLength={160} defaultValue={user.name} />
           </div>
           <div className="admin2-field">
-            <label htmlFor="email">Email</label>
+            <label htmlFor="email">
+              Email<span className="req">*</span>
+            </label>
             <input id="email" name="email" type="email" required defaultValue={user.email} />
           </div>
+          <ImageUploadField name="photo" label="Photo" defaultValue={user.photo} hint="Square portrait - PNG, JPG or WEBP" />
           <div className="admin2-field">
             <label htmlFor="password">New password</label>
-            <input id="password" name="password" type="password" minLength={8} placeholder="Leave blank to keep current password" />
+            <PasswordInput id="password" name="password" minLength={8} autoComplete="new-password" placeholder="Leave blank to keep current password" />
           </div>
           <div className="admin2-field">
             <label htmlFor="role">Role</label>

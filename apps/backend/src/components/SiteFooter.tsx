@@ -31,6 +31,7 @@ export function SiteFooter() {
           <div className="foot-col">
             <h5>CONTACT</h5>
             <ul>
+              <li><Link href="/contact">Contact form</Link></li>
               <li><a href="mailto:ailo@telkomuniversity.ac.id">ailo@telkomuniversity.ac.id</a></li>
               <li><span>Gedung TULT, Telkom University</span></li>
               <li><span>Bandung, Jawa Barat</span></li>

@@ -1,10 +1,13 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import Link from "next/link";
+import { useMemo, useState, useTransition } from "react";
 
 import { RichTextEditor } from "@/components/RichTextEditor";
+import { toast } from "@/lib/toast";
 
 import { createNewsAction, updateNewsAction } from "./actions";
+import { addCategoryInlineAction } from "./categories/actions";
 
 type NewsFormProps = {
   mode?: "create" | "edit";
@@ -22,14 +25,21 @@ type NewsFormProps = {
   };
 };
 
+// Every 5W+1H answer is needed to generate a complete draft (QA NEWS-01/02).
 const FIVE_W_1_H = [
-  { key: "what", tag: "WHAT", label: "Apa yang terjadi?", placeholder: "mis. Penandatanganan kerja sama hilirisasi riset AI", required: true },
-  { key: "who", tag: "WHO", label: "Siapa yang terlibat?", placeholder: "Institusi, tokoh, jabatan", required: false },
-  { key: "when", tag: "WHEN", label: "Kapan?", placeholder: "Tanggal & waktu kegiatan", required: false, isInput: true },
-  { key: "where", tag: "WHERE", label: "Di mana?", placeholder: "Lokasi atau platform", required: false, isInput: true },
-  { key: "why", tag: "WHY", label: "Mengapa penting?", placeholder: "Latar belakang dan dampaknya", required: false },
-  { key: "how", tag: "HOW", label: "Bagaimana prosesnya?", placeholder: "Rangkaian acara, mekanisme, tindak lanjut", required: false },
+  { key: "what", tag: "WHAT", label: "Apa yang terjadi?", placeholder: "mis. Penandatanganan kerja sama hilirisasi riset AI" },
+  { key: "who", tag: "WHO", label: "Siapa yang terlibat?", placeholder: "Institusi, tokoh, jabatan" },
+  { key: "when", tag: "WHEN", label: "Kapan?", placeholder: "Tanggal & waktu kegiatan" },
+  { key: "where", tag: "WHERE", label: "Di mana?", placeholder: "Lokasi atau platform" },
+  { key: "why", tag: "WHY", label: "Mengapa penting?", placeholder: "Latar belakang dan dampaknya" },
+  { key: "how", tag: "HOW", label: "Bagaimana prosesnya?", placeholder: "Rangkaian acara, mekanisme, tindak lanjut" },
 ] as const;
+
+type FieldKey = (typeof FIVE_W_1_H)[number]["key"];
+
+function escapeHtml(input: string) {
+  return input.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+}
 
 function slugify(input: string) {
   return input
@@ -39,23 +49,27 @@ function slugify(input: string) {
     .replace(/(^-|-$)/g, "");
 }
 
-const DEFAULT_CATEGORIES = ["General", "Collaboration", "Research", "Event"];
-
 export function NewsForm({ mode = "create", initial, categories = [] }: NewsFormProps) {
   const [title, setTitle] = useState(initial?.title ?? "");
   const [summary, setSummary] = useState(initial?.summary ?? "");
   const [draft, setDraft] = useState(initial?.content ?? "");
   const [draftVersion, setDraftVersion] = useState(0);
   const [status, setStatus] = useState(initial?.status ?? "draft");
-  const [category, setCategory] = useState(initial?.category ?? "General");
+  const [category, setCategory] = useState(initial?.category ?? (categories.includes("General") ? "General" : categories[0] ?? ""));
   const [contentMode, setContentMode] = useState<"ai" | "manual">(
     initial && !Object.values(initial.source5W1H ?? {}).some((v) => v?.trim()) && initial.content ? "manual" : "ai",
   );
+  const [extraCategories, setExtraCategories] = useState<string[]>([]);
   const categoryOptions = useMemo(() => {
-    const set = new Set([...DEFAULT_CATEGORIES, ...categories]);
+    const set = new Set([...categories, ...extraCategories]);
     if (initial?.category) set.add(initial.category);
-    return Array.from(set);
-  }, [categories, initial]);
+    return Array.from(set).sort((a, b) => a.localeCompare(b));
+  }, [categories, extraCategories, initial]);
+  const [addingCategory, setAddingCategory] = useState(false);
+  const [newCategory, setNewCategory] = useState("");
+  const [categoryError, setCategoryError] = useState("");
+  const [savingCategory, startCategoryTransition] = useTransition();
+  const [missing, setMissing] = useState<FieldKey[]>([]);
   const [tags, setTags] = useState<string[]>(initial?.tags ?? []);
   const [tagInput, setTagInput] = useState("");
   const [cover, setCover] = useState(initial?.images?.[0] ?? "");
@@ -83,6 +97,13 @@ export function NewsForm({ mode = "create", initial, categories = [] }: NewsForm
   const doneCount = checklist.filter((c) => c.done).length;
 
   function generateDraft() {
+    const empty = FIVE_W_1_H.filter((f) => !fields[f.key].trim()).map((f) => f.key);
+    setMissing(empty);
+    if (empty.length > 0) {
+      toast("error", `Fill in all 5W+1H questions before generating (${empty.length} still empty).`);
+      document.getElementById(`w-${empty[0]}`)?.focus();
+      return;
+    }
     const lines = [
       fields.what,
       fields.who && `Melibatkan: ${fields.who}`,
@@ -91,8 +112,30 @@ export function NewsForm({ mode = "create", initial, categories = [] }: NewsForm
       fields.why && `Latar belakang: ${fields.why}`,
       fields.how && `Detail pelaksanaan: ${fields.how}`,
     ].filter(Boolean);
-    setDraft(lines.map((l) => `<p>${l}</p>`).join(""));
+    setDraft(lines.map((l) => `<p>${escapeHtml(String(l))}</p>`).join(""));
     setDraftVersion((v) => v + 1);
+    toast("success", "Draft generated. Review and edit it in the article body.");
+  }
+
+  function saveNewCategory() {
+    const name = newCategory.trim();
+    if (!name) {
+      setCategoryError("Enter a category name.");
+      return;
+    }
+    startCategoryTransition(async () => {
+      const result = await addCategoryInlineAction(name);
+      if (!result.ok) {
+        setCategoryError(result.error);
+        return;
+      }
+      setExtraCategories((list) => [...list, result.name]);
+      setCategory(result.name);
+      setNewCategory("");
+      setCategoryError("");
+      setAddingCategory(false);
+      toast("success", `Category "${result.name}" added.`);
+    });
   }
 
   function addTag(value: string) {
@@ -132,7 +175,9 @@ export function NewsForm({ mode = "create", initial, categories = [] }: NewsForm
         <div style={{ display: "flex", flexDirection: "column", gap: 24, minWidth: 0 }}>
           <section className="admin2-section">
             <div className="admin2-field">
-              <label htmlFor="title">Headline</label>
+              <label htmlFor="title">
+                Headline<span className="req">*</span>
+              </label>
               <textarea
                 id="title"
                 name="title"
@@ -150,7 +195,9 @@ export function NewsForm({ mode = "create", initial, categories = [] }: NewsForm
             </div>
             <div style={{ height: 1, background: "#eeece6" }} />
             <div className="admin2-field">
-              <label htmlFor="summary">Summary</label>
+              <label htmlFor="summary">
+                Summary<span className="req">*</span>
+              </label>
               <textarea
                 id="summary"
                 name="summary"
@@ -183,6 +230,9 @@ export function NewsForm({ mode = "create", initial, categories = [] }: NewsForm
               </div>
             </div>
 
+            {contentMode === "manual" &&
+              FIVE_W_1_H.map((f) => <input key={f.key} type="hidden" name={f.key} value={fields[f.key]} />)}
+            {contentMode === "manual" && <div style={{ height: 24 }} />}
             {contentMode === "ai" && (
               <>
                 <div className="admin2-panel-toolbar" style={{ padding: "20px 28px" }}>
@@ -190,6 +240,9 @@ export function NewsForm({ mode = "create", initial, categories = [] }: NewsForm
                     <h2>Story facts - 5W + 1H</h2>
                     <p style={{ margin: 0, fontSize: 14, color: "#5b6664" }}>
                       Answer the six questions. The draft below is assembled from your answers.
+                    </p>
+                    <p style={{ margin: "4px 0 0", fontSize: 13, color: "#5b6664" }}>
+                      <span className="req" style={{ marginLeft: 0 }}>*</span> wajib diisi (required)
                     </p>
                   </div>
                   <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 6 }}>
@@ -200,32 +253,33 @@ export function NewsForm({ mode = "create", initial, categories = [] }: NewsForm
                   </div>
                 </div>
                 <div className="admin2-5w1h-grid" style={{ padding: "0 28px 24px" }}>
-                  {FIVE_W_1_H.map((f) => (
-                    <div key={f.key} className={`admin2-field${f.required ? " required" : ""}`}>
-                      <label htmlFor={`w-${f.key}`}>
-                        <span className="admin2-5w1h-tag">{f.tag}</span>
-                        {f.label}
-                        {f.required && <span style={{ marginLeft: "auto", fontSize: 12, fontWeight: 600, color: "#b4410c" }}>Required</span>}
-                      </label>
-                      {"isInput" in f && f.isInput ? (
-                        <input
-                          id={`w-${f.key}`}
-                          type="text"
-                          placeholder={f.placeholder}
-                          value={fields[f.key]}
-                          onChange={(e) => setFields((s) => ({ ...s, [f.key]: e.target.value }))}
-                        />
-                      ) : (
+                  {FIVE_W_1_H.map((f) => {
+                    const isMissing = missing.includes(f.key);
+                    return (
+                      <div key={f.key} className="admin2-field">
+                        <label htmlFor={`w-${f.key}`}>
+                          <span className="admin2-5w1h-tag">{f.tag}</span>
+                          {f.label}
+                          <span className="req">*</span>
+                        </label>
                         <textarea
                           id={`w-${f.key}`}
-                          rows={2}
+                          name={f.key}
+                          rows={3}
                           placeholder={f.placeholder}
+                          className={isMissing ? "field-invalid" : undefined}
+                          aria-invalid={isMissing || undefined}
                           value={fields[f.key]}
-                          onChange={(e) => setFields((s) => ({ ...s, [f.key]: e.target.value }))}
+                          onChange={(e) => {
+                            const value = e.target.value;
+                            setFields((st) => ({ ...st, [f.key]: value }));
+                            if (value.trim()) setMissing((m) => m.filter((k) => k !== f.key));
+                          }}
                         />
-                      )}
-                    </div>
-                  ))}
+                        {isMissing && <span className="field-error">This field is required.</span>}
+                      </div>
+                    );
+                  })}
                 </div>
                 <div style={{ padding: "16px 28px", background: "#f7f6f2", borderTop: "1px solid #eeece6", display: "flex", alignItems: "center", gap: 16 }}>
                   <span style={{ fontSize: 13, color: "#5b6664", flexGrow: 1 }}>
@@ -241,15 +295,17 @@ export function NewsForm({ mode = "create", initial, categories = [] }: NewsForm
 
           <section className="admin2-section" style={{ padding: 0 }}>
             <div className="admin2-panel-toolbar" style={{ padding: "18px 28px" }}>
-              <h2>Article body</h2>
+              <h2>
+                Article body<span className="req">*</span>
+              </h2>
               {contentMode === "ai" && (
                 <span style={{ fontSize: 12, fontWeight: 600, color: "#0e6b73", background: "#e3f1f1", borderRadius: 999, padding: "4px 10px" }}>
                   Generated from 5W+1H - editable
                 </span>
               )}
             </div>
-            <div style={{ padding: "20px 28px 28px" }}>
-              <RichTextEditor key={draftVersion} name="content" defaultValue={draft} placeholder="Write the article body…" />
+            <div style={{ padding: "20px 28px 36px" }}>
+              <RichTextEditor key={draftVersion} name="content" defaultValue={draft} placeholder="Write the article body…" required />
             </div>
           </section>
         </div>
@@ -269,15 +325,61 @@ export function NewsForm({ mode = "create", initial, categories = [] }: NewsForm
           <section className="admin2-section pad-sm">
             <h2>Organize</h2>
             <div className="admin2-field">
-              <label htmlFor="category">
-                Category <span style={{ fontWeight: 500, color: "#6b7573" }}>(pick one or type a new one)</span>
+              <label htmlFor="category" style={{ display: "flex", alignItems: "center" }}>
+                <span>
+                  Category<span className="req">*</span>
+                </span>
+                <Link href="/admin/news/categories" style={{ marginLeft: "auto", fontSize: 12.5, fontWeight: 600, color: "#00809d" }}>
+                  Manage
+                </Link>
               </label>
-              <input id="category" name="category" type="text" list="category-options" required value={category} onChange={(e) => setCategory(e.target.value)} />
-              <datalist id="category-options">
+              <select id="category" name="category" required value={category} onChange={(e) => setCategory(e.target.value)}>
+                {!categoryOptions.includes(category) && <option value="">Choose a category</option>}
                 {categoryOptions.map((c) => (
-                  <option key={c} value={c} />
+                  <option key={c} value={c}>
+                    {c}
+                  </option>
                 ))}
-              </datalist>
+              </select>
+              {addingCategory ? (
+                <div className="admin2-inline-add">
+                  <input
+                    type="text"
+                    aria-label="New category name"
+                    placeholder="New category name"
+                    maxLength={40}
+                    autoFocus
+                    value={newCategory}
+                    onChange={(e) => {
+                      setNewCategory(e.target.value);
+                      setCategoryError("");
+                    }}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        e.preventDefault();
+                        saveNewCategory();
+                      }
+                      if (e.key === "Escape") setAddingCategory(false);
+                    }}
+                    className={categoryError ? "field-invalid" : undefined}
+                  />
+                  <button type="button" className="admin2-btn" style={{ height: 40, padding: "0 14px" }} disabled={savingCategory} onClick={saveNewCategory}>
+                    {savingCategory ? "Adding…" : "Add"}
+                  </button>
+                  <button type="button" className="admin2-btn ghost" style={{ height: 40, padding: "0 10px" }} onClick={() => setAddingCategory(false)}>
+                    Cancel
+                  </button>
+                  {categoryError && (
+                    <span className="field-error" style={{ flexBasis: "100%", marginTop: 0 }}>
+                      {categoryError}
+                    </span>
+                  )}
+                </div>
+              ) : (
+                <button type="button" className="admin2-link-btn" onClick={() => setAddingCategory(true)}>
+                  + Add category
+                </button>
+              )}
             </div>
             <div className="admin2-field">
               <label htmlFor="tags">Tags</label>

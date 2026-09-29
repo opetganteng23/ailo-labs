@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { Suspense, useState } from "react";
 
+import { PasswordInput } from "@/components/PasswordInput";
 import { safeNextPath } from "@/lib/safeRedirect";
 
 function LoginFormInner() {
@@ -60,8 +61,13 @@ function LoginFormInner() {
             <input id="email" name="email" type="email" required autoFocus autoComplete="username" />
           </div>
           <div className="admin2-field">
-            <label htmlFor="password">Password</label>
-            <input id="password" name="password" type="password" required autoComplete="current-password" />
+            <label htmlFor="password" className="label-row">
+                Password
+                <Link href="/forgot-password?from=admin" className="forgot-link">
+                  Forgot password?
+                </Link>
+              </label>
+            <PasswordInput id="password" name="password" required autoComplete="current-password" />
           </div>
           {error && <p className="error-text">{error}</p>}
           <button type="submit" className="admin2-btn" style={{ height: 48, justifyContent: "center" }} disabled={loading}>

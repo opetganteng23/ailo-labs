@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { ConfirmSubmit } from "@/components/ConfirmSubmit";
 import { connectToDatabase } from "@/lib/mongodb";
 import { News } from "@/models/News";
 
@@ -134,11 +135,11 @@ export default async function AdminNewsPage({ searchParams }: { searchParams: Pr
             <span style={{ fontSize: 14, color: "#5b6664" }}>{new Date(item.updatedAt).toLocaleDateString("en-GB")}</span>
             <form action={deleteNewsAction}>
               <input type="hidden" name="id" value={item._id} />
-              <button type="submit" aria-label="Delete article" className="admin2-btn ghost" style={{ padding: 0, width: 40, height: 40, justifyContent: "center", color: "#9d1b1b" }}>
+              <ConfirmSubmit title="Delete this article?" message="It will be removed from the admin and the public site." confirmLabel="Delete" ariaLabel="Delete article" className="admin2-btn ghost" style={{ padding: 0, width: 40, height: 40, justifyContent: "center", color: "#9d1b1b" }}>
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M3 6h18M8 6V4a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2m2 0v14a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V6z" />
                 </svg>
-              </button>
+              </ConfirmSubmit>
             </form>
           </div>
         ))}

@@ -2,14 +2,40 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 
 import { getSession } from "@/lib/auth";
+import { connectToDatabase } from "@/lib/mongodb";
+import { Member } from "@/models/Member";
+import { User } from "@/models/User";
 
-import { createUserAction } from "../actions";
+import { UserCreateForm, type MemberOption } from "../UserCreateForm";
+
+export const dynamic = "force-dynamic";
 
 export default async function AdminUserNewPage() {
   const session = await getSession();
   if (!session || session.role !== "super_admin") {
     redirect("/admin/dashboard?error=forbidden");
   }
+
+  await connectToDatabase();
+  const [members, users] = await Promise.all([
+    Member.find({ status: "approved" }).sort({ name: 1 }).lean<{ _id: unknown; name: string; email: string; photo?: string; approvedAs?: string; requestedAs: string }[]>(),
+    User.find().select("email role").lean<{ email: string; role: string }[]>(),
+  ]);
+  const roleByEmail = new Map(users.map((u) => [u.email.toLowerCase(), u.role]));
+  const options: MemberOption[] = members
+    // Members who are already admins/staff don't need adding again.
+    .filter((m) => {
+      const role = roleByEmail.get(m.email.toLowerCase());
+      return !role || role === "borrower";
+    })
+    .map((m) => ({
+      _id: String(m._id),
+      name: m.name,
+      email: m.email,
+      photo: m.photo,
+      category: m.approvedAs ?? m.requestedAs,
+      hasAccount: roleByEmail.has(m.email.toLowerCase()),
+    }));
 
   return (
     <div>
@@ -21,32 +47,8 @@ export default async function AdminUserNewPage() {
         <span style={{ color: "#15201f", fontWeight: 600 }}>Add user</span>
       </div>
 
-      <section className="admin2-section" style={{ maxWidth: 480 }}>
-        <form action={createUserAction} style={{ display: "flex", flexDirection: "column", gap: 20 }}>
-          <div className="admin2-field">
-            <label htmlFor="name">Name</label>
-            <input id="name" name="name" required maxLength={160} />
-          </div>
-          <div className="admin2-field">
-            <label htmlFor="email">Email</label>
-            <input id="email" name="email" type="email" required />
-          </div>
-          <div className="admin2-field">
-            <label htmlFor="password">Password</label>
-            <input id="password" name="password" type="password" required minLength={8} />
-          </div>
-          <div className="admin2-field">
-            <label htmlFor="role">Role</label>
-            <select id="role" name="role" defaultValue="admin">
-              <option value="admin">Admin</option>
-              <option value="staff_lab">Staff (lab)</option>
-              <option value="super_admin">Super admin</option>
-            </select>
-          </div>
-          <button type="submit" className="admin2-btn" style={{ justifyContent: "center" }}>
-            Create user
-          </button>
-        </form>
+      <section className="admin2-section" style={{ maxWidth: 560 }}>
+        <UserCreateForm members={options} />
       </section>
     </div>
   );

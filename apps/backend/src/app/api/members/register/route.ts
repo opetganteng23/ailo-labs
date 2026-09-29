@@ -59,17 +59,25 @@ export async function POST(request: NextRequest) {
           { status: 409 },
         );
       }
+    }
+
+    const member = await Member.create({ ...memberData, status: "pending" });
+
+    if (existingUser) {
+      existingUser.member = member._id;
+      existingUser.photo = existingUser.photo || memberData.photo;
+      await existingUser.save();
     } else {
       await User.create({
         name: memberData.name,
         email,
         passwordHash: await bcrypt.hash(password, 10),
         phone: memberData.phone,
+        photo: memberData.photo,
+        member: member._id,
         role: "borrower",
       });
     }
-
-    const member = await Member.create({ ...memberData, status: "pending" });
 
     await sendMail({
       to: parsed.data.email,

@@ -5,6 +5,7 @@ import { SiteFooter } from "@/components/SiteFooter";
 import { SiteHeader } from "@/components/SiteHeader";
 import { connectToDatabase } from "@/lib/mongodb";
 import { News } from "@/models/News";
+import { sanitizeRichText } from "@/lib/sanitizeHtml";
 
 export const dynamic = "force-dynamic";
 
@@ -48,7 +49,7 @@ export default async function NewsDetailPage({ params }: { params: Promise<{ slu
           // eslint-disable-next-line @next/next/no-img-element -- arbitrary uploaded image, no static optimization needed
           <img className="detail-thumb" src={item.images[0]} alt={item.title} style={{ borderRadius: 20 }} />
         )}
-        <div className="rte-body" style={{ marginTop: 24, padding: 0 }} dangerouslySetInnerHTML={{ __html: item.content }} />
+        <div className="rte-body" style={{ marginTop: 24, padding: 0 }} dangerouslySetInnerHTML={{ __html: sanitizeRichText(item.content) }} />
       </main>
       <SiteFooter />
     </>

@@ -33,10 +33,18 @@ export default async function LabsListPage() {
           {items.map((item) => (
             <Link key={item._id} href={`/labs/${item.slug}`} className="lab2-card">
               <div className="lab2-thumb" style={item.photos?.[0] ? { backgroundImage: `url(${item.photos[0]})`, backgroundSize: "cover", backgroundPosition: "center" } : undefined}>
-                {item.location && <span className="badge">{item.location}</span>}
               </div>
               <div className="lab2-body">
                 <h3>{item.name}</h3>
+                {item.location && (
+                  <span className="lab-address">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                    <path d="M12 21s-7-6.2-7-11.5a7 7 0 0 1 14 0C19 14.8 12 21 12 21z" />
+                    <circle cx="12" cy="9.5" r="2.5" />
+                  </svg>
+                    <span>{item.location}</span>
+                  </span>
+                )}
                 {item.facilities && <p>{item.facilities}</p>}
                 {item.capacity !== undefined && (
                   <div className="chips">

@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { ConfirmSubmit } from "@/components/ConfirmSubmit";
 import { connectToDatabase } from "@/lib/mongodb";
 import { TEAM_CATEGORIES, Team } from "@/models/Team";
 
@@ -113,11 +114,11 @@ export default async function AdminTeamPage({ searchParams }: { searchParams: Pr
                 </Link>
                 <form action={deleteTeamAction} style={{ marginLeft: "auto" }}>
                   <input type="hidden" name="id" value={item._id} />
-                  <button type="submit" aria-label="Delete member" className="admin2-btn ghost" style={{ padding: 0, width: 38, height: 38, justifyContent: "center", color: "#9d1b1b" }}>
+                  <ConfirmSubmit title="Delete this team member?" message="Their profile will be removed from the public team page." confirmLabel="Delete" ariaLabel="Delete member" className="admin2-btn ghost" style={{ padding: 0, width: 38, height: 38, justifyContent: "center", color: "#9d1b1b" }}>
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
                       <path d="M3 6h18M8 6V4a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2m2 0v14a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V6z" />
                     </svg>
-                  </button>
+                  </ConfirmSubmit>
                 </form>
               </div>
             </article>

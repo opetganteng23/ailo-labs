@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 
+import { ConfirmSubmit } from "@/components/ConfirmSubmit";
+
 import { createQAAction, deleteQAAction } from "./actions";
 
 type QA = { _id: string; question: string; answer: string };
@@ -66,11 +68,11 @@ export function QAList({ items }: { items: QA[] }) {
             </div>
             <form action={deleteQAAction}>
               <input type="hidden" name="id" value={qa._id} />
-              <button type="submit" aria-label="Delete Q&A" className="admin2-btn ghost" style={{ padding: 0, width: 32, height: 32, justifyContent: "center", color: "#9d1b1b" }}>
+              <ConfirmSubmit title="Delete this Q&A?" message="The chatbot will stop using this answer." confirmLabel="Delete" ariaLabel="Delete Q&A" className="admin2-btn ghost" style={{ padding: 0, width: 32, height: 32, justifyContent: "center", color: "#9d1b1b" }}>
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M3 6h18M8 6V4a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2m2 0v14a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V6z" />
                 </svg>
-              </button>
+              </ConfirmSubmit>
             </form>
           </div>
         </div>

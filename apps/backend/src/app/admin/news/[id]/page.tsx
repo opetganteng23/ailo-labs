@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import { connectToDatabase } from "@/lib/mongodb";
+import { listNewsCategories } from "@/lib/newsCategories";
 import { News } from "@/models/News";
 
 import { NewsForm } from "../NewsForm";
@@ -11,7 +12,7 @@ export const dynamic = "force-dynamic";
 export default async function AdminNewsEditPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   await connectToDatabase();
-  const categories = (await News.distinct("category")) as string[];
+  const categories = await listNewsCategories();
   const item = await News.findById(id).lean<{
     _id: string;
     title: string;

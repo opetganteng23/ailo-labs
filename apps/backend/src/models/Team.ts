@@ -15,6 +15,7 @@ const teamSchema = new Schema(
     studyProgram: String,
     displayOrder: { type: Number, default: 0 },
     bio: String,
+    researchInterests: { type: [String], default: [], index: true },
     email: { type: String, trim: true, lowercase: true },
     profiles: {
       linkedin: String,

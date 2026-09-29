@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 
+import { toast } from "@/lib/toast";
+
 export function ReindexButton() {
   const [status, setStatus] = useState<string>("");
   const [loading, setLoading] = useState(false);
@@ -12,9 +14,12 @@ export function ReindexButton() {
     try {
       const res = await fetch("/api/chatbot/reindex", { method: "POST" });
       const json = await res.json();
-      setStatus(json.success ? `Indexed ${json.data.chunksIndexed} chunks.` : json.error ?? "Failed.");
+      const message = json.success ? `Indexed ${json.data.chunksIndexed} chunks.` : json.error ?? "Re-indexing failed. Please try again.";
+      setStatus(message);
+      toast(json.success ? "success" : "error", message);
     } catch {
       setStatus("Network error.");
+      toast("error", "Network error - re-indexing didn't run.");
     } finally {
       setLoading(false);
     }

@@ -7,6 +7,9 @@ const userSchema = new Schema(
     passwordHash: { type: String, required: true, select: false },
     role: { type: String, enum: ["super_admin", "admin", "staff_lab", "borrower"], required: true },
     phone: { type: String, trim: true },
+    photo: String,
+    // Set when the account was created from (or linked to) a member registration.
+    member: { type: Schema.Types.ObjectId, ref: "Member" },
     isActive: { type: Boolean, default: true, index: true },
   },
   { timestamps: true },

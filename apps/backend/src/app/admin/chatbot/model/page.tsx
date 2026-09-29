@@ -55,55 +55,49 @@ export default async function AdminChatbotModelPage() {
 
       <ChatbotTabs active="model" apiKeyMissing={!hasApiKey} />
 
-      <div style={{ display: "grid", gridTemplateColumns: "minmax(0, 1fr) 340px", gap: 24, alignItems: "start" }}>
-        <div style={{ minWidth: 0 }}>
-          <ModelSettingsForm
-            settings={{
-              provider: chatbot.provider ?? "openai",
-              hasApiKey,
-              apiKeyLast4: chatbot.apiKeyLast4,
-              baseUrl: chatbot.baseUrl ?? "",
-              chatModel: chatbot.chatModel ?? "",
-              embeddingModel: chatbot.embeddingModel ?? "",
-              temperature: chatbot.temperature ?? 0.3,
-              maxTokens: chatbot.maxTokens ?? 800,
-              topK: chatbot.topK ?? 5,
-              systemPrompt: chatbot.systemPrompt ?? "",
-              fallbackReply: chatbot.fallbackReply ?? "",
-              monthlyTokenBudget: chatbot.monthlyTokenBudget,
-              perVisitorDailyLimit: chatbot.perVisitorDailyLimit ?? 20,
-              tokensUsedThisMonth: chatbot.tokensUsedThisMonth ?? 0,
-            }}
-          />
+      <section className="admin2-golive">
+        <div className="admin2-golive-head">
+          <h2>Go-live checklist</h2>
+          <span>
+            {doneCount} / {checklist.length} done
+          </span>
         </div>
+        <ul>
+          {checklist.map((c) => (
+            <li key={c.label} className={c.done ? "done" : ""}>
+              {c.done ? (
+                <span className="dot-done">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M5 12l5 5 9-10" />
+                  </svg>
+                </span>
+              ) : (
+                <span className="dot-todo" />
+              )}
+              {c.label}
+            </li>
+          ))}
+        </ul>
+      </section>
 
-        <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
-          <section className="admin2-section pad-sm">
-            <div style={{ display: "flex", alignItems: "center" }}>
-              <h2>Go-live checklist</h2>
-              <span style={{ marginLeft: "auto", fontSize: 13, fontWeight: 700, color: "#7a4a12" }}>
-                {doneCount} / {checklist.length}
-              </span>
-            </div>
-            <ul className="admin2-checklist">
-              {checklist.map((c) => (
-                <li key={c.label} className={c.done ? "done" : ""}>
-                  {c.done ? (
-                    <span className="dot-done">
-                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-                        <path d="M5 12l5 5 9-10" />
-                      </svg>
-                    </span>
-                  ) : (
-                    <span className="dot-todo" />
-                  )}
-                  {c.label}
-                </li>
-              ))}
-            </ul>
-          </section>
-        </div>
-      </div>
+      <ModelSettingsForm
+        settings={{
+          provider: chatbot.provider ?? "openai",
+          hasApiKey,
+          apiKeyLast4: chatbot.apiKeyLast4,
+          baseUrl: chatbot.baseUrl ?? "",
+          chatModel: chatbot.chatModel ?? "",
+          embeddingModel: chatbot.embeddingModel ?? "",
+          temperature: chatbot.temperature ?? 0.3,
+          maxTokens: chatbot.maxTokens ?? 800,
+          topK: chatbot.topK ?? 5,
+          systemPrompt: chatbot.systemPrompt ?? "",
+          fallbackReply: chatbot.fallbackReply ?? "",
+          monthlyTokenBudget: chatbot.monthlyTokenBudget,
+          perVisitorDailyLimit: chatbot.perVisitorDailyLimit ?? 20,
+          tokensUsedThisMonth: chatbot.tokensUsedThisMonth ?? 0,
+        }}
+      />
     </div>
   );
 }

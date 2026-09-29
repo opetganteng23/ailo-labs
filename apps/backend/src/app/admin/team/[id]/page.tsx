@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import { connectToDatabase } from "@/lib/mongodb";
+import { listResearchInterests } from "@/lib/researchInterests";
 import { Team } from "@/models/Team";
 
 import { TeamForm } from "../TeamForm";
@@ -20,12 +21,14 @@ export default async function AdminTeamEditPage({ params }: { params: Promise<{ 
     studyProgram?: string;
     displayOrder?: number;
     bio?: string;
+    researchInterests?: string[];
     email?: string;
     photo?: string;
     profiles?: { linkedin?: string; orcid?: string; googleScholar?: string; sinta?: string; scopus?: string };
     isActive: boolean;
   }>();
   if (!item) notFound();
+  const interestSuggestions = await listResearchInterests();
 
   return (
     <div>
@@ -38,6 +41,7 @@ export default async function AdminTeamEditPage({ params }: { params: Promise<{ 
       </div>
       <TeamForm
         mode="edit"
+        interestSuggestions={interestSuggestions}
         initial={{
           _id: String(item._id),
           name: item.name,
@@ -47,6 +51,7 @@ export default async function AdminTeamEditPage({ params }: { params: Promise<{ 
           studyProgram: item.studyProgram,
           displayOrder: item.displayOrder,
           bio: item.bio,
+          researchInterests: item.researchInterests ?? [],
           email: item.email,
           photo: item.photo,
           profiles: item.profiles,

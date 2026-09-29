@@ -1,18 +1,6 @@
-import Link from "next/link";
+import { redirect } from "next/navigation";
 
-import { ProjectForm } from "../ProjectForm";
-
+/** Adding a project now happens in the side panel on the Projects page. */
 export default function AdminProjectNewPage() {
-  return (
-    <div>
-      <div style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 14, color: "#5b6664", marginBottom: 20 }}>
-        <Link href="/admin/projects" style={{ color: "#5b6664", fontWeight: 500 }}>
-          Projects
-        </Link>
-        <span>/</span>
-        <span style={{ color: "#15201f", fontWeight: 600 }}>New project</span>
-      </div>
-      <ProjectForm mode="create" />
-    </div>
-  );
+  redirect("/admin/projects?panel=new");
 }

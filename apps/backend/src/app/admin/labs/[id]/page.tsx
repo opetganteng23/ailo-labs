@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
+import { ConfirmSubmit } from "@/components/ConfirmSubmit";
 import { connectToDatabase } from "@/lib/mongodb";
 import { Device } from "@/models/Device";
 import { Lab } from "@/models/Lab";
@@ -111,9 +112,9 @@ export default async function AdminLabEditPage({ params }: { params: Promise<{ i
                 <form action={deleteDeviceAction}>
                   <input type="hidden" name="id" value={d._id} />
                   <input type="hidden" name="lab" value={lab._id} />
-                  <button type="submit" className="admin2-btn danger">
+                  <ConfirmSubmit title="Delete this device?" message="It will be removed from this lab and can't be booked anymore." confirmLabel="Delete" className="admin2-btn danger">
                     Delete
-                  </button>
+                  </ConfirmSubmit>
                 </form>
               </div>
             ))}

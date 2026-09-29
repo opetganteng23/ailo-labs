@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 
+import { ConfirmSubmit } from "@/components/ConfirmSubmit";
 import { getSession } from "@/lib/auth";
 import { connectToDatabase } from "@/lib/mongodb";
 import { User } from "@/models/User";
@@ -9,7 +10,7 @@ import { deleteUserAction } from "./actions";
 
 export const dynamic = "force-dynamic";
 
-type UserRow = { _id: string; name: string; email: string; role: string };
+type UserRow = { _id: string; name: string; email: string; role: string; photo?: string; member?: string };
 
 const ROLE_LABEL: Record<string, string> = { super_admin: "Super admin", admin: "Admin", staff_lab: "Staff (lab)", borrower: "Borrower" };
 const ROLE_STYLE: Record<string, { bg: string; color: string }> = {
@@ -95,6 +96,10 @@ export default async function AdminUsersPage({ searchParams }: { searchParams: P
             return (
               <div key={u._id} className="admin2-table-row" style={{ gridTemplateColumns: "minmax(0, 1fr) 160px 96px" }}>
                 <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                  {u.photo ? (
+                    // eslint-disable-next-line @next/next/no-img-element -- uploaded profile photo
+                    <img src={u.photo} alt="" style={{ width: 40, height: 40, borderRadius: 999, objectFit: "cover", flexShrink: 0 }} />
+                  ) : (
                   <span
                     style={{
                       width: 40,
@@ -111,11 +116,15 @@ export default async function AdminUsersPage({ searchParams }: { searchParams: P
                   >
                     {u.name.charAt(0).toUpperCase()}
                   </span>
+                  )}
                   <div style={{ display: "flex", flexDirection: "column" }}>
                     <span style={{ fontSize: 15, fontWeight: 700 }}>
                       {u.name} {isSelf && <span style={{ fontSize: 12, fontWeight: 600, color: "#6b7573" }}>(you)</span>}
                     </span>
-                    <span style={{ fontSize: 13, color: "#6b7573" }}>{u.email}</span>
+                    <span style={{ fontSize: 13, color: "#6b7573" }}>
+                      {u.email}
+                      {u.member && <span className="msg-source" style={{ marginLeft: 8, fontSize: 11 }}>Member</span>}
+                    </span>
                   </div>
                 </div>
                 <span style={{ justifySelf: "start", fontSize: 12, fontWeight: 700, color: style.color, background: style.bg, borderRadius: 999, padding: "5px 10px" }}>
@@ -130,11 +139,11 @@ export default async function AdminUsersPage({ searchParams }: { searchParams: P
                   {!isSelf && (
                     <form action={deleteUserAction}>
                       <input type="hidden" name="id" value={u._id} />
-                      <button type="submit" aria-label="Delete user" className="admin2-btn ghost" style={{ padding: 0, width: 40, height: 40, justifyContent: "center", color: "#a32020" }}>
+                      <ConfirmSubmit title="Delete this user?" message="They will no longer be able to sign in." confirmLabel="Delete" ariaLabel="Delete user" className="admin2-btn ghost" style={{ padding: 0, width: 40, height: 40, justifyContent: "center", color: "#a32020" }}>
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
                           <path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3" />
                         </svg>
-                      </button>
+                      </ConfirmSubmit>
                     </form>
                   )}
                 </div>

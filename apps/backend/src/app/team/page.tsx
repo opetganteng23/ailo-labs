@@ -14,18 +14,29 @@ type TeamItem = {
   slug: string;
   position: string;
   category?: string;
+  researchInterests?: string[];
   photo?: string;
   scopusData?: { hIndex?: number; documentCount?: number };
   profiles?: { linkedin?: string; orcid?: string; googleScholar?: string; sinta?: string; scopus?: string };
 };
 
-export default async function TeamListPage({ searchParams }: { searchParams: Promise<{ category?: string }> }) {
-  const { category } = await searchParams;
+export default async function TeamListPage({ searchParams }: { searchParams: Promise<{ category?: string; interest?: string }> }) {
+  const { category, interest } = await searchParams;
   await connectToDatabase();
   const all = (await Team.find({ isActive: true })
     .sort({ category: 1, displayOrder: 1, name: 1 })
     .lean()) as unknown as TeamItem[];
-  const items = category ? all.filter((i) => i.category === category) : all;
+  const interests = Array.from(new Set(all.flatMap((i) => i.researchInterests ?? []))).sort((a, b) => a.localeCompare(b));
+  const items = all
+    .filter((i) => !category || i.category === category)
+    .filter((i) => !interest || (i.researchInterests ?? []).includes(interest));
+  const hrefWith = (params: { category?: string; interest?: string }) => {
+    const q = new URLSearchParams();
+    if (params.category) q.set("category", params.category);
+    if (params.interest) q.set("interest", params.interest);
+    const s = q.toString();
+    return s ? `/team?${s}` : "/team";
+  };
 
   return (
     <>
@@ -42,15 +53,28 @@ export default async function TeamListPage({ searchParams }: { searchParams: Pro
         </div>
 
         <div className="team-filters">
-          <Link href="/team" className={`team-filter${!category ? " active" : ""}`}>
+          <Link href={hrefWith({ interest })} className={`team-filter${!category ? " active" : ""}`}>
             All
           </Link>
           {TEAM_CATEGORIES.map((cat) => (
-            <Link key={cat} href={`/team?category=${encodeURIComponent(cat)}`} className={`team-filter${category === cat ? " active" : ""}`}>
+            <Link key={cat} href={hrefWith({ category: cat, interest })} className={`team-filter${category === cat ? " active" : ""}`}>
               {cat}
             </Link>
           ))}
         </div>
+        {interests.length > 0 && (
+          <div className="team-interest-filters" aria-label="Filter by research interest">
+            <span>Research interest</span>
+            <Link href={hrefWith({ category })} className={`interest-chip${!interest ? " active" : ""}`}>
+              Any
+            </Link>
+            {interests.map((i) => (
+              <Link key={i} href={hrefWith({ category, interest: i })} className={`interest-chip${interest === i ? " active" : ""}`}>
+                {i}
+              </Link>
+            ))}
+          </div>
+        )}
 
         {items.length === 0 && <p className="notice">No team members yet.</p>}
 
@@ -71,6 +95,13 @@ export default async function TeamListPage({ searchParams }: { searchParams: Pro
                 </div>
                 <h4>{item.name}</h4>
                 <span className="role">{item.position}</span>
+                {(item.researchInterests?.length ?? 0) > 0 && (
+                  <div className="tinterests">
+                    {item.researchInterests!.slice(0, 3).map((i) => (
+                      <span key={i}>{i}</span>
+                    ))}
+                  </div>
+                )}
                 {item.scopusData?.hIndex !== undefined && (
                   <span className="met">
                     h-index {item.scopusData.hIndex}

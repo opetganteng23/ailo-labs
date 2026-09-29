@@ -50,14 +50,18 @@ export default async function AdminLabsPage() {
                 // eslint-disable-next-line @next/next/no-img-element -- arbitrary uploaded image, no static optimization needed
                 <img src={lab.photos[0]} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
               )}
-              {lab.location && (
-                <span style={{ position: "absolute", top: 12, left: 12, fontSize: 12, fontWeight: 700, color: "#0b454c", background: "#fff", borderRadius: 999, padding: "4px 10px" }}>
-                  {lab.location}
-                </span>
-              )}
             </div>
             <div style={{ padding: "18px 20px", display: "flex", flexDirection: "column", gap: 12, flexGrow: 1 }}>
               <h2 style={{ margin: 0, fontSize: 17, fontWeight: 700, lineHeight: 1.35 }}>{lab.name}</h2>
+              {lab.location && (
+                <span className="lab-address">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                    <path d="M12 21s-7-6.2-7-11.5a7 7 0 0 1 14 0C19 14.8 12 21 12 21z" />
+                    <circle cx="12" cy="9.5" r="2.5" />
+                  </svg>
+                  <span>{lab.location}</span>
+                </span>
+              )}
               <div style={{ display: "flex", gap: 8, marginTop: "auto" }}>
                 <span style={{ fontSize: 12, fontWeight: 600, color: "#3b4947", background: "#f1efea", borderRadius: 8, padding: "6px 10px" }}>
                   Capacity {lab.capacity ?? "—"}

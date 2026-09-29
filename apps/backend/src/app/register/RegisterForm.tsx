@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { Suspense, useState } from "react";
 
+import { PasswordInput } from "@/components/PasswordInput";
 import { safeNextPath } from "@/lib/safeRedirect";
 
 function RegisterFormInner() {
@@ -87,7 +88,7 @@ function RegisterFormInner() {
             </div>
             <div className="admin2-field">
               <label htmlFor="password">Password</label>
-              <input id="password" name="password" type="password" required minLength={8} autoComplete="new-password" />
+              <PasswordInput id="password" name="password" required minLength={8} autoComplete="new-password" />
             </div>
             {error && <p className="error-text">{error}</p>}
             <button type="submit" className="btn-primary" style={{ justifyContent: "center", width: "100%" }} disabled={loading}>

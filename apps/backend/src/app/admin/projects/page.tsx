@@ -1,25 +1,38 @@
 import Link from "next/link";
 
+import { ConfirmSubmit } from "@/components/ConfirmSubmit";
 import { connectToDatabase } from "@/lib/mongodb";
 import { Project } from "@/models/Project";
 
 import { deleteProjectAction } from "./actions";
+import { ProjectDrawer } from "./ProjectDrawer";
 import { ProjectsBoard } from "./ProjectsBoard";
 
 export const dynamic = "force-dynamic";
 
-export default async function AdminProjectsPage({ searchParams }: { searchParams: Promise<{ view?: string }> }) {
-  const { view } = await searchParams;
+const STATUSES = ["planned", "ongoing", "completed"] as const;
+
+export default async function AdminProjectsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ view?: string; panel?: string; id?: string; status?: string }>;
+}) {
+  const { view, panel, id, status } = await searchParams;
   const isTable = view === "table";
+  const listHref = isTable ? "/admin/projects?view=table" : "/admin/projects";
+  const panelHref = (params: string) => `${listHref}${isTable ? "&" : "?"}${params}`;
 
   await connectToDatabase();
   const items = (await Project.find().sort({ createdAt: -1 }).lean()) as unknown as {
     _id: string;
     title: string;
     status: "planned" | "ongoing" | "completed";
+    description?: string;
+    content?: string;
     images?: string[];
     updatedAt: string;
   }[];
+  const editing = panel === "edit" && id ? items.find((p) => String(p._id) === id) : undefined;
 
   const PILL: Record<string, string> = { planned: "planned", ongoing: "pending", completed: "approved" };
 
@@ -47,7 +60,7 @@ export default async function AdminProjectsPage({ searchParams }: { searchParams
               Table
             </Link>
           </div>
-          <Link href="/admin/projects/new" className="admin2-btn">
+          <Link href={panelHref("panel=new")} className="admin2-btn">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
               <path d="M12 5v14M5 12h14" />
             </svg>
@@ -82,18 +95,18 @@ export default async function AdminProjectsPage({ searchParams }: { searchParams
               </span>
               <span style={{ fontSize: 14, color: "#5b6664" }}>{new Date(item.updatedAt).toLocaleDateString("en-GB")}</span>
               <div style={{ display: "flex", gap: 4 }}>
-                <Link href={`/admin/projects/${item._id}`} aria-label="Edit" className="admin2-btn ghost" style={{ padding: 0, width: 40, height: 40, justifyContent: "center" }}>
+                <Link href={panelHref(`panel=edit&id=${item._id}`)} aria-label="Edit" className="admin2-btn ghost" style={{ padding: 0, width: 40, height: 40, justifyContent: "center" }}>
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
                     <path d="M4 20h4L19 9l-4-4L4 16z" />
                   </svg>
                 </Link>
                 <form action={deleteProjectAction}>
                   <input type="hidden" name="id" value={item._id} />
-                  <button type="submit" aria-label="Delete" className="admin2-btn ghost" style={{ padding: 0, width: 40, height: 40, justifyContent: "center", color: "#9d1b1b" }}>
+                  <ConfirmSubmit title="Delete this project?" message="It will be removed from the admin and the public site." confirmLabel="Delete" ariaLabel="Delete" className="admin2-btn ghost" style={{ padding: 0, width: 40, height: 40, justifyContent: "center", color: "#9d1b1b" }}>
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
                       <path d="M3 6h18M8 6V4a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2m2 0v14a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V6z" />
                     </svg>
-                  </button>
+                  </ConfirmSubmit>
                 </form>
               </div>
             </div>
@@ -101,12 +114,35 @@ export default async function AdminProjectsPage({ searchParams }: { searchParams
         </section>
       ) : (
         <ProjectsBoard
+          panelPrefix={panelHref("")}
           items={items.map((item) => ({
             _id: item._id,
             title: item.title,
             status: item.status,
             image: item.images?.[0],
           }))}
+        />
+      )}
+
+      {panel === "new" && (
+        <ProjectDrawer
+          mode="create"
+          closeHref={listHref}
+          defaultStatus={STATUSES.includes(status as (typeof STATUSES)[number]) ? status : undefined}
+        />
+      )}
+      {editing && (
+        <ProjectDrawer
+          mode="edit"
+          closeHref={listHref}
+          initial={{
+            _id: String(editing._id),
+            title: editing.title,
+            description: editing.description ?? "",
+            content: editing.content ?? "",
+            status: editing.status,
+            image: editing.images?.[0],
+          }}
         />
       )}
     </div>
