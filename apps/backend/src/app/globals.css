@@ -766,6 +766,22 @@ footer.site .foot-bottom .socials .social-pending { color: #9aa3a7; font-weight:
 .join-card-preview .name { position: relative; margin-top: auto; font-size: 16px; font-weight: 800; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .join-card-preview .sub { position: relative; font-size: 11px; font-weight: 600; color: #f7b77f; }
 
+/* ===== Booking flow ===== */
+.booking-step-n { width: 32px; height: 32px; border-radius: 999px; background: #0a3f46; color: #fff; font-size: 14px; font-weight: 800; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.booking-seg { height: 38px; padding: 0 14px; border: 0; border-radius: 8px; font-size: 14px; cursor: pointer; font-family: inherit; background: transparent; color: #4e5957; font-weight: 600; }
+.booking-seg.active { background: #fff; color: #15201f; font-weight: 800; box-shadow: 0 1px 2px rgba(0,0,0,0.12); }
+.booking-nav-btn { width: 40px; height: 40px; border: 1px solid #dad7cf; border-radius: 10px; background: #fff; font-size: 16px; cursor: pointer; }
+.booking-day { height: 44px; border-radius: 10px; font-size: 14px; font-family: inherit; border: 1px solid #e3e1da; background: #fff; color: #15201f; font-weight: 600; cursor: pointer; }
+.booking-day:disabled { cursor: default; }
+.booking-day.selected { border: 0; background: #0a3f46; color: #fff; font-weight: 800; }
+.booking-day.full { border: 0; background: #fbddbd; color: #5e3509; font-weight: 700; cursor: default; }
+.booking-day.past { border: 0; background: #f1efea; color: #a3a9a7; font-weight: 500; cursor: default; }
+.booking-legend-dot { width: 10px; height: 10px; border-radius: 3px; display: inline-block; }
+.booking-slot { height: 46px; border-radius: 10px; font-size: 14px; font-family: inherit; border: 1px solid #dad7cf; background: #fff; color: #15201f; font-weight: 600; cursor: pointer; }
+.booking-slot:disabled { cursor: default; }
+.booking-slot.selected { border: 0; background: #0e6b73; color: #fff; font-weight: 800; }
+.booking-slot.booked { border: 0; background: #eeece6; color: #a3a9a7; font-weight: 500; text-decoration: line-through; }
+
 @media print {
   body * { visibility: hidden; }
   .member-card-pair, .member-card-pair * { visibility: visible; }

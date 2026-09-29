@@ -8,6 +8,7 @@ export function ImageUploadField({
   defaultValue,
   endpoint = "/api/upload",
   accept = "image/png,image/jpeg,image/webp,image/gif,image/svg+xml",
+  onChangeUrl,
 }: {
   name: string;
   label: string;
@@ -15,6 +16,8 @@ export function ImageUploadField({
   /** Which upload endpoint to POST to - admin pages use the default (auth-gated); public forms (e.g. member registration) pass a public endpoint. */
   endpoint?: string;
   accept?: string;
+  /** Optional: notified whenever the uploaded URL changes, for callers (e.g. manual-fetch forms) that need the value outside the hidden input. */
+  onChangeUrl?: (url: string) => void;
 }) {
   const [url, setUrl] = useState(defaultValue ?? "");
   const [status, setStatus] = useState<"idle" | "uploading" | "error">("idle");
@@ -35,6 +38,7 @@ export function ImageUploadField({
         return;
       }
       setUrl(json.data.url);
+      onChangeUrl?.(json.data.url);
       setStatus("idle");
     } catch {
       setStatus("error");

@@ -1,6 +1,5 @@
 import { notFound, redirect } from "next/navigation";
 
-import { AvailabilityCalendar } from "@/components/AvailabilityCalendar";
 import { SiteFooter } from "@/components/SiteFooter";
 import { SiteHeader } from "@/components/SiteHeader";
 import { getSession } from "@/lib/auth";
@@ -31,20 +30,25 @@ export default async function LabBookingPage({ params }: { params: Promise<{ slu
   return (
     <>
       <SiteHeader />
-      <main className="wrap">
-        <h1>Book {lab.name}</h1>
-        <p>Submit a request, an admin will review and approve it, then you&apos;ll get an email decision.</p>
-        <div style={{ marginTop: 24, display: "flex", gap: 32, flexWrap: "wrap", alignItems: "flex-start" }}>
-          <div style={{ flex: "1 1 320px", minWidth: 320 }}>
-            <BookingForm
-              labId={String(lab._id)}
-              devices={devices.map((d) => ({ _id: String(d._id), name: d.name }))}
-              defaultName={session.name}
-              defaultEmail={session.email}
-            />
+      <main className="wrap" style={{ paddingTop: 48, paddingBottom: 64 }}>
+        <div style={{ display: "flex", alignItems: "flex-end", gap: 40, flexWrap: "wrap", marginBottom: 32 }}>
+          <div style={{ display: "flex", flexDirection: "column", gap: 10, flexGrow: 1 }}>
+            <span style={{ fontSize: 13, fontWeight: 700, letterSpacing: "0.14em", color: "#b4530f" }}>LABS &amp; EQUIPMENT</span>
+            <h1 style={{ margin: 0, fontSize: 40, lineHeight: 1.1, fontWeight: 800, letterSpacing: "-0.02em" }}>Book {lab.name}</h1>
+            <p style={{ margin: 0, fontSize: 16, lineHeight: 1.6, color: "#4e5957" }}>
+              No account needed to browse, but sign-in identifies you. The lab admin reviews every request and confirms by email.
+            </p>
           </div>
-          <AvailabilityCalendar labSlug={slug} />
         </div>
+
+        <BookingForm
+          labId={String(lab._id)}
+          labSlug={slug}
+          labName={lab.name}
+          devices={devices.map((d) => ({ _id: String(d._id), name: d.name }))}
+          defaultName={session.name}
+          defaultEmail={session.email}
+        />
       </main>
       <SiteFooter />
     </>
