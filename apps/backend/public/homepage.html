@@ -54,11 +54,12 @@
     color:#fff;
   }
   .hero-scrim{position:absolute; inset:0; background:rgba(6,32,36,0.55); z-index:1;}
-  .hero > *{position:relative; z-index:2;}
+  .hero > *:not(header){position:relative; z-index:2;}
   header.site-nav{
+    position:sticky; top:0; z-index:50;
     display:flex; align-items:center; gap:40px;
-    padding:0 32px; height:84px; width:100%; box-sizing:border-box;
-    background:rgba(7,26,28,0.55); backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px);
+    padding:0 32px; height:76px; width:100%; box-sizing:border-box;
+    background:#0A3F46;
     border-bottom:1px solid rgba(255,255,255,0.14);
   }
   header.site-nav > .nav-inner{display:flex; align-items:center; gap:40px; width:100%; max-width:1180px; margin:0 auto;}
@@ -700,7 +701,7 @@
     var nav = document.querySelector('nav.main-nav ul');
     var isOpen = nav.style.display === 'flex';
     nav.style.display = isOpen ? 'none' : 'flex';
-    nav.style.cssText += 'flex-direction:column; position:absolute; top:84px; left:0; right:0; background:' + getComputedStyle(document.documentElement).getPropertyValue('--teal-darker') + '; padding:20px 32px; gap:18px; z-index:50;';
+    nav.style.cssText += 'flex-direction:column; position:absolute; top:76px; left:0; right:0; background:' + getComputedStyle(document.documentElement).getPropertyValue('--teal-darker') + '; padding:20px 32px; gap:18px; z-index:50;';
   });
 
   document.getElementById('teamFilters').addEventListener('click', function (e) {
