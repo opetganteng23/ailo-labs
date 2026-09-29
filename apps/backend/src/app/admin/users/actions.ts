@@ -2,6 +2,7 @@
 
 import bcrypt from "bcryptjs";
 import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
 
 import { getSession } from "@/lib/auth";
 import { connectToDatabase } from "@/lib/mongodb";
@@ -20,6 +21,7 @@ export async function createUserAction(formData: FormData) {
     passwordHash,
   });
   revalidatePath("/admin/users");
+  redirect("/admin/users");
 }
 
 export async function updateUserAction(formData: FormData) {
@@ -43,6 +45,7 @@ export async function updateUserAction(formData: FormData) {
   await User.findByIdAndUpdate(id, update);
   revalidatePath("/admin/users");
   revalidatePath(`/admin/users/${id}`);
+  redirect("/admin/users");
 }
 
 export async function deleteUserAction(formData: FormData) {

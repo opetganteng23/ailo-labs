@@ -30,46 +30,47 @@ export default async function AdminUserEditPage({ params }: { params: Promise<{ 
 
   return (
     <div>
-      <p>
-        <Link href="/admin/users">Users</Link> / {user.name}
-      </p>
-      <h1>Edit user</h1>
+      <div style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 14, color: "#5b6664", marginBottom: 20 }}>
+        <Link href="/admin/users" style={{ color: "#5b6664", fontWeight: 500 }}>
+          Users
+        </Link>
+        <span>/</span>
+        <span style={{ color: "#15201f", fontWeight: 600 }}>{user.name}</span>
+      </div>
 
-      <form className="stack" action={updateUserAction} style={{ marginTop: 24, maxWidth: 480 }}>
-        <input type="hidden" name="id" value={user._id} />
-        <label>
-          Name
-          <input name="name" required maxLength={160} defaultValue={user.name} />
-        </label>
-        <label>
-          Email
-          <input name="email" type="email" required defaultValue={user.email} />
-        </label>
-        <label>
-          New password
-          <input name="password" type="password" minLength={8} placeholder="Leave blank to keep current password" />
-        </label>
-        <label>
-          Role
-          <select name="role" defaultValue={user.role} disabled={isSelf}>
-            <option value="admin">admin</option>
-            <option value="staff_lab">staff_lab</option>
-            <option value="super_admin">super_admin</option>
-          </select>
-        </label>
-        <label style={{ flexDirection: "row", alignItems: "center", gap: 8, display: "flex" }}>
-          <input type="checkbox" name="isActive" defaultChecked={user.isActive} disabled={isSelf} style={{ width: "auto" }} />
-          Active
-        </label>
-        {isSelf && (
-          <p style={{ fontSize: 13, color: "#5b6469" }}>
-            You cannot change your own role or deactivate your own account.
-          </p>
-        )}
-        <button type="submit" className="btn">
-          Save changes
-        </button>
-      </form>
+      <section className="admin2-section" style={{ maxWidth: 480 }}>
+        <form action={updateUserAction} style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+          <input type="hidden" name="id" value={user._id} />
+          <div className="admin2-field">
+            <label htmlFor="name">Name</label>
+            <input id="name" name="name" required maxLength={160} defaultValue={user.name} />
+          </div>
+          <div className="admin2-field">
+            <label htmlFor="email">Email</label>
+            <input id="email" name="email" type="email" required defaultValue={user.email} />
+          </div>
+          <div className="admin2-field">
+            <label htmlFor="password">New password</label>
+            <input id="password" name="password" type="password" minLength={8} placeholder="Leave blank to keep current password" />
+          </div>
+          <div className="admin2-field">
+            <label htmlFor="role">Role</label>
+            <select id="role" name="role" defaultValue={user.role} disabled={isSelf}>
+              <option value="admin">Admin</option>
+              <option value="staff_lab">Staff (lab)</option>
+              <option value="super_admin">Super admin</option>
+            </select>
+          </div>
+          <label style={{ flexDirection: "row", alignItems: "center", gap: 8, display: "flex", fontWeight: 500 }}>
+            <input type="checkbox" name="isActive" defaultChecked={user.isActive} disabled={isSelf} style={{ width: "auto" }} />
+            Active
+          </label>
+          {isSelf && <p style={{ fontSize: 13, color: "#6b7573", margin: 0 }}>You cannot change your own role or deactivate your own account.</p>}
+          <button type="submit" className="admin2-btn" style={{ justifyContent: "center" }}>
+            Save changes
+          </button>
+        </form>
+      </section>
     </div>
   );
 }
