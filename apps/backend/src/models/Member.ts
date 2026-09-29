@@ -8,7 +8,7 @@ const memberSchema = new Schema(
   {
     name: { type: String, required: true, trim: true },
     email: { type: String, required: true, trim: true, lowercase: true },
-    phone: { type: String, required: true, trim: true },
+    phone: { type: String, trim: true },
     affiliation: { type: String, required: true, trim: true },
     requestedAs: { type: String, enum: MEMBER_CATEGORIES, required: true },
     approvedAs: { type: String, enum: MEMBER_CATEGORIES },

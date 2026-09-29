@@ -70,13 +70,24 @@ function setElementHref(html: string, id: string, href: string | undefined): str
   });
 }
 
-/** Injects a background image (+slideshow if >1 image) and paper-color overlay behind a <section id="..."> element's content. */
-function setSectionBackground(html: string, sectionId: string, images: string[] | undefined, opacityPercent: number | undefined): string {
+/**
+ * Injects a background image (+slideshow if >1 image) and a tinted overlay behind a
+ * <section id="..."> element's content. The hero is a dark section with white text, so
+ * it needs a dark overlay; the other sections are light and get a paper-colored one.
+ */
+function setSectionBackground(
+  html: string,
+  sectionId: string,
+  images: string[] | undefined,
+  opacityPercent: number | undefined,
+  tone: "light" | "dark" = "light",
+): string {
   const list = (images ?? []).filter(Boolean);
   if (list.length === 0) return html;
 
-  const opacity = Math.max(0, Math.min(100, opacityPercent ?? 88)) / 100;
-  const layers = `<div class="section-bg-layer" data-bg-images='${escapeHtml(JSON.stringify(list))}' style="background-image:url('${escapeHtml(list[0])}')"></div><div class="section-bg-overlay" style="background:rgba(251,249,246,${opacity})"></div>`;
+  const opacity = Math.max(0, Math.min(100, opacityPercent ?? (tone === "dark" ? 66 : 88))) / 100;
+  const tint = tone === "dark" ? "6,32,36" : "251,249,246";
+  const layers = `<div class="section-bg-layer" data-bg-images='${escapeHtml(JSON.stringify(list))}' style="background-image:url('${escapeHtml(list[0])}')"></div><div class="section-bg-overlay" style="background:rgba(${tint},${opacity})"></div>`;
 
   const re = new RegExp(`(<section\\b[^>]*\\bid="${sectionId}"[^>]*)(>)`);
   return html.replace(re, (_match, openTag: string, close: string) => {
@@ -272,7 +283,7 @@ export async function GET() {
     const homepage = settingsDoc?.homepage;
     if (homepage) {
       html = applyHeroSettings(html, homepage);
-      html = setSectionBackground(html, "hero-section", homepage.heroBackgroundImages, homepage.heroOverlayOpacity);
+      html = setSectionBackground(html, "hero-section", homepage.heroBackgroundImages, homepage.heroOverlayOpacity, "dark");
       html = setSectionBackground(html, "research", homepage.researchBackgroundImages, homepage.researchOverlayOpacity);
       html = setSectionBackground(html, "projects", homepage.projectsBackgroundImages, homepage.projectsOverlayOpacity);
       html = setSectionBackground(html, "team", homepage.teamBackgroundImages, homepage.teamOverlayOpacity);

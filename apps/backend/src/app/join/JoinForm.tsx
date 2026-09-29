@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useState } from "react";
 
-import { ImageUploadField } from "@/components/ImageUploadField";
+import { MemberCardFront } from "@/components/MemberCardFront";
 
 const CATEGORY_DEFS = [
   { name: "Peneliti Mahasiswa", hint: "S1, S2 or S3 student doing research with AILO" },
@@ -21,6 +21,8 @@ type FormState = {
   name: string;
   email: string;
   phone: string;
+  password: string;
+  passwordConfirm: string;
   categoryIndex: number;
   studyLevel: string;
   institution: string;
@@ -44,6 +46,8 @@ const INITIAL_STATE: FormState = {
   name: "",
   email: "",
   phone: "",
+  password: "",
+  passwordConfirm: "",
   categoryIndex: 0,
   studyLevel: "S1",
   institution: "Telkom University",
@@ -68,6 +72,30 @@ export function JoinForm() {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
   const [done, setDone] = useState(false);
+  const [uploading, setUploading] = useState<"" | "photo" | "proofDocument">("");
+  const [uploadError, setUploadError] = useState("");
+  const [proofName, setProofName] = useState("");
+
+  async function upload(key: "photo" | "proofDocument", file: File | undefined) {
+    if (!file) return;
+    setUploading(key);
+    setUploadError("");
+    const formData = new FormData();
+    formData.append("file", file);
+    try {
+      const res = await fetch("/api/members/upload", { method: "POST", body: formData });
+      const json = await res.json();
+      if (!res.ok || !json.success) {
+        setUploadError(json.error ?? "Upload failed, try again.");
+      } else {
+        set(key, json.data.url);
+        if (key === "proofDocument") setProofName(file.name);
+      }
+    } catch {
+      setUploadError("Upload failed, try again.");
+    }
+    setUploading("");
+  }
 
   function set<K extends keyof FormState>(key: K, value: FormState[K]) {
     setState((s) => ({ ...s, [key]: value }));
@@ -94,7 +122,8 @@ export function JoinForm() {
   }
 
   function canContinue(): boolean {
-    if (step === 1) return !!(state.name.trim() && state.email.trim() && state.phone.trim());
+    if (step === 1)
+      return !!(state.photo && state.name.trim() && state.email.trim() && state.password.length >= 8 && state.password === state.passwordConfirm);
     if (step === 3) return !!state.proofDocument;
     if (step === 4) return state.agreeTerms;
     return true;
@@ -110,7 +139,8 @@ export function JoinForm() {
         body: JSON.stringify({
           name: state.name,
           email: state.email,
-          phone: state.phone,
+          phone: state.phone || undefined,
+          password: state.password,
           affiliation: affiliation || state.institution,
           requestedAs: CATEGORY_DEFS[state.categoryIndex].name,
           photo: state.photo,
@@ -228,13 +258,27 @@ export function JoinForm() {
           <>
             <div>
               <h2 className="join-step-title">Your account</h2>
-              <p className="join-step-sub">We&apos;ll use this email to send your confirmation and member card.</p>
+              <p className="join-step-sub">You&apos;ll use this email to sign in and receive your member card.</p>
             </div>
             <div style={{ display: "flex", alignItems: "center", gap: 18, padding: 16, borderRadius: 14, background: "#f7f5f0" }}>
-              <ImageUploadField name="photo" label="" endpoint="/api/members/upload" defaultValue={state.photo} />
+              <label htmlFor="jphoto" className="join-photo-pick" aria-label="Upload photo">
+                {state.photo ? (
+                  // eslint-disable-next-line @next/next/no-img-element -- previewing the visitor's own upload
+                  <img src={state.photo} alt="Your photo" />
+                ) : (
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M4 8h3l2-3h6l2 3h3v11H4z" />
+                    <circle cx="12" cy="13" r="3.5" />
+                  </svg>
+                )}
+                <input id="jphoto" type="file" accept="image/png,image/jpeg" style={{ display: "none" }} onChange={(e) => upload("photo", e.target.files?.[0])} />
+              </label>
               <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
                 <span style={{ fontSize: 15, fontWeight: 700 }}>Photo for your member card</span>
-                <span style={{ fontSize: 14, lineHeight: 1.5, color: "#5b6664" }}>Portrait, plain background, face clearly visible. JPG or PNG.</span>
+                <span style={{ fontSize: 14, lineHeight: 1.5, color: "#5b6664" }}>
+                  {uploading === "photo" ? "Uploading…" : "Portrait, plain background, face clearly visible. JPG or PNG."}
+                </span>
+                {uploadError && <span className="error-text">{uploadError}</span>}
               </div>
             </div>
             <div className="join-field">
@@ -249,8 +293,19 @@ export function JoinForm() {
                 <input id="jemail" type="email" placeholder="nama@student.telkomuniversity.ac.id" value={state.email} onChange={(e) => set("email", e.target.value)} required />
               </div>
               <div className="join-field">
-                <label htmlFor="jwa">WhatsApp</label>
-                <input id="jwa" type="tel" placeholder="+62 8…" value={state.phone} onChange={(e) => set("phone", e.target.value)} required />
+                <label htmlFor="jwa">
+                  WhatsApp <span style={{ fontWeight: 500, color: "#6b7573" }}>(optional)</span>
+                </label>
+                <input id="jwa" type="tel" placeholder="+62 8…" value={state.phone} onChange={(e) => set("phone", e.target.value)} />
+              </div>
+              <div className="join-field">
+                <label htmlFor="jpw">Password</label>
+                <input id="jpw" type="password" placeholder="At least 8 characters" autoComplete="new-password" value={state.password} onChange={(e) => set("password", e.target.value)} />
+              </div>
+              <div className="join-field">
+                <label htmlFor="jpw2">Confirm password</label>
+                <input id="jpw2" type="password" autoComplete="new-password" value={state.passwordConfirm} onChange={(e) => set("passwordConfirm", e.target.value)} />
+                {state.passwordConfirm && state.password !== state.passwordConfirm && <span className="error-text">Passwords don&apos;t match.</span>}
               </div>
             </div>
           </>
@@ -351,13 +406,14 @@ export function JoinForm() {
               <label>
                 Proof of affiliation <span style={{ color: "#b4530f" }}>*</span>
               </label>
-              <ImageUploadField
-                name="proofDocument"
-                label=""
-                endpoint="/api/members/upload"
-                accept="image/png,image/jpeg,image/webp,application/pdf"
-                defaultValue={state.proofDocument}
-              />
+              <label htmlFor="jproof" className="join-proof-pick">
+                <span style={{ fontSize: 15, fontWeight: 700 }}>
+                  {uploading === "proofDocument" ? "Uploading…" : proofName || "Upload KTM, surat tugas, or ijazah"}
+                </span>
+                <span style={{ fontSize: 13, color: "#6b7573" }}>{proofName ? "Uploaded · click to replace" : "PDF, JPG or PNG · max 5 MB"}</span>
+                <input id="jproof" type="file" accept="image/png,image/jpeg,application/pdf" style={{ display: "none" }} onChange={(e) => upload("proofDocument", e.target.files?.[0])} />
+              </label>
+              {uploadError && <span className="error-text">{uploadError}</span>}
             </div>
             <div style={{ display: "grid", gridTemplateColumns: "150px minmax(0, 1fr)", gap: "10px 14px", alignItems: "center" }}>
               <label htmlFor="jli" style={{ fontSize: 14, fontWeight: 700 }}>
@@ -410,15 +466,15 @@ export function JoinForm() {
             </div>
             {error && <p className="error-text">{error}</p>}
             <label style={{ display: "flex", gap: 12, alignItems: "flex-start", fontSize: 15, lineHeight: 1.5 }}>
-              <input type="checkbox" checked={state.agreeTerms} onChange={(e) => set("agreeTerms", e.target.checked)} style={{ width: 20, height: 20, marginTop: 2 }} />I
-              confirm the information above is accurate.
+              <input type="checkbox" checked={state.agreeTerms} onChange={(e) => set("agreeTerms", e.target.checked)} style={{ width: 20, height: 20, marginTop: 2, accentColor: "#0e6b73" }} />I
+              confirm the information above is accurate and agree to AILO&apos;s member terms and privacy policy.
             </label>
             <label style={{ display: "flex", gap: 12, alignItems: "flex-start", fontSize: 15, lineHeight: 1.5 }}>
               <input
                 type="checkbox"
                 checked={state.showProfilePublicly}
                 onChange={(e) => set("showProfilePublicly", e.target.checked)}
-                style={{ width: 20, height: 20, marginTop: 2 }}
+                style={{ width: 20, height: 20, marginTop: 2, accentColor: "#0e6b73" }}
               />
               Show my name and profile links on the AILO website once approved (optional).
             </label>
@@ -449,10 +505,15 @@ export function JoinForm() {
       <div className="join-aside-card">
         <span style={{ fontSize: 13, fontWeight: 700, letterSpacing: "0.12em", color: "#6b7573" }}>YOUR CARD PREVIEW</span>
         <div className="join-card-preview">
-          <span className="ring" />
-          <span className="badge">MEMBER</span>
-          <span className="name">{state.name || "Nama Kamu"}</span>
-          <span className="sub">{categoryLabel}</span>
+          <MemberCardFront
+            name={state.name || "Nama Kamu"}
+            category={categoryLabel}
+            affiliation={state.studyProgram ? `${state.studyProgram} · ${state.institution}` : "[Program studi / institusi]"}
+            photo={state.photo || undefined}
+            cardId="AILO-2026-0001"
+            validUntil="[Tanggal berlaku]"
+            qrSrc="/member-card-qr-sample.svg"
+          />
         </div>
         <span style={{ fontSize: 13, lineHeight: 1.5, color: "#6b7573" }}>Member ID and validity are assigned when your request is approved.</span>
       </div>
@@ -465,7 +526,7 @@ export function JoinForm() {
         </ul>
       </div>
       <p style={{ margin: 0, padding: "0 8px", fontSize: 14, lineHeight: 1.5, color: "#5b6664" }}>
-        Questions? Email <a href="mailto:ailo@telkomuniversity.ac.id" style={{ fontWeight: 700 }}>ailo@telkomuniversity.ac.id</a>
+        Questions? Email <a href="mailto:ailo@telkomuniversity.ac.id" style={{ fontWeight: 700, color: "#0e6b73", textDecoration: "underline" }}>ailo@telkomuniversity.ac.id</a>
       </p>
     </aside>
     </div>

@@ -1,5 +1,7 @@
 import QRCode from "qrcode";
 
+import { MemberCardFront } from "./MemberCardFront";
+
 export type MemberCardData = {
   name: string;
   cardId: string;
@@ -21,44 +23,15 @@ export async function MemberCard({ data }: { data: MemberCardData }) {
 
   return (
     <div className="member-card-pair">
-      {/* Front */}
-      <div className="member-card member-card-front">
-        <div className="member-card-ring" />
-        <div className="member-card-stripe" />
-        <div className="member-card-header">
-          <div className="member-card-logo">LOGO</div>
-          <div>
-            <div className="member-card-org">CoE AILO</div>
-            <div className="member-card-org-sub">Telkom University</div>
-          </div>
-          <span className="member-card-badge">MEMBER</span>
-        </div>
-        <div className="member-card-body">
-          {data.photo ? (
-            // eslint-disable-next-line @next/next/no-img-element -- arbitrary uploaded image, no static optimization needed
-            <img src={data.photo} alt={data.name} className="member-card-photo" />
-          ) : (
-            <div className="member-card-photo member-card-photo-placeholder">Photo</div>
-          )}
-          <div className="member-card-info">
-            <span className="member-card-name">{data.name}</span>
-            <span className="member-card-category">{data.category}</span>
-            {data.affiliation && <span className="member-card-affiliation">{data.affiliation}</span>}
-          </div>
-        </div>
-        <div className="member-card-footer">
-          <div>
-            <span className="member-card-label">MEMBER ID</span>
-            <span className="member-card-value">{data.cardId}</span>
-          </div>
-          <div>
-            <span className="member-card-label">VALID UNTIL</span>
-            <span className="member-card-value">{formatValidUntil(data.validUntil)}</span>
-          </div>
-          {/* eslint-disable-next-line @next/next/no-img-element -- generated data URI, not a static asset */}
-          <img src={qrDataUrl} alt="Verification QR code" className="member-card-front-qr" />
-        </div>
-      </div>
+      <MemberCardFront
+        name={data.name}
+        category={data.category}
+        affiliation={data.affiliation}
+        photo={data.photo}
+        cardId={data.cardId}
+        validUntil={formatValidUntil(data.validUntil)}
+        qrSrc={qrDataUrl}
+      />
 
       {/* Back */}
       <div className="member-card member-card-back">

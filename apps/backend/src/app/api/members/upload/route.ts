@@ -8,7 +8,7 @@ import { UPLOADS_DIR } from "@/lib/uploads";
 
 export const dynamic = "force-dynamic";
 
-const MAX_BYTES = 8 * 1024 * 1024;
+const MAX_BYTES = 5 * 1024 * 1024;
 const ALLOWED_TYPES: Record<string, string> = {
   "image/png": "png",
   "image/jpeg": "jpg",
@@ -30,7 +30,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ success: false, error: "No file provided." }, { status: 400 });
   }
   if (file.size > MAX_BYTES) {
-    return NextResponse.json({ success: false, error: "File is too large (max 8MB)." }, { status: 400 });
+    return NextResponse.json({ success: false, error: "File is too large (max 5 MB)." }, { status: 400 });
   }
   const extension = ALLOWED_TYPES[file.type];
   if (!extension) {

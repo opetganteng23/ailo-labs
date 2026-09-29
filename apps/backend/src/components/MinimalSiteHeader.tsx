@@ -7,7 +7,9 @@ export function MinimalSiteHeader({ rightLabel, rightHref }: { rightLabel: strin
     <header className="minimal-header">
       <div className="wrap minimal-header-row">
         <Link href="/" className="minimal-header-brand">
-          <Image src="/logo-square.png" alt="AILO" width={28} height={28} style={{ objectFit: "contain" }} />
+          <span className="minimal-header-mark">
+            <Image src="/logo-square.png" alt="AILO" width={28} height={28} style={{ objectFit: "contain" }} />
+          </span>
           <span>AILO</span>
         </Link>
         <Link href="/" className="minimal-header-back">
