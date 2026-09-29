@@ -1,6 +1,8 @@
 import { model, models, Schema } from "mongoose";
 
-export const TEAM_CATEGORIES = ["Dosen", "Peneliti", "Peneliti Mahasiswa", "Peneliti Alumni", "Honorary Advisory Board"] as const;
+import { TEAM_CATEGORIES } from "./teamCategories";
+
+export { TEAM_CATEGORIES };
 
 const teamSchema = new Schema(
   {

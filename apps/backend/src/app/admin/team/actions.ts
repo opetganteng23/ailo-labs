@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
 
 import { getSession, isAdminRole } from "@/lib/auth";
 import { connectToDatabase } from "@/lib/mongodb";
@@ -40,6 +41,7 @@ export async function createTeamAction(formData: FormData) {
     profiles: profilesFromForm(formData),
   });
   revalidatePath("/admin/team");
+  redirect("/admin/team");
 }
 
 export async function updateTeamAction(formData: FormData) {
@@ -63,6 +65,7 @@ export async function updateTeamAction(formData: FormData) {
   });
   revalidatePath("/admin/team");
   revalidatePath(`/admin/team/${id}`);
+  redirect("/admin/team");
 }
 
 export async function deleteTeamAction(formData: FormData) {
