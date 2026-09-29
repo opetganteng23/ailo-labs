@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import { SiteFooter } from "@/components/SiteFooter";
@@ -22,11 +23,16 @@ export default async function ResearchDetailPage({ params }: { params: Promise<{
   return (
     <>
       <SiteHeader />
-      <main className="wrap">
-        <h1>{item.title}</h1>
-        <p style={{ color: "#5b6469" }}>{item.description}</p>
-        {/* eslint-disable-next-line @next/next/no-img-element -- arbitrary uploaded image, no static optimization needed */}
-        {item.image && <img className="detail-thumb" src={item.image} alt={item.title} />}
+      <main className="wrap page-head" style={{ maxWidth: 820 }}>
+        <Link href="/research" className="sec-link" style={{ fontSize: 14 }}>
+          Research
+        </Link>
+        <h1 style={{ marginTop: 12 }}>{item.title}</h1>
+        <p style={{ color: "#5b6469", fontSize: 17 }}>{item.description}</p>
+        {item.image && (
+          // eslint-disable-next-line @next/next/no-img-element -- arbitrary uploaded image, no static optimization needed
+          <img className="detail-thumb" src={item.image} alt={item.title} style={{ borderRadius: 20 }} />
+        )}
         <div className="rte-body" style={{ marginTop: 24, padding: 0 }} dangerouslySetInnerHTML={{ __html: item.content }} />
       </main>
       <SiteFooter />

@@ -19,18 +19,31 @@ export default async function NewsListPage() {
   return (
     <>
       <SiteHeader />
-      <main className="wrap">
-        <h1>News</h1>
-        <p>Research updates and lab announcements.</p>
+      <main className="wrap page-head">
+        <div className="sec-head">
+          <div>
+            <span className="kicker-sm">NEWS</span>
+            <h1>Latest from the lab</h1>
+          </div>
+          <div className="sec-desc">
+            <p>Research updates, publications, and lab announcements.</p>
+          </div>
+        </div>
+
         {items.length === 0 && <p className="notice">No published news yet.</p>}
-        <div className="grid cols-3" style={{ marginTop: 24 }}>
+
+        <div className="news-grid">
           {items.map((item) => (
-            <Link key={item._id} href={`/news/${item.slug}`} className="card">
-              {/* eslint-disable-next-line @next/next/no-img-element -- arbitrary uploaded image, no static optimization needed */}
-              {item.images?.[0] && <img className="card-thumb" src={item.images[0]} alt={item.title} />}
-              <span className="badge">{item.category}</span>
-              <h3>{item.title}</h3>
-              <p>{item.summary}</p>
+            <Link key={item._id} href={`/news/${item.slug}`} className="ncard">
+              <div className="nthumb" style={item.images?.[0] ? { backgroundImage: `url(${item.images[0]})`, backgroundSize: "cover", backgroundPosition: "center" } : undefined}>
+                <span className="tag">{item.category}</span>
+              </div>
+              <div className="nbody">
+                {item.publishedAt && <span className="date">{new Date(item.publishedAt).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" })}</span>}
+                <h3>{item.title}</h3>
+                <p>{item.summary}</p>
+                <span className="read">Read article</span>
+              </div>
             </Link>
           ))}
         </div>

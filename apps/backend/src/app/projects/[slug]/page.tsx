@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import { SiteFooter } from "@/components/SiteFooter";
@@ -6,6 +7,9 @@ import { connectToDatabase } from "@/lib/mongodb";
 import { Project } from "@/models/Project";
 
 export const dynamic = "force-dynamic";
+
+const STATUS_LABEL: Record<string, string> = { planned: "Planned", ongoing: "Ongoing", completed: "Completed" };
+const STATUS_CLASS: Record<string, string> = { planned: "status-planned", ongoing: "status-ongoing", completed: "status-completed" };
 
 export default async function ProjectDetailPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
@@ -23,12 +27,19 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
   return (
     <>
       <SiteHeader />
-      <main className="wrap">
-        <span className="badge">{item.status}</span>
-        <h1>{item.title}</h1>
-        <p style={{ color: "#5b6469" }}>{item.description}</p>
-        {/* eslint-disable-next-line @next/next/no-img-element -- arbitrary uploaded image, no static optimization needed */}
-        {item.images?.[0] && <img className="detail-thumb" src={item.images[0]} alt={item.title} />}
+      <main className="wrap page-head" style={{ maxWidth: 820 }}>
+        <Link href="/projects" className="sec-link" style={{ fontSize: 14 }}>
+          Projects
+        </Link>
+        <div style={{ marginTop: 12 }}>
+          <span className={`pstatus ${STATUS_CLASS[item.status] ?? "status-planned"}`}>{STATUS_LABEL[item.status] ?? item.status}</span>
+        </div>
+        <h1 style={{ marginTop: 8 }}>{item.title}</h1>
+        <p style={{ color: "#5b6469", fontSize: 17 }}>{item.description}</p>
+        {item.images?.[0] && (
+          // eslint-disable-next-line @next/next/no-img-element -- arbitrary uploaded image, no static optimization needed
+          <img className="detail-thumb" src={item.images[0]} alt={item.title} style={{ borderRadius: 20 }} />
+        )}
         <div className="rte-body" style={{ marginTop: 24, padding: 0 }} dangerouslySetInnerHTML={{ __html: item.content }} />
       </main>
       <SiteFooter />

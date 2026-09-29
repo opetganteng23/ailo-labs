@@ -69,7 +69,7 @@ function LoginFormInner() {
           </button>
         </form>
         <Link href="/" className="auth-back">
-          ← Back to site
+          Back to site
         </Link>
       </div>
     </div>

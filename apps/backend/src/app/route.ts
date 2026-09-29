@@ -138,7 +138,7 @@ async function buildResearchCards(): Promise<CardResult> {
         </div>
         <h3>${escapeHtml(item.title)}</h3>
         <p>${escapeHtml(truncate(item.description, 110))}</p>
-        <span class="explore">Explore →</span>
+        <span class="explore">Explore</span>
       </a>`,
     )
     .join("\n");

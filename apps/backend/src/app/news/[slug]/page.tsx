@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import { SiteFooter } from "@/components/SiteFooter";
@@ -23,12 +24,30 @@ export default async function NewsDetailPage({ params }: { params: Promise<{ slu
   return (
     <>
       <SiteHeader />
-      <main className="wrap">
-        <span className="badge">{item.category}</span>
-        <h1>{item.title}</h1>
-        <p style={{ color: "#5b6469" }}>{item.summary}</p>
-        {/* eslint-disable-next-line @next/next/no-img-element -- arbitrary uploaded image, no static optimization needed */}
-        {item.images?.[0] && <img className="detail-thumb" src={item.images[0]} alt={item.title} />}
+      <main className="wrap page-head" style={{ maxWidth: 820 }}>
+        <Link href="/news" className="sec-link" style={{ fontSize: 14 }}>
+          News
+        </Link>
+        <div style={{ marginTop: 12 }}>
+          <span
+            style={{
+              background: "var(--orange)",
+              color: "#1e1206",
+              fontSize: 12,
+              fontWeight: 700,
+              padding: "5px 12px",
+              borderRadius: 999,
+            }}
+          >
+            {item.category}
+          </span>
+        </div>
+        <h1 style={{ marginTop: 8 }}>{item.title}</h1>
+        <p style={{ color: "#5b6469", fontSize: 17 }}>{item.summary}</p>
+        {item.images?.[0] && (
+          // eslint-disable-next-line @next/next/no-img-element -- arbitrary uploaded image, no static optimization needed
+          <img className="detail-thumb" src={item.images[0]} alt={item.title} style={{ borderRadius: 20 }} />
+        )}
         <div className="rte-body" style={{ marginTop: 24, padding: 0 }} dangerouslySetInnerHTML={{ __html: item.content }} />
       </main>
       <SiteFooter />

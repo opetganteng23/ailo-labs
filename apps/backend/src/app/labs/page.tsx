@@ -7,7 +7,7 @@ import { Lab } from "@/models/Lab";
 
 export const dynamic = "force-dynamic";
 
-type LabItem = { _id: string; name: string; slug: string; location?: string; description?: string; photos?: string[] };
+type LabItem = { _id: string; name: string; slug: string; location?: string; capacity?: number; facilities?: string; photos?: string[] };
 
 export default async function LabsListPage() {
   await connectToDatabase();
@@ -16,23 +16,33 @@ export default async function LabsListPage() {
   return (
     <>
       <SiteHeader />
-      <main className="wrap">
-        <h1>Labs &amp; Equipment</h1>
-        <p>Reserve a lab or device - submit a request and get an email confirmation.</p>
+      <main className="wrap page-head">
+        <div className="sec-head">
+          <div>
+            <span className="kicker-sm">LABS &amp; EQUIPMENT</span>
+            <h1>Labs &amp; equipment</h1>
+          </div>
+          <div className="sec-desc">
+            <p>Every AILO lab and its equipment, with live availability. Submit a request and get a confirmation by email.</p>
+          </div>
+        </div>
+
         {items.length === 0 && <p className="notice">No labs published yet.</p>}
-        <div className="grid cols-3" style={{ marginTop: 24 }}>
+
+        <div className="lab2-grid">
           {items.map((item) => (
-            <Link key={item._id} href={`/labs/${item.slug}`} className="lab-card">
-              {item.photos?.[0] ? (
-                // eslint-disable-next-line @next/next/no-img-element -- arbitrary uploaded image, no static optimization needed
-                <img src={item.photos[0]} alt={item.name} />
-              ) : (
-                <div className="lab-card-placeholder" />
-              )}
-              <div className="lab-card-overlay" />
-              <div className="lab-card-body">
+            <Link key={item._id} href={`/labs/${item.slug}`} className="lab2-card">
+              <div className="lab2-thumb" style={item.photos?.[0] ? { backgroundImage: `url(${item.photos[0]})`, backgroundSize: "cover", backgroundPosition: "center" } : undefined}>
+                {item.location && <span className="badge">{item.location}</span>}
+              </div>
+              <div className="lab2-body">
                 <h3>{item.name}</h3>
-                {item.location && <p>{item.location}</p>}
+                {item.facilities && <p>{item.facilities}</p>}
+                {item.capacity !== undefined && (
+                  <div className="chips">
+                    <span>Capacity {item.capacity}</span>
+                  </div>
+                )}
               </div>
             </Link>
           ))}

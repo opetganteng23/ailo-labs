@@ -36,10 +36,15 @@ export default async function LabDetailPage({ params }: { params: Promise<{ slug
   return (
     <>
       <SiteHeader />
-      <main className="wrap">
-        {/* eslint-disable-next-line @next/next/no-img-element -- arbitrary uploaded image, no static optimization needed */}
-        {lab.photos?.[0] && <img className="detail-thumb" src={lab.photos[0]} alt={lab.name} />}
-        <h1>{lab.name}</h1>
+      <main className="wrap page-head">
+        <Link href="/labs" className="sec-link" style={{ fontSize: 14 }}>
+          Labs
+        </Link>
+        {lab.photos?.[0] && (
+          // eslint-disable-next-line @next/next/no-img-element -- arbitrary uploaded image, no static optimization needed
+          <img className="detail-thumb" src={lab.photos[0]} alt={lab.name} style={{ borderRadius: 20, marginTop: 12 }} />
+        )}
+        <h1 style={{ marginTop: lab.photos?.[0] ? 24 : 12 }}>{lab.name}</h1>
         {lab.location && <p style={{ color: "#5b6469" }}>{lab.location}</p>}
         {lab.capacity !== undefined && <p>Capacity: {lab.capacity}</p>}
         <p style={{ marginTop: 12 }}>{lab.description}</p>
@@ -49,7 +54,7 @@ export default async function LabDetailPage({ params }: { params: Promise<{ slug
             {lab.facilities}
           </p>
         )}
-        <Link href={`/labs/${slug}/booking`} className="btn" style={{ marginTop: 20, display: "inline-block" }}>
+        <Link href={`/labs/${slug}/booking`} className="btn-primary" style={{ marginTop: 20 }}>
           Ajukan Peminjaman
         </Link>
 
@@ -92,18 +97,18 @@ export default async function LabDetailPage({ params }: { params: Promise<{ slug
           <div style={{ flex: "0 1 420px" }}>
             <AvailabilityCalendar labSlug={slug} />
           </div>
-          <div className="card" style={{ flex: "1 1 280px" }}>
-            <h3>Ready to reserve {lab.name}?</h3>
+          <div className="rcard" style={{ flex: "1 1 280px" }}>
+            <h3 style={{ fontSize: 18 }}>Ready to reserve {lab.name}?</h3>
             <p>
               Pick an open date above, then submit a request with your details. An admin reviews it and you&apos;ll get an
               email once it&apos;s approved or declined.
             </p>
-            <ul style={{ margin: "16px 0", paddingLeft: 18, color: "#3a4348", fontSize: 14, lineHeight: 1.7 }}>
+            <ul style={{ margin: "0 0 8px", paddingLeft: 18, color: "#3a4348", fontSize: 14, lineHeight: 1.7 }}>
               <li>No account fees, just a quick sign-in</li>
               <li>Book the whole lab or a single device</li>
               {lab.location && <li>Located at {lab.location}</li>}
             </ul>
-            <Link href={`/labs/${slug}/booking`} className="btn">
+            <Link href={`/labs/${slug}/booking`} className="btn-primary">
               Ajukan Peminjaman
             </Link>
           </div>

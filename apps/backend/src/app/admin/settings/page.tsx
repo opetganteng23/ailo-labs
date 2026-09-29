@@ -87,7 +87,7 @@ export default async function AdminSettingsPage() {
             </a>
           ))}
           <Link href="/admin/chatbot/model" style={{ padding: "10px 12px", borderRadius: 10, fontSize: 14, fontWeight: 500, color: "#4e5957" }}>
-            AI &amp; chatbot →
+            AI &amp; chatbot
           </Link>
         </nav>
 

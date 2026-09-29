@@ -16,17 +16,28 @@ export default async function ResearchListPage() {
   return (
     <>
       <SiteHeader />
-      <main className="wrap">
-        <h1>Research Areas</h1>
-        <p>Applied research tracks pursued by AILO.</p>
+      <main className="wrap page-head">
+        <div className="sec-head">
+          <div>
+            <span className="kicker-sm">RESEARCH</span>
+            <h1>Research areas</h1>
+          </div>
+          <div className="sec-desc">
+            <p>Applied research tracks pursued by AILO, each pairing theory with a deployable system.</p>
+          </div>
+        </div>
+
         {items.length === 0 && <p className="notice">No published research yet.</p>}
-        <div className="grid cols-3" style={{ marginTop: 24 }}>
-          {items.map((item) => (
-            <Link key={item._id} href={`/research/${item.slug}`} className="card">
-              {/* eslint-disable-next-line @next/next/no-img-element -- arbitrary uploaded image, no static optimization needed */}
-              {item.image && <img className="card-thumb" src={item.image} alt={item.title} />}
+
+        <div className="research-grid">
+          {items.map((item, i) => (
+            <Link key={item._id} href={`/research/${item.slug}`} className="rcard">
+              <div className="rcard-top">
+                <span className="num">{String(i + 1).padStart(2, "0")}</span>
+              </div>
               <h3>{item.title}</h3>
               <p>{item.description}</p>
+              <span className="explore">Explore</span>
             </Link>
           ))}
         </div>
