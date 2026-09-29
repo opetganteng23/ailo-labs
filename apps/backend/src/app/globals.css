@@ -643,6 +643,10 @@ textarea { min-height: 100px; }
 }
 .admin2-field { display: flex; flex-direction: column; gap: 8px; }
 .admin2-field label { font-size: 13px; font-weight: 600; color: #5b6664; display: block; }
+/* Labels that switch to flex inline (tag + text + marker) stay on one row, not the legacy column layout. */
+.admin2-field label { flex-direction: row; align-items: center; }
+.admin2-5w1h-grid .admin2-field label { display: flex; gap: 8px; text-align: left; }
+.admin2-5w1h-grid textarea { resize: vertical; }
 .admin2-field input, .admin2-field textarea, .admin2-field select {
   border: 1px solid #dad7cf;
   border-radius: 10px;
