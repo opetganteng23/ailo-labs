@@ -1,13 +1,26 @@
 import { model, models, Schema } from "mongoose";
 
+export const TEAM_CATEGORIES = ["Dosen", "Peneliti", "Peneliti Mahasiswa", "Peneliti Alumni", "Honorary Advisory Board"] as const;
+
 const teamSchema = new Schema(
   {
     name: { type: String, required: true, trim: true },
     slug: { type: String, required: true, unique: true, trim: true },
     photo: String,
     position: { type: String, required: true },
+    category: { type: String, enum: TEAM_CATEGORIES, default: "Peneliti" },
+    jenjang: String,
+    studyProgram: String,
+    displayOrder: { type: Number, default: 0 },
     bio: String,
     email: { type: String, trim: true, lowercase: true },
+    profiles: {
+      linkedin: String,
+      orcid: String,
+      googleScholar: String,
+      sinta: String,
+      scopus: String,
+    },
     scopusAuthorId: String,
     scopusData: {
       hIndex: Number,
@@ -20,5 +33,7 @@ const teamSchema = new Schema(
   },
   { timestamps: true },
 );
+
+teamSchema.index({ category: 1, displayOrder: 1, name: 1 });
 
 export const Team = models.Team || model("Team", teamSchema);

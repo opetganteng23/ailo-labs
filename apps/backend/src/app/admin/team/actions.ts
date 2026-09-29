@@ -10,6 +10,16 @@ function slugify(input: string) {
   return input.toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
 }
 
+function profilesFromForm(formData: FormData) {
+  return {
+    linkedin: String(formData.get("linkedin") ?? "") || undefined,
+    orcid: String(formData.get("orcid") ?? "") || undefined,
+    googleScholar: String(formData.get("googleScholar") ?? "") || undefined,
+    sinta: String(formData.get("sinta") ?? "") || undefined,
+    scopus: String(formData.get("scopus") ?? "") || undefined,
+  };
+}
+
 export async function createTeamAction(formData: FormData) {
   const session = await getSession();
   if (!session || !isAdminRole(session.role)) return;
@@ -20,9 +30,14 @@ export async function createTeamAction(formData: FormData) {
     name,
     slug: slugify(name),
     position: String(formData.get("position") ?? ""),
+    category: String(formData.get("category") ?? "Peneliti"),
+    jenjang: String(formData.get("jenjang") ?? "") || undefined,
+    studyProgram: String(formData.get("studyProgram") ?? "") || undefined,
+    displayOrder: Number(formData.get("displayOrder") ?? 0) || 0,
     bio: String(formData.get("bio") ?? ""),
     email: String(formData.get("email") ?? "") || undefined,
     photo: String(formData.get("photo") ?? "") || undefined,
+    profiles: profilesFromForm(formData),
   });
   revalidatePath("/admin/team");
 }
@@ -36,9 +51,14 @@ export async function updateTeamAction(formData: FormData) {
   await Team.findByIdAndUpdate(id, {
     name: String(formData.get("name") ?? "").trim(),
     position: String(formData.get("position") ?? ""),
+    category: String(formData.get("category") ?? "Peneliti"),
+    jenjang: String(formData.get("jenjang") ?? "") || undefined,
+    studyProgram: String(formData.get("studyProgram") ?? "") || undefined,
+    displayOrder: Number(formData.get("displayOrder") ?? 0) || 0,
     bio: String(formData.get("bio") ?? ""),
     email: String(formData.get("email") ?? "") || undefined,
     photo: String(formData.get("photo") ?? "") || undefined,
+    profiles: profilesFromForm(formData),
     isActive: formData.get("isActive") === "on",
   });
   revalidatePath("/admin/team");

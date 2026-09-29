@@ -7,11 +7,21 @@ import { Team } from "@/models/Team";
 
 export const dynamic = "force-dynamic";
 
-type TeamItem = { _id: string; name: string; slug: string; position: string; photo?: string; scopusData?: { hIndex?: number } };
+type TeamItem = {
+  _id: string;
+  name: string;
+  slug: string;
+  position: string;
+  category?: string;
+  photo?: string;
+  scopusData?: { hIndex?: number };
+};
 
 export default async function TeamListPage() {
   await connectToDatabase();
-  const items = (await Team.find({ isActive: true }).sort({ name: 1 }).lean()) as unknown as TeamItem[];
+  const items = (await Team.find({ isActive: true })
+    .sort({ category: 1, displayOrder: 1, name: 1 })
+    .lean()) as unknown as TeamItem[];
 
   return (
     <>
@@ -25,6 +35,7 @@ export default async function TeamListPage() {
             <Link key={item._id} href={`/team/${item.slug}`} className="card">
               {/* eslint-disable-next-line @next/next/no-img-element -- arbitrary uploaded image, no static optimization needed */}
               {item.photo && <img className="avatar-thumb" src={item.photo} alt={item.name} />}
+              {item.category && <span className="badge">{item.category}</span>}
               <h3>{item.name}</h3>
               <p>{item.position}</p>
               {item.scopusData?.hIndex !== undefined && <p style={{ fontSize: 12 }}>h-index {item.scopusData.hIndex}</p>}
