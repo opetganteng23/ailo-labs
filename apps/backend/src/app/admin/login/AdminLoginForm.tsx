@@ -46,7 +46,7 @@ function LoginFormInner() {
       <div className="auth-card">
         <Link href="/" className="auth-brand">
           <span className="auth-brand-mark">
-            <Image src="/logo-icon.png" alt="AILO" width={26} height={26} />
+            <Image src="/logo-square.png" alt="AILO" width={30} height={30} style={{ objectFit: "contain", width: "100%", height: "100%" }} />
           </span>
           <span className="auth-brand-name">AILO</span>
         </Link>
