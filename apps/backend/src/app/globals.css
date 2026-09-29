@@ -782,6 +782,34 @@ footer.site .foot-bottom .socials .social-pending { color: #9aa3a7; font-weight:
 .booking-slot.selected { border: 0; background: #0e6b73; color: #fff; font-weight: 800; }
 .booking-slot.booked { border: 0; background: #eeece6; color: #a3a9a7; font-weight: 500; text-decoration: line-through; }
 
+/* ===== Auth pages (admin login) ===== */
+.auth-shell {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: linear-gradient(160deg, #0a3f46 0%, #123b40 55%, #0a5f6c 100%);
+}
+.auth-card {
+  width: 100%;
+  max-width: 400px;
+  background: #fff;
+  border-radius: 20px;
+  padding: 40px 36px;
+  box-shadow: 0 30px 70px -20px rgba(6, 32, 36, 0.45);
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+.auth-brand { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+.auth-brand-mark { width: 40px; height: 40px; border-radius: 10px; background: var(--paper-dim); display: flex; align-items: center; justify-content: center; overflow: hidden; }
+.auth-brand-name { font-size: 18px; font-weight: 800; color: var(--ink); }
+.auth-heading h1 { margin: 0; font-size: 22px; font-weight: 800; color: var(--ink); }
+.auth-heading p { margin: 4px 0 0; font-size: 14px; color: #5b6664; }
+.auth-back { align-self: center; font-size: 13px; font-weight: 600; color: #5b6664; }
+.auth-back:hover { color: var(--teal-dark); }
+
 @media print {
   body * { visibility: hidden; }
   .member-card-pair, .member-card-pair * { visibility: visible; }

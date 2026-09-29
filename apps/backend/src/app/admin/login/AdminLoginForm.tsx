@@ -1,5 +1,7 @@
 "use client";
 
+import Image from "next/image";
+import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { Suspense, useState } from "react";
 
@@ -40,23 +42,37 @@ function LoginFormInner() {
   }
 
   return (
-    <main className="wrap" style={{ maxWidth: 420, paddingTop: 80 }}>
-      <h1>Admin Login</h1>
-      <form className="stack" onSubmit={handleSubmit} style={{ marginTop: 24 }}>
-        <label>
-          Email
-          <input name="email" type="email" required autoFocus />
-        </label>
-        <label>
-          Password
-          <input name="password" type="password" required />
-        </label>
-        {error && <p className="error-text">{error}</p>}
-        <button type="submit" className="btn" disabled={loading}>
-          {loading ? "Signing in..." : "Sign in"}
-        </button>
-      </form>
-    </main>
+    <div className="auth-shell">
+      <div className="auth-card">
+        <Link href="/" className="auth-brand">
+          <span className="auth-brand-mark">
+            <Image src="/logo-square.png" alt="AILO" width={40} height={40} />
+          </span>
+          <span className="auth-brand-name">AILO</span>
+        </Link>
+        <div className="auth-heading">
+          <h1>Admin console</h1>
+          <p>Sign in to manage content, bookings, members and settings.</p>
+        </div>
+        <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: 18 }}>
+          <div className="admin2-field">
+            <label htmlFor="email">Email</label>
+            <input id="email" name="email" type="email" required autoFocus autoComplete="username" />
+          </div>
+          <div className="admin2-field">
+            <label htmlFor="password">Password</label>
+            <input id="password" name="password" type="password" required autoComplete="current-password" />
+          </div>
+          {error && <p className="error-text">{error}</p>}
+          <button type="submit" className="admin2-btn" style={{ height: 48, justifyContent: "center" }} disabled={loading}>
+            {loading ? "Signing in…" : "Sign in"}
+          </button>
+        </form>
+        <Link href="/" className="auth-back">
+          ← Back to site
+        </Link>
+      </div>
+    </div>
   );
 }
 
