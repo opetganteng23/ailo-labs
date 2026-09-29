@@ -18,6 +18,7 @@ export default async function AdminNewsEditPage({ params }: { params: Promise<{ 
     summary: string;
     content: string;
     status: string;
+    tags?: string[];
     images?: string[];
     source5W1H?: { what?: string; who?: string; when?: string; where?: string; why?: string; how?: string };
   }>();
@@ -25,10 +26,13 @@ export default async function AdminNewsEditPage({ params }: { params: Promise<{ 
 
   return (
     <div>
-      <p>
-        <Link href="/admin/news">News</Link> / {item.title}
-      </p>
-      <h1>Edit article</h1>
+      <div style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 14, color: "#5b6664", marginBottom: 20 }}>
+        <Link href="/admin/news" style={{ color: "#5b6664", fontWeight: 500 }}>
+          News
+        </Link>
+        <span>/</span>
+        <span style={{ color: "#15201f", fontWeight: 600 }}>{item.title}</span>
+      </div>
       <NewsForm
         mode="edit"
         initial={{
@@ -38,6 +42,7 @@ export default async function AdminNewsEditPage({ params }: { params: Promise<{ 
           summary: item.summary,
           content: item.content,
           status: item.status,
+          tags: item.tags,
           images: item.images,
           source5W1H: item.source5W1H,
         }}

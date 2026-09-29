@@ -16,6 +16,18 @@ function slugify(input: string) {
     .replace(/(^-|-$)/g, "");
 }
 
+function readStatus(formData: FormData): "draft" | "review" | "published" {
+  const status = formData.get("status");
+  return status === "published" || status === "review" ? status : "draft";
+}
+
+function readTags(formData: FormData): string[] {
+  return String(formData.get("tags") ?? "")
+    .split(",")
+    .map((t) => t.trim())
+    .filter(Boolean);
+}
+
 export async function generateDraftAction(_prevState: unknown, formData: FormData) {
   const draft = formatDraftFromFiveW1H({
     what: String(formData.get("what") ?? ""),
@@ -34,7 +46,7 @@ export async function createNewsAction(formData: FormData) {
 
   await connectToDatabase();
   const title = String(formData.get("title") ?? "").trim();
-  const status = formData.get("status") === "published" ? "published" : "draft";
+  const status = readStatus(formData);
 
   await News.create({
     title,
@@ -42,6 +54,7 @@ export async function createNewsAction(formData: FormData) {
     summary: String(formData.get("summary") ?? "").trim(),
     content: String(formData.get("content") ?? "").trim(),
     category: String(formData.get("category") ?? "General").trim(),
+    tags: readTags(formData),
     status,
     publishedAt: status === "published" ? new Date() : undefined,
     author: session.sub,
@@ -67,7 +80,7 @@ export async function updateNewsAction(formData: FormData) {
   await connectToDatabase();
   const id = String(formData.get("id"));
   const title = String(formData.get("title") ?? "").trim();
-  const status = formData.get("status") === "published" ? "published" : "draft";
+  const status = readStatus(formData);
   const existing = await News.findById(id).lean<{ publishedAt?: Date }>();
 
   await News.findByIdAndUpdate(id, {
@@ -75,6 +88,7 @@ export async function updateNewsAction(formData: FormData) {
     summary: String(formData.get("summary") ?? "").trim(),
     content: String(formData.get("content") ?? "").trim(),
     category: String(formData.get("category") ?? "General").trim(),
+    tags: readTags(formData),
     status,
     publishedAt: status === "published" ? existing?.publishedAt ?? new Date() : undefined,
     images: formData.get("image") ? [String(formData.get("image"))] : [],

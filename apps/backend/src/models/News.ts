@@ -11,7 +11,7 @@ const newsSchema = new Schema(
     tags: { type: [String], default: [] },
     status: {
       type: String,
-      enum: ["draft", "published"],
+      enum: ["draft", "review", "published"],
       default: "draft",
       index: true,
     },
