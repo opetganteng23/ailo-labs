@@ -1,12 +1,12 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
-import { ImageUploadField } from "@/components/ImageUploadField";
 import { connectToDatabase } from "@/lib/mongodb";
 import { Device } from "@/models/Device";
 import { Lab } from "@/models/Lab";
 
-import { createDeviceAction, deleteDeviceAction, updateDeviceAction, updateLabAction } from "../actions";
+import { createDeviceAction, deleteDeviceAction, updateDeviceAction } from "../actions";
+import { LabForm } from "../LabForm";
 
 export const dynamic = "force-dynamic";
 
@@ -35,119 +35,91 @@ export default async function AdminLabEditPage({ params }: { params: Promise<{ i
 
   return (
     <div>
-      <p>
-        <Link href="/admin/labs">Labs</Link> / {lab.name}
-      </p>
-      <h1>{lab.name}</h1>
+      <div style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 14, color: "#5b6664", marginBottom: 20 }}>
+        <Link href="/admin/labs" style={{ color: "#5b6664", fontWeight: 500 }}>
+          Labs
+        </Link>
+        <span>/</span>
+        <span style={{ color: "#15201f", fontWeight: 600 }}>{lab.name}</span>
+      </div>
+      <h1 style={{ fontSize: 24, fontWeight: 800, marginBottom: 20 }}>{lab.name}</h1>
 
-      <form className="stack" action={updateLabAction} style={{ marginTop: 24, maxWidth: 640 }}>
-        <input type="hidden" name="id" value={lab._id} />
-        <label>
-          Location
-          <input name="location" defaultValue={lab.location ?? ""} />
-        </label>
-        <label>
-          Capacity
-          <input name="capacity" type="number" min={0} defaultValue={lab.capacity ?? ""} />
-        </label>
-        <label>
-          Description
-          <textarea name="description" defaultValue={lab.description ?? ""} />
-        </label>
-        <label>
-          Facilities / specification
-          <textarea
-            name="facilities"
-            placeholder="e.g. 20x workstation, 4K projector, whiteboard wall"
-            defaultValue={lab.facilities ?? ""}
-          />
-        </label>
-        <ImageUploadField name="photo" label="Photo" defaultValue={lab.photos?.[0]} />
-        <button type="submit" className="btn">
-          Save changes
-        </button>
-      </form>
+      <LabForm
+        mode="edit"
+        initial={{
+          _id: String(lab._id),
+          name: lab.name,
+          location: lab.location,
+          capacity: lab.capacity,
+          description: lab.description,
+          facilities: lab.facilities,
+          photo: lab.photos?.[0],
+        }}
+      />
 
-      <h2 style={{ marginTop: 40 }}>Devices in this lab</h2>
-      <p style={{ color: "#5b6469", fontSize: 13, marginTop: -8 }}>
-        Each device can be borrowed on its own from the booking page, separate from the whole lab.
-      </p>
+      <section className="admin2-section" style={{ marginTop: 24 }}>
+        <div>
+          <h2 style={{ fontSize: 17 }}>Devices in this lab</h2>
+          <p style={{ margin: 0, fontSize: 14, color: "#5b6664" }}>
+            Each device can be borrowed on its own from the booking page, separate from the whole lab.
+          </p>
+        </div>
 
-      <form className="stack" action={createDeviceAction} style={{ marginTop: 16, maxWidth: 640 }}>
-        <input type="hidden" name="lab" value={lab._id} />
-        <label>
-          Name
-          <input name="name" required maxLength={160} />
-        </label>
-        <label>
-          Specification
-          <input name="specification" placeholder="e.g. RTX 4090, 64GB RAM" />
-        </label>
-        <label>
-          Status
-          <select name="status" defaultValue="available">
-            <option value="available">Available</option>
-            <option value="booked">Booked</option>
-            <option value="maintenance">Maintenance</option>
-          </select>
-        </label>
-        <ImageUploadField name="photo" label="Photo" />
-        <button type="submit" className="btn">
-          Add device
-        </button>
-      </form>
+        <form action={createDeviceAction} style={{ display: "grid", gridTemplateColumns: "repeat(3, minmax(0, 1fr)) auto", gap: 12, alignItems: "end" }}>
+          <input type="hidden" name="lab" value={lab._id} />
+          <div className="admin2-field">
+            <label htmlFor="dname">Name</label>
+            <input id="dname" name="name" required maxLength={160} />
+          </div>
+          <div className="admin2-field">
+            <label htmlFor="dspec">Specification</label>
+            <input id="dspec" name="specification" placeholder="e.g. RTX 4090, 64GB RAM" />
+          </div>
+          <div className="admin2-field">
+            <label htmlFor="dstatus">Status</label>
+            <select id="dstatus" name="status" defaultValue="available">
+              <option value="available">Available</option>
+              <option value="booked">Booked</option>
+              <option value="maintenance">Maintenance</option>
+            </select>
+          </div>
+          <button type="submit" className="admin2-btn" style={{ height: 46 }}>
+            Add device
+          </button>
+        </form>
 
-      {devices.length === 0 && (
-        <p className="notice" style={{ marginTop: 24 }}>
-          No devices listed yet.
-        </p>
-      )}
+        {devices.length === 0 && <p style={{ fontSize: 14, color: "#6b7573" }}>No devices listed yet.</p>}
 
-      {devices.length > 0 && (
-        <table style={{ marginTop: 24 }}>
-          <thead>
-            <tr>
-              <th>Device</th>
-              <th></th>
-            </tr>
-          </thead>
-          <tbody>
+        {devices.length > 0 && (
+          <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
             {devices.map((d) => (
-              <tr key={d._id}>
-                <td style={{ paddingTop: 14, paddingBottom: 14 }}>
-                  <form
-                    className="stack"
-                    action={updateDeviceAction}
-                    style={{ gap: 8, flexDirection: "row", alignItems: "center", flexWrap: "wrap", maxWidth: "none" }}
-                  >
-                    <input type="hidden" name="id" value={d._id} />
-                    <input type="hidden" name="lab" value={lab._id} />
-                    <input name="name" defaultValue={d.name} required maxLength={160} style={{ width: 160 }} />
-                    <input name="specification" defaultValue={d.specification ?? ""} placeholder="Specification" style={{ width: 200 }} />
-                    <select name="status" defaultValue={d.status}>
-                      <option value="available">Available</option>
-                      <option value="booked">Booked</option>
-                      <option value="maintenance">Maintenance</option>
-                    </select>
-                    <button type="submit" className="btn outline">
-                      Save
-                    </button>
-                  </form>
-                </td>
-                <td style={{ verticalAlign: "middle" }}>
-                  <form action={deleteDeviceAction}>
-                    <input type="hidden" name="id" value={d._id} />
-                    <input type="hidden" name="lab" value={lab._id} />
-                    <button type="submit" className="btn danger">
-                      Delete
-                    </button>
-                  </form>
-                </td>
-              </tr>
+              <div key={d._id} style={{ display: "flex", gap: 10, alignItems: "center", flexWrap: "wrap", padding: 12, border: "1px solid #eeece6", borderRadius: 10 }}>
+                <form action={updateDeviceAction} style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap", flexGrow: 1 }}>
+                  <input type="hidden" name="id" value={d._id} />
+                  <input type="hidden" name="lab" value={lab._id} />
+                  <input name="name" defaultValue={d.name} required maxLength={160} style={{ width: 160 }} />
+                  <input name="specification" defaultValue={d.specification ?? ""} placeholder="Specification" style={{ width: 200 }} />
+                  <select name="status" defaultValue={d.status}>
+                    <option value="available">Available</option>
+                    <option value="booked">Booked</option>
+                    <option value="maintenance">Maintenance</option>
+                  </select>
+                  <button type="submit" className="admin2-btn outline">
+                    Save
+                  </button>
+                </form>
+                <form action={deleteDeviceAction}>
+                  <input type="hidden" name="id" value={d._id} />
+                  <input type="hidden" name="lab" value={lab._id} />
+                  <button type="submit" className="admin2-btn danger">
+                    Delete
+                  </button>
+                </form>
+              </div>
             ))}
-          </tbody>
-        </table>
-      )}
+          </div>
+        )}
+      </section>
     </div>
   );
 }

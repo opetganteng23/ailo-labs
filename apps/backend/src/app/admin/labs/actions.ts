@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
 
 import { getSession, isAdminRole } from "@/lib/auth";
 import { connectToDatabase } from "@/lib/mongodb";
@@ -27,6 +28,7 @@ export async function createLabAction(formData: FormData) {
     photos: formData.get("photo") ? [String(formData.get("photo"))] : [],
   });
   revalidatePath("/admin/labs");
+  redirect("/admin/labs");
 }
 
 export async function updateLabAction(formData: FormData) {
