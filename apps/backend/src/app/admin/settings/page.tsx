@@ -1,7 +1,10 @@
-import { MultiImageUploadField } from "@/components/MultiImageUploadField";
+import Link from "next/link";
+
 import { connectToDatabase } from "@/lib/mongodb";
 import { SiteSettings } from "@/models/SiteSettings";
 
+import { HeroSection } from "./HeroSection";
+import { SectionBackgroundRow } from "./SectionBackgroundRow";
 import { updateSettingsAction } from "./actions";
 
 export const dynamic = "force-dynamic";
@@ -36,34 +39,12 @@ type Settings = {
   };
 };
 
-function SectionBackgroundFields({
-  zone,
-  label,
-  images,
-  opacity,
-}: {
-  zone: string;
-  label: string;
-  images?: string[];
-  opacity?: number;
-}) {
-  return (
-    <div style={{ border: "1px solid var(--line)", borderRadius: 4, padding: 14 }}>
-      <p style={{ fontSize: 13, fontWeight: 600, marginBottom: 8 }}>{label} background</p>
-      <MultiImageUploadField name={`${zone}BackgroundImages`} label="Images (add more than one to slide)" defaultValues={images} />
-      <label style={{ marginTop: 10 }}>
-        Overlay opacity ({opacity ?? 88}%)
-        <input
-          type="range"
-          name={`${zone}OverlayOpacity`}
-          min={0}
-          max={100}
-          defaultValue={opacity ?? 88}
-        />
-      </label>
-    </div>
-  );
-}
+const NAV = [
+  { href: "#general", label: "General" },
+  { href: "#social", label: "Social links" },
+  { href: "#hero", label: "Homepage hero" },
+  { href: "#backgrounds", label: "Section backgrounds" },
+];
 
 export default async function AdminSettingsPage() {
   await connectToDatabase();
@@ -71,112 +52,114 @@ export default async function AdminSettingsPage() {
   const homepage = settings?.homepage ?? {};
 
   return (
-    <div>
-      <h1>Site Settings</h1>
-      <form className="stack" action={updateSettingsAction} style={{ marginTop: 24 }}>
-        <label>
-          Contact email
-          <input name="email" defaultValue={settings?.contact?.email ?? ""} />
-        </label>
-        <label>
-          Contact phone
-          <input name="phone" defaultValue={settings?.contact?.phone ?? ""} />
-        </label>
-        <label>
-          Address
-          <input name="address" defaultValue={settings?.contact?.address ?? ""} />
-        </label>
-        <label>
-          Instagram URL
-          <input name="instagram" defaultValue={settings?.socialMedia?.instagram ?? ""} />
-        </label>
-        <label>
-          LinkedIn URL
-          <input name="linkedin" defaultValue={settings?.socialMedia?.linkedin ?? ""} />
-        </label>
-        <label>
-          YouTube URL
-          <input name="youtube" defaultValue={settings?.socialMedia?.youtube ?? ""} />
-        </label>
-
-        <h2 style={{ marginTop: 16 }}>Homepage Hero</h2>
-        <p style={{ color: "#5b6469", fontSize: 13, marginTop: -8 }}>
-          Leave a field blank to keep the default text shown on the homepage.
-        </p>
-        <SectionBackgroundFields zone="hero" label="Hero" images={homepage.heroBackgroundImages} opacity={homepage.heroOverlayOpacity} />
-        <label>
-          Kicker text (small label above the headline)
-          <input name="heroKicker" placeholder="TELKOM UNIVERSITY, CENTER OF EXCELLENCE" defaultValue={homepage.heroKicker ?? ""} />
-        </label>
-        <label>
-          Headline
-          <input name="heroTitle" placeholder="Learning systems that optimize how research gets done." defaultValue={homepage.heroTitle ?? ""} />
-        </label>
-        <label>
-          Subheading
-          <textarea
-            name="heroSubtitle"
-            placeholder="AILO designs and applies AI-driven optimization methods across research, teaching labs, and campus infrastructure, turning open questions into working systems."
-            defaultValue={homepage.heroSubtitle ?? ""}
-          />
-        </label>
-        <label>
-          Primary button text
-          <input name="ctaText" placeholder="Explore our research" defaultValue={homepage.ctaText ?? ""} />
-        </label>
-        <label>
-          Primary button link
-          <input name="ctaLink" placeholder="#research" defaultValue={homepage.ctaLink ?? ""} />
-        </label>
-        <label>
-          Secondary button text
-          <input name="secondaryCtaText" placeholder="Book a lab" defaultValue={homepage.secondaryCtaText ?? ""} />
-        </label>
-        <label>
-          Secondary button link
-          <input name="secondaryCtaLink" placeholder="#labs" defaultValue={homepage.secondaryCtaLink ?? ""} />
-        </label>
-
-        <div className="grid cols-3">
-          <label>
-            Stat 1 value
-            <input name="stat1Value" placeholder="18+" defaultValue={homepage.stat1Value ?? ""} />
-          </label>
-          <label>
-            Stat 1 label
-            <input name="stat1Label" placeholder="Active projects" defaultValue={homepage.stat1Label ?? ""} />
-          </label>
-          <label>
-            Stat 2 value
-            <input name="stat2Value" placeholder="32" defaultValue={homepage.stat2Value ?? ""} />
-          </label>
-          <label>
-            Stat 2 label
-            <input name="stat2Label" placeholder="Researchers" defaultValue={homepage.stat2Label ?? ""} />
-          </label>
-          <label>
-            Stat 3 value
-            <input name="stat3Value" placeholder="6" defaultValue={homepage.stat3Value ?? ""} />
-          </label>
-          <label>
-            Stat 3 label
-            <input name="stat3Label" placeholder="Labs & facilities" defaultValue={homepage.stat3Label ?? ""} />
-          </label>
+    <form action={updateSettingsAction}>
+      <div className="admin2-header">
+        <div>
+          <h1>Settings</h1>
+          <p>Contact details, social links and how the homepage looks.</p>
         </div>
+        <div className="admin2-actions" style={{ alignItems: "center" }}>
+          <span style={{ fontSize: 13, color: "#6b7573" }}>Changes apply after saving</span>
+          <button type="submit" className="admin2-btn">
+            Save changes
+          </button>
+        </div>
+      </div>
 
-        <h2 style={{ marginTop: 16 }}>Other section backgrounds</h2>
-        <p style={{ color: "#5b6469", fontSize: 13, marginTop: -8 }}>
-          Optional. Leave empty to keep each section&apos;s plain background.
-        </p>
-        <SectionBackgroundFields zone="research" label="Research" images={homepage.researchBackgroundImages} opacity={homepage.researchOverlayOpacity} />
-        <SectionBackgroundFields zone="projects" label="Projects" images={homepage.projectsBackgroundImages} opacity={homepage.projectsOverlayOpacity} />
-        <SectionBackgroundFields zone="team" label="Team" images={homepage.teamBackgroundImages} opacity={homepage.teamOverlayOpacity} />
-        <SectionBackgroundFields zone="news" label="News" images={homepage.newsBackgroundImages} opacity={homepage.newsOverlayOpacity} />
+      <div style={{ display: "flex", gap: 32, alignItems: "flex-start" }}>
+        <nav aria-label="Settings sections" style={{ width: 200, flexShrink: 0, display: "flex", flexDirection: "column", gap: 2, position: "sticky", top: 20 }}>
+          {NAV.map((n, i) => (
+            <a
+              key={n.href}
+              href={n.href}
+              style={{
+                padding: "10px 12px",
+                borderRadius: 10,
+                background: i === 0 ? "#fff" : "transparent",
+                border: i === 0 ? "1px solid #e3e1da" : "1px solid transparent",
+                fontSize: 14,
+                fontWeight: i === 0 ? 700 : 500,
+                color: i === 0 ? "#15201f" : "#4e5957",
+                textDecoration: "none",
+              }}
+            >
+              {n.label}
+            </a>
+          ))}
+          <Link href="/admin/chatbot/model" style={{ padding: "10px 12px", borderRadius: 10, fontSize: 14, fontWeight: 500, color: "#4e5957" }}>
+            AI &amp; chatbot →
+          </Link>
+        </nav>
 
-        <button type="submit" className="btn">
-          Save
-        </button>
-      </form>
-    </div>
+        <div style={{ flexGrow: 1, minWidth: 0, display: "flex", flexDirection: "column", gap: 20 }}>
+          <section id="general" className="admin2-section">
+            <h2 style={{ fontSize: 17 }}>Contact</h2>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: 16 }}>
+              <div className="admin2-field">
+                <label htmlFor="cemail">Email</label>
+                <input id="cemail" name="email" type="email" defaultValue={settings?.contact?.email ?? ""} />
+              </div>
+              <div className="admin2-field">
+                <label htmlFor="cphone">Phone</label>
+                <input id="cphone" name="phone" type="tel" defaultValue={settings?.contact?.phone ?? ""} />
+              </div>
+            </div>
+            <div className="admin2-field">
+              <label htmlFor="caddr">Address</label>
+              <input id="caddr" name="address" type="text" defaultValue={settings?.contact?.address ?? ""} />
+            </div>
+          </section>
+
+          <section id="social" className="admin2-section">
+            <h2 style={{ fontSize: 17 }}>Social links</h2>
+            <div style={{ display: "grid", gridTemplateColumns: "130px minmax(0, 1fr)", gap: 12, alignItems: "center" }}>
+              <label htmlFor="ig" style={{ fontSize: 14, fontWeight: 600 }}>
+                Instagram
+              </label>
+              <input id="ig" name="instagram" type="url" defaultValue={settings?.socialMedia?.instagram ?? ""} style={{ height: 44 }} />
+              <label htmlFor="li" style={{ fontSize: 14, fontWeight: 600 }}>
+                LinkedIn
+              </label>
+              <input id="li" name="linkedin" type="url" defaultValue={settings?.socialMedia?.linkedin ?? ""} style={{ height: 44 }} />
+              <label htmlFor="yt" style={{ fontSize: 14, fontWeight: 600 }}>
+                YouTube
+              </label>
+              <input id="yt" name="youtube" type="url" defaultValue={settings?.socialMedia?.youtube ?? ""} style={{ height: 44 }} />
+            </div>
+          </section>
+
+          <HeroSection
+            images={homepage.heroBackgroundImages}
+            opacity={homepage.heroOverlayOpacity}
+            heroKicker={homepage.heroKicker}
+            heroTitle={homepage.heroTitle}
+            heroSubtitle={homepage.heroSubtitle}
+            ctaText={homepage.ctaText}
+            ctaLink={homepage.ctaLink}
+            secondaryCtaText={homepage.secondaryCtaText}
+            secondaryCtaLink={homepage.secondaryCtaLink}
+            stat1Value={homepage.stat1Value}
+            stat1Label={homepage.stat1Label}
+            stat2Value={homepage.stat2Value}
+            stat2Label={homepage.stat2Label}
+            stat3Value={homepage.stat3Value}
+            stat3Label={homepage.stat3Label}
+          />
+
+          <section id="backgrounds" className="admin2-panel">
+            <div style={{ padding: "20px 24px", borderBottom: "1px solid #eeece6" }}>
+              <h2 style={{ margin: 0, fontSize: 17, fontWeight: 700 }}>Section backgrounds</h2>
+              <p style={{ margin: 0, fontSize: 14, color: "#5b6664" }}>
+                Optional images behind other homepage sections. Add more than one to make it a slideshow.
+              </p>
+            </div>
+            <SectionBackgroundRow zone="research" label="Research" images={homepage.researchBackgroundImages} opacity={homepage.researchOverlayOpacity} />
+            <SectionBackgroundRow zone="projects" label="Projects" images={homepage.projectsBackgroundImages} opacity={homepage.projectsOverlayOpacity} />
+            <SectionBackgroundRow zone="team" label="Team" images={homepage.teamBackgroundImages} opacity={homepage.teamOverlayOpacity} />
+            <SectionBackgroundRow zone="news" label="News" images={homepage.newsBackgroundImages} opacity={homepage.newsOverlayOpacity} isLast />
+          </section>
+        </div>
+      </div>
+    </form>
   );
 }

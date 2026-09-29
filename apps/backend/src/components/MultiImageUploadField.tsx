@@ -6,12 +6,24 @@ export function MultiImageUploadField({
   name,
   label,
   defaultValues,
+  onChangeUrls,
 }: {
   name: string;
   label: string;
   defaultValues?: string[];
+  /** Optional: notified whenever the URL list changes, for callers that mirror it into a live preview. */
+  onChangeUrls?: (urls: string[]) => void;
 }) {
-  const [urls, setUrls] = useState<string[]>(defaultValues ?? []);
+  const [urls, setUrlsState] = useState<string[]>(defaultValues ?? []);
+
+  function setUrls(next: string[] | ((prev: string[]) => string[])) {
+    setUrlsState((prev) => {
+      const resolved = typeof next === "function" ? next(prev) : next;
+      onChangeUrls?.(resolved);
+      return resolved;
+    });
+  }
+
   const [status, setStatus] = useState<"idle" | "uploading" | "error">("idle");
 
   async function handleFile(event: React.ChangeEvent<HTMLInputElement>) {
