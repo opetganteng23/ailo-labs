@@ -22,20 +22,28 @@ export async function SiteHeader() {
             style={{ height: 44, width: "auto" }}
           />
         </Link>
-        <nav>
-          <NavLinks />
-        </nav>
-        <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
-          {session ? (
-            <>
-              <span style={{ fontSize: 13.5, fontWeight: 600 }}>{session.name}</span>
-              <UserLogoutButton />
-            </>
-          ) : (
-            <Link href="/login" className="btn outline">
-              Login
-            </Link>
-          )}
+        <input type="checkbox" id="nav-toggle" className="nav-toggle-checkbox" />
+        <label htmlFor="nav-toggle" className="nav-toggle-btn" aria-label="Toggle menu">
+          <span />
+          <span />
+          <span />
+        </label>
+        <div className="header-nav-menu">
+          <nav>
+            <NavLinks />
+          </nav>
+          <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
+            {session ? (
+              <>
+                <span style={{ fontSize: 13.5, fontWeight: 600 }}>{session.name}</span>
+                <UserLogoutButton />
+              </>
+            ) : (
+              <Link href="/login" className="btn outline">
+                Login
+              </Link>
+            )}
+          </div>
         </div>
       </div>
     </header>
