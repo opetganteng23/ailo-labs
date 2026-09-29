@@ -12,6 +12,7 @@ const ICONS = {
   labs: "M5 4h14a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2zM8 20h8M12 16v4",
   bookings: "M5 5h14a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2zM3 10h18M8 3v4M16 3v4",
   messages: "M4 5h16v11H8l-4 4z",
+  members: "M4 5h16a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1zM9 13a2 2 0 1 0 0-4 2 2 0 0 0 0 4zM6 16.5a3 3 0 0 1 6 0M14 10h4M14 14h3",
   chatbot: "M8 8h8a3 3 0 0 1 3 3v5a3 3 0 0 1-3 3H8a3 3 0 0 1-3-3v-5a3 3 0 0 1 3-3zM12 4v4M9.5 13.5h.01M14.5 13.5h.01",
   users: "M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM4 21a8 8 0 0 1 16 0",
   settings:
@@ -19,39 +20,44 @@ const ICONS = {
 } as const;
 
 type IconKey = keyof typeof ICONS;
+type NavItem = { key: IconKey; href: string; label: string; badge?: number };
 
-const GROUPS: { label: string; items: { key: IconKey; href: string; label: string }[] }[] = [
-  { label: "OVERVIEW", items: [{ key: "dashboard", href: "/admin/dashboard", label: "Dashboard" }] },
-  {
-    label: "CONTENT",
-    items: [
-      { key: "news", href: "/admin/news", label: "News" },
-      { key: "research", href: "/admin/research", label: "Research" },
-      { key: "projects", href: "/admin/projects", label: "Projects" },
-      { key: "team", href: "/admin/team", label: "Team" },
-      { key: "labs", href: "/admin/labs", label: "Labs" },
-    ],
-  },
-  {
-    label: "OPERATIONS",
-    items: [
-      { key: "bookings", href: "/admin/bookings", label: "Bookings" },
-      { key: "messages", href: "/admin/messages", label: "Messages" },
-      { key: "chatbot", href: "/admin/chatbot", label: "Chatbot" },
-    ],
-  },
-];
+function buildGroups(pendingMembersCount: number): { label: string; items: NavItem[] }[] {
+  return [
+    { label: "OVERVIEW", items: [{ key: "dashboard", href: "/admin/dashboard", label: "Dashboard" }] },
+    {
+      label: "CONTENT",
+      items: [
+        { key: "news", href: "/admin/news", label: "News" },
+        { key: "research", href: "/admin/research", label: "Research" },
+        { key: "projects", href: "/admin/projects", label: "Projects" },
+        { key: "team", href: "/admin/team", label: "Team" },
+        { key: "labs", href: "/admin/labs", label: "Labs" },
+      ],
+    },
+    {
+      label: "OPERATIONS",
+      items: [
+        { key: "members", href: "/admin/members", label: "Members", badge: pendingMembersCount || undefined },
+        { key: "bookings", href: "/admin/bookings", label: "Bookings" },
+        { key: "messages", href: "/admin/messages", label: "Messages" },
+        { key: "chatbot", href: "/admin/chatbot", label: "Chatbot" },
+      ],
+    },
+  ];
+}
 
 const SYSTEM_GROUP_LABEL = "SYSTEM";
 
-export function AdminNavLinks({ showUsers }: { showUsers: boolean }) {
+export function AdminNavLinks({ showUsers, pendingMembersCount = 0 }: { showUsers: boolean; pendingMembersCount?: number }) {
   const pathname = usePathname();
+  const groups = buildGroups(pendingMembersCount);
 
   function isActive(href: string) {
     return pathname === href || pathname?.startsWith(`${href}/`);
   }
 
-  function renderItem(item: { key: IconKey; href: string; label: string }) {
+  function renderItem(item: NavItem) {
     const active = isActive(item.href);
     return (
       <Link key={item.href} href={item.href} className={active ? "active" : undefined}>
@@ -59,13 +65,14 @@ export function AdminNavLinks({ showUsers }: { showUsers: boolean }) {
           <path d={ICONS[item.key]} />
         </svg>
         {item.label}
+        {!!item.badge && <span className="admin-nav-badge">{item.badge}</span>}
       </Link>
     );
   }
 
   return (
     <nav>
-      {GROUPS.map((group) => (
+      {groups.map((group) => (
         <div key={group.label} className="admin-nav-group">
           <span className="admin-nav-group-label">{group.label}</span>
           {group.items.map(renderItem)}

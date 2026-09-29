@@ -2,6 +2,8 @@ import Image from "next/image";
 import type { ReactNode } from "react";
 
 import { getSession, isAdminRole } from "@/lib/auth";
+import { connectToDatabase } from "@/lib/mongodb";
+import { Member } from "@/models/Member";
 
 import { AdminNavLinks } from "./AdminNavLinks";
 import { LogoutButton } from "./LogoutButton";
@@ -17,6 +19,14 @@ export default async function AdminLayout({ children }: { children: ReactNode })
     return <>{children}</>;
   }
 
+  let pendingMembersCount = 0;
+  try {
+    await connectToDatabase();
+    pendingMembersCount = await Member.countDocuments({ status: "pending" });
+  } catch {
+    // Sidebar badge is non-critical; render without it if the DB is unreachable.
+  }
+
   return (
     <div className="admin-shell">
       <aside>
@@ -24,7 +34,7 @@ export default async function AdminLayout({ children }: { children: ReactNode })
           <Image src="/logo-horizontal.png" alt="AILO" width={140} height={35} />
           <span className="admin-brand-subtitle">Content console</span>
         </div>
-        <AdminNavLinks showUsers={session.role === "super_admin"} />
+        <AdminNavLinks showUsers={session.role === "super_admin"} pendingMembersCount={pendingMembersCount} />
         <div className="admin-account-card">
           <div className="admin-account-avatar">{session.name.charAt(0).toUpperCase()}</div>
           <div className="admin-account-info">

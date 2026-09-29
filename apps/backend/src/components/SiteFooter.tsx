@@ -24,6 +24,7 @@ export function SiteFooter() {
             <ul>
               <li><Link href="/news">News</Link></li>
               <li><Link href="/labs">Ajukan peminjaman</Link></li>
+              <li><Link href="/join">Join AILO</Link></li>
               <li><Link href="/admin/login">Admin login</Link></li>
             </ul>
           </div>
