@@ -1,11 +1,10 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
-import { ImageUploadField } from "@/components/ImageUploadField";
 import { connectToDatabase } from "@/lib/mongodb";
 import { Research } from "@/models/Research";
 
-import { updateResearchAction } from "../actions";
+import { ResearchForm } from "../ResearchForm";
 
 export const dynamic = "force-dynamic";
 
@@ -24,37 +23,24 @@ export default async function AdminResearchEditPage({ params }: { params: Promis
 
   return (
     <div>
-      <p>
-        <Link href="/admin/research">Research</Link> / {item.title}
-      </p>
-      <h1>Edit research</h1>
-
-      <form className="stack" action={updateResearchAction} style={{ marginTop: 24 }}>
-        <input type="hidden" name="id" value={item._id} />
-        <label>
-          Title
-          <input name="title" required maxLength={200} defaultValue={item.title} />
-        </label>
-        <label>
-          Description
-          <textarea name="description" required maxLength={500} defaultValue={item.description} />
-        </label>
-        <label>
-          Content
-          <textarea name="content" required defaultValue={item.content} />
-        </label>
-        <label>
-          Status
-          <select name="status" defaultValue={item.status}>
-            <option value="draft">Draft</option>
-            <option value="published">Published</option>
-          </select>
-        </label>
-        <ImageUploadField name="image" label="Cover image" defaultValue={item.image} />
-        <button type="submit" className="btn">
-          Save changes
-        </button>
-      </form>
+      <div style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 14, color: "#5b6664", marginBottom: 20 }}>
+        <Link href="/admin/research" style={{ color: "#5b6664", fontWeight: 500 }}>
+          Research
+        </Link>
+        <span>/</span>
+        <span style={{ color: "#15201f", fontWeight: 600 }}>{item.title}</span>
+      </div>
+      <ResearchForm
+        mode="edit"
+        initial={{
+          _id: String(item._id),
+          title: item.title,
+          description: item.description,
+          content: item.content,
+          status: item.status,
+          image: item.image,
+        }}
+      />
     </div>
   );
 }

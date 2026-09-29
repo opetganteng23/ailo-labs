@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
 
 import { getSession, isAdminRole } from "@/lib/auth";
 import { connectToDatabase } from "@/lib/mongodb";
@@ -25,6 +26,7 @@ export async function createResearchAction(formData: FormData) {
     image: String(formData.get("image") ?? "") || undefined,
   });
   revalidatePath("/admin/research");
+  redirect("/admin/research");
 }
 
 export async function updateResearchAction(formData: FormData) {
@@ -42,6 +44,7 @@ export async function updateResearchAction(formData: FormData) {
   });
   revalidatePath("/admin/research");
   revalidatePath(`/admin/research/${id}`);
+  redirect("/admin/research");
 }
 
 export async function deleteResearchAction(formData: FormData) {

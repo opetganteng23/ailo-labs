@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
 
 import { getSession, isAdminRole } from "@/lib/auth";
 import { connectToDatabase } from "@/lib/mongodb";
@@ -25,6 +26,7 @@ export async function createProjectAction(formData: FormData) {
     images: formData.get("image") ? [String(formData.get("image"))] : [],
   });
   revalidatePath("/admin/projects");
+  redirect("/admin/projects");
 }
 
 export async function updateProjectAction(formData: FormData) {
@@ -42,6 +44,7 @@ export async function updateProjectAction(formData: FormData) {
   });
   revalidatePath("/admin/projects");
   revalidatePath(`/admin/projects/${id}`);
+  redirect("/admin/projects");
 }
 
 export async function deleteProjectAction(formData: FormData) {
