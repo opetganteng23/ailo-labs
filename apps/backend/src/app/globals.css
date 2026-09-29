@@ -728,6 +728,44 @@ footer.site .foot-bottom .socials .social-pending { color: #9aa3a7; font-weight:
 .member-card-signature-line { width: 100px; border-bottom: 1px solid #15201f; height: 16px; display: block; }
 .member-card-signature-name { font-size: 8px; font-weight: 700; }
 
+/* ===== Join AILO multi-step wizard ===== */
+.join-grid { display: grid; grid-template-columns: minmax(0, 1fr) 340px; gap: 28px; align-items: start; }
+@media (max-width: 900px) { .join-grid { grid-template-columns: 1fr; } }
+.join-panel { background: #fff; border: 1px solid #e6e2d8; border-radius: 22px; overflow: hidden; }
+.join-steps-indicator { margin: 0; padding: 20px 28px; list-style: none; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; border-bottom: 1px solid #eeece6; background: #fbfaf7; }
+@media (max-width: 640px) { .join-steps-indicator { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.step-dot { width: 28px; height: 28px; flex-shrink: 0; border-radius: 999px; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 800; box-sizing: border-box; }
+.join-step-title { margin: 0; font-size: 22px; font-weight: 800; }
+.join-step-sub { margin: 4px 0 0; font-size: 15px; color: #5b6664; }
+.join-field { display: flex; flex-direction: column; gap: 6px; }
+.join-field label { font-size: 14px; font-weight: 600; }
+.join-field input, .join-field textarea { height: 50px; border: 1px solid #dad7cf; border-radius: 12px; padding: 0 14px; font-size: 15px; background: #fbfaf7; }
+.join-field textarea { height: auto; padding: 12px 14px; }
+.join-category { text-align: left; padding: 16px 18px; border-radius: 14px; display: flex; flex-direction: column; gap: 4px; cursor: pointer; font-family: inherit; border: 1px solid #dad7cf; background: #fff; }
+.join-category.active { border: 2px solid #0e6b73; background: #f2f9f9; }
+.join-interest { display: flex; align-items: center; gap: 8px; height: 40px; padding: 0 14px; border: 1px solid #dad7cf; border-radius: 999px; background: #fff; font-size: 14px; font-weight: 600; cursor: pointer; }
+.join-interest.active { border: 1.5px solid #0e6b73; background: #e3f1f1; }
+.join-btn { height: 50px; padding: 0 24px; border: 0; border-radius: 12px; font-size: 15px; font-weight: 700; cursor: pointer; font-family: inherit; display: inline-flex; align-items: center; text-decoration: none; }
+.join-btn:disabled { opacity: 0.5; cursor: default; }
+.join-btn-dark { background: #0a3f46; color: #fff; }
+.join-btn-orange { background: #f08a3c; color: #1e1206; }
+.join-btn-outline { background: #fff; border: 1px solid #dad7cf; color: var(--ink); }
+.join-aside { display: flex; flex-direction: column; gap: 20px; }
+.join-aside-card { background: #fff; border: 1px solid #e6e2d8; border-radius: 22px; padding: 24px; display: flex; flex-direction: column; gap: 16px; }
+.join-aside-benefits { background: #fbebda; border-radius: 22px; padding: 24px; display: flex; flex-direction: column; gap: 14px; }
+.join-aside-benefits ul { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 12px; font-size: 15px; line-height: 1.45; color: #3e3426; }
+.join-aside-benefits li { padding-left: 16px; position: relative; }
+.join-aside-benefits li::before { content: ""; position: absolute; left: 0; top: 9px; width: 6px; height: 6px; border-radius: 999px; background: #b4530f; }
+.join-card-preview {
+  position: relative; width: 100%; aspect-ratio: 340/214; border-radius: 14px; overflow: hidden;
+  background: linear-gradient(155deg, var(--teal) 0%, var(--teal-dark) 100%); color: #fff;
+  padding: 16px 18px; display: flex; flex-direction: column;
+}
+.join-card-preview .ring { position: absolute; right: -38px; top: -38px; width: 140px; height: 140px; border-radius: 999px; border: 18px solid rgba(255,255,255,0.14); }
+.join-card-preview .badge { position: relative; margin-left: auto; font-size: 8px; font-weight: 800; letter-spacing: 0.1em; background: var(--orange); color: #1e1206; border-radius: 999px; padding: 3px 8px; }
+.join-card-preview .name { position: relative; margin-top: auto; font-size: 16px; font-weight: 800; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.join-card-preview .sub { position: relative; font-size: 11px; font-weight: 600; color: #f7b77f; }
+
 @media print {
   body * { visibility: hidden; }
   .member-card-pair, .member-card-pair * { visibility: visible; }

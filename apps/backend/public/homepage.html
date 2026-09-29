@@ -9,7 +9,9 @@
   :root{
     --teal:#0E7C8C;
     --teal-dark:#0A5F6C;
+    --teal-darker:#0A3F46;
     --orange:#F2801F;
+    --orange-tint:#FDEEDD;
     --ink:#12181B;
     --paper:#FBF9F6;
     --paper-dim:#F1EEE8;
@@ -18,7 +20,7 @@
     --serif: var(--poppins);
     --sans: var(--poppins);
   }
-  @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap');
   *{box-sizing:border-box; margin:0; padding:0;}
   html{scroll-behavior:smooth;}
   body{
@@ -31,292 +33,280 @@
   a{color:inherit; text-decoration:none;}
   img{max-width:100%; display:block;}
   .wrap{max-width:1180px; margin:0 auto; padding:0 32px;}
-
-  /* ===== Header ===== */
-  header{
-    position:sticky; top:0; z-index:100;
-    background:rgba(251,249,246,0.92);
-    backdrop-filter:blur(10px);
-    border-bottom:1px solid var(--line);
-  }
-  .nav-row{
-    display:flex; align-items:center; justify-content:space-between;
-    padding:16px 32px; max-width:1180px; margin:0 auto;
-  }
-  .brand{display:flex; align-items:center; gap:12px;}
-  .brand img{height:44px; width:auto;}
-  nav ul{list-style:none; display:flex; gap:36px; align-items:center;}
-  nav a{
-    font-size:14.5px; font-weight:500; color:var(--ink);
-    position:relative; padding:4px 0;
-  }
-  nav a.active{color:var(--teal-dark);}
-  nav a::after{
-    content:""; position:absolute; left:0; right:0; bottom:-2px; height:2px;
-    background:var(--orange); transform:scaleX(0); transform-origin:left;
-    transition:transform .25s ease;
-  }
-  nav a:hover::after{transform:scaleX(1);}
-  .nav-cta{
-    font-size:13.5px; font-weight:600; color:#fff; background:var(--teal);
-    padding:10px 20px; border-radius:2px; letter-spacing:.2px;
-  }
-  .nav-cta:hover{background:var(--teal-dark);}
-  .burger{display:none; flex-direction:column; gap:5px; cursor:pointer; background:none; border:none;}
-  .burger span{width:24px; height:2px; background:var(--ink); display:block;}
-
-  /* ===== Section background slideshow ===== */
-  .section-bg-layer{position:absolute; inset:0; background-size:cover; background-position:center; transition:opacity 1s ease; z-index:0;}
-  .section-bg-overlay{position:absolute; inset:0; z-index:1;}
-  section > .wrap{position:relative; z-index:2;}
-
-  /* ===== Hero ===== */
-  .hero{
-    position:relative; overflow:hidden;
-    padding:96px 0 88px;
-    border-bottom:1px solid var(--line);
-  }
-  .hero-grid{
-    display:grid; grid-template-columns:0.85fr 1.15fr; gap:64px; align-items:center;
-  }
-  .kicker{
-    display:flex; align-items:center; gap:10px;
-    font-size:13px; font-weight:600; color:var(--teal-dark);
-    margin-bottom:22px;
-  }
-  .kicker .dot{width:7px; height:7px; border-radius:50%; background:var(--orange);}
-  .hero h1{
-    font-family:var(--serif);
-    font-weight:600;
-    font-size:clamp(38px, 5.2vw, 62px);
-    line-height:1.06;
-    letter-spacing:-0.01em;
-    color:var(--ink);
-    max-width:14ch;
-  }
-  .hero h1 em{
-    font-style:normal;
-    color:var(--teal-dark);
-  }
-  .hero p.lede{
-    margin-top:26px; font-size:18px; line-height:1.65; color:#3a4348; max-width:46ch;
-  }
-  .hero-actions{display:flex; gap:16px; margin-top:38px; flex-wrap:wrap;}
   .btn{
     display:inline-flex; align-items:center; gap:8px;
-    padding:14px 26px; font-size:14.5px; font-weight:600;
-    border-radius:2px; border:1px solid transparent; cursor:pointer;
+    padding:15px 26px; font-size:15px; font-weight:700;
+    border-radius:10px; border:1px solid transparent; cursor:pointer;
   }
-  .btn-primary{background:var(--orange); color:#fff;}
+  .btn-primary{background:var(--orange); color:#1E1206;}
   .btn-primary:hover{background:#d9700f;}
-  .btn-outline{border-color:var(--ink); color:var(--ink);}
-  .btn-outline:hover{background:var(--teal); border-color:var(--teal); color:#fff;}
+  .btn-outline-light{border-color:rgba(255,255,255,0.5); color:#fff;}
+  .btn-outline-light:hover{background:rgba(255,255,255,0.12);}
+  .btn-outline-dark{border-color:var(--ink); color:var(--ink);}
+  .btn-outline-dark:hover{background:var(--ink); color:#fff;}
+  .btn-solid-dark{background:var(--teal-darker); color:#fff;}
+  .btn-solid-dark:hover{background:#083137;}
 
-  .hero-figure{
-    position:relative; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:40px;
-    padding:20px 0;
+  /* ===== Hero (header overlays a dark photo) ===== */
+  .hero{
+    position:relative; overflow:hidden;
+    background:linear-gradient(160deg, var(--teal-darker) 0%, #123b40 60%, var(--teal-dark) 100%);
+    color:#fff;
   }
-  .hero-figure .mark{position:relative; width:52%; max-width:260px;}
-  .stat-chip{
-    display:flex; justify-content:center; gap:40px; flex-wrap:wrap;
+  .hero-scrim{position:absolute; inset:0; background:rgba(6,32,36,0.55); z-index:1;}
+  .hero > *{position:relative; z-index:2;}
+  header.site-nav{
+    display:flex; align-items:center; gap:40px;
+    padding:0 32px; height:84px; max-width:1180px; margin:0 auto;
+    border-bottom:1px solid rgba(255,255,255,0.12);
   }
-  .stat-chip div{text-align:center;}
-  .stat-chip .n{font-family:var(--serif); font-size:26px; font-weight:600; color:var(--ink);}
-  .stat-chip .l{font-size:11.5px; color:#5b6469; margin-top:2px;}
+  .brand{display:flex; align-items:center; gap:10px; color:#fff;}
+  .brand .mark{width:38px; height:38px; border-radius:10px; background:#fff; color:var(--teal-darker); display:flex; align-items:center; justify-content:center; font-size:9px; font-weight:800;}
+  .brand .name{font-size:20px; font-weight:800; letter-spacing:.02em;}
+  nav.main-nav ul{list-style:none; display:flex; gap:28px; align-items:center;}
+  nav.main-nav a{font-size:14px; font-weight:600; color:#C9DCDC; padding:6px 0; position:relative;}
+  nav.main-nav a.active{color:#fff; box-shadow:inset 0 -2px 0 var(--orange);}
+  .burger{display:none; flex-direction:column; gap:5px; cursor:pointer; background:none; border:none;}
+  .burger span{width:24px; height:2px; background:#fff; display:block;}
+
+  .hero-copy{max-width:820px; padding:100px 32px 0; margin:0 auto;}
+  .kicker{display:flex; align-items:center; gap:12px; font-size:13px; font-weight:700; letter-spacing:.14em; color:#F7B77F; margin-bottom:24px;}
+  .kicker .dash{width:28px; height:2px; background:var(--orange);}
+  .hero h1{font-family:var(--serif); font-weight:800; font-size:clamp(36px,5.6vw,68px); line-height:1.06; letter-spacing:-0.02em; max-width:15ch;}
+  .hero h1 em{font-style:normal; color:#F7A55E;}
+  .hero p.lede{margin-top:24px; font-size:18px; line-height:1.6; color:#D2E3E3; max-width:600px;}
+  .hero-actions{display:flex; gap:12px; margin-top:32px; flex-wrap:wrap;}
+
+  .hero-stats{
+    max-width:1180px; margin:0 auto; padding:44px 32px 56px;
+    display:flex; align-items:flex-end; gap:56px; flex-wrap:wrap;
+    border-top:1px solid rgba(255,255,255,0.18); margin-top:64px;
+  }
+  .hero-stats .stat{display:flex; flex-direction:column; gap:4px;}
+  .hero-stats .n{font-size:38px; font-weight:800; letter-spacing:-0.02em;}
+  .hero-stats .l{font-size:13.5px; color:#B9D3D4;}
 
   /* ===== Marquee strip ===== */
-  .strip{
-    background:var(--teal-dark); color:#fff; padding:14px 0; overflow:hidden;
-  }
-  .strip-inner{
-    display:flex; gap:56px; white-space:nowrap;
-    font-size:13px; letter-spacing:.03em; font-weight:500;
-    animation:scroll 28s linear infinite;
-  }
-  .strip-inner span{opacity:.8;}
-  .strip-inner span b{color:var(--orange); opacity:1;}
+  .strip{background:var(--teal); color:#fff; padding:16px 0; overflow:hidden;}
+  .strip-inner{display:flex; gap:48px; white-space:nowrap; font-size:14px; letter-spacing:.02em; font-weight:500; animation:scroll 28s linear infinite;}
+  .strip-inner span{opacity:.85;}
+  .strip-inner span b{color:#FFC48F; opacity:1;}
   @keyframes scroll{from{transform:translateX(0)} to{transform:translateX(-50%)}}
 
   /* ===== Section shell ===== */
-  section{padding:90px 0;}
+  section{padding:96px 0;}
   section + section{border-top:1px solid var(--line);}
-  .sec-head{
-    display:flex; justify-content:space-between; align-items:flex-end; gap:24px;
-    margin-bottom:48px; flex-wrap:wrap;
-  }
-  .sec-head h2{
-    font-family:var(--serif); font-weight:600;
-    font-size:clamp(28px,3.4vw,38px); letter-spacing:-.01em; max-width:16ch;
-  }
-  .sec-head p{color:#5b6469; max-width:38ch; font-size:15px; margin-top:8px;}
-  .sec-link{font-size:14px; font-weight:600; color:var(--teal-dark); white-space:nowrap; border-bottom:1px solid var(--teal-dark); padding-bottom:2px;}
+  .sec-head{display:flex; justify-content:space-between; align-items:flex-end; gap:24px; margin-bottom:48px; flex-wrap:wrap;}
+  .sec-head .kicker-sm{font-size:13px; font-weight:700; letter-spacing:.14em; color:#B4530F; display:block; margin-bottom:14px;}
+  .sec-head h2{font-family:var(--serif); font-weight:800; font-size:clamp(28px,3.6vw,44px); letter-spacing:-.02em; max-width:16ch; line-height:1.12;}
+  .sec-head .sec-desc{width:min(440px, 100%); display:flex; flex-direction:column; gap:16px; align-items:flex-start;}
+  .sec-head .sec-desc p{color:#4E5957; font-size:16px; line-height:1.6;}
+  .sec-link{font-size:15px; font-weight:700; color:var(--ink); white-space:nowrap;}
+  .sec-link:hover{color:var(--teal-dark);}
 
   /* ===== Research grid ===== */
-  .research-grid{display:grid; grid-template-columns:repeat(auto-fill, minmax(240px, 1fr)); gap:1px; background:var(--line); border:1px solid var(--line);}
-  .rcard{display:block; background:var(--paper); padding:34px 28px; transition:background .2s ease;}
-  .rcard:hover{background:var(--paper-dim);}
-  .rcard .num{font-family:var(--serif); font-size:13px; color:var(--orange); font-weight:600; margin-bottom:20px;}
-  .rcard h3{font-size:17px; font-weight:600; margin-bottom:10px; line-height:1.3;}
-  .rcard p{font-size:13.5px; color:#5b6469; line-height:1.55;}
+  .research-grid{display:grid; grid-template-columns:repeat(auto-fill, minmax(240px, 1fr)); gap:20px;}
+  .rcard{display:flex; flex-direction:column; gap:12px; min-height:280px; background:#fff; border:1px solid var(--line); border-radius:20px; padding:28px;}
+  .rcard-top{display:flex; align-items:center;}
+  .rcard .num{font-family:var(--serif); font-size:14px; color:var(--orange); font-weight:800;}
+  .rcard .ricon{margin-left:auto; width:44px; height:44px; border-radius:12px; background:var(--paper-dim); color:var(--teal-dark); display:flex; align-items:center; justify-content:center;}
+  .rcard .ricon svg{width:22px; height:22px;}
+  .rcard h3{font-size:20px; font-weight:800; margin-top:4px; line-height:1.25;}
+  .rcard p{font-size:14.5px; color:#5b6469; line-height:1.55;}
+  .rcard .explore{margin-top:auto; font-size:14px; font-weight:700; color:var(--teal-dark);}
+
+  /* ===== Projects grid ===== */
+  .projects-grid{display:grid; grid-template-columns:repeat(auto-fill, minmax(260px, 1fr)); gap:24px;}
+  .pcard{display:flex; flex-direction:column; border-radius:20px; overflow:hidden; background:var(--paper-dim); border:1px solid var(--line);}
+  .pcard-thumb{aspect-ratio:16/10; background:linear-gradient(135deg,var(--teal) 0%, var(--teal-dark) 100%);}
+  .pcard-body{padding:24px 26px 28px; display:flex; flex-direction:column; gap:10px;}
+  .pcard-meta{display:flex; align-items:center; gap:8px;}
+  .pcard .num{font-size:12px; font-weight:800; color:var(--orange);}
+  .pstatus{font-size:12px; font-weight:700; border-radius:999px; padding:4px 10px;}
+  .pstatus.status-planned{color:#1F4E8C; background:#E1ECFA;}
+  .pstatus.status-ongoing{color:#7A4A12; background:#FDEBD7;}
+  .pstatus.status-completed{color:#146C43; background:#DCF1E4;}
+  .pcard h3{font-size:20px; font-weight:800; line-height:1.3;}
+  .pcard p{font-size:14.5px; color:#5b6469; line-height:1.55;}
+  .pcard-stat{border-radius:20px; background:var(--teal-darker); color:#fff; padding:34px; display:flex; flex-direction:column; gap:12px; position:relative; overflow:hidden;}
+  .pcard-stat .ring{position:absolute; right:-70px; bottom:-70px; width:240px; height:240px; border-radius:999px; border:32px solid #11565E;}
+  .pcard-stat .big{font-size:60px; font-weight:800; letter-spacing:-.02em; position:relative;}
+  .pcard-stat .txt{font-size:17px; font-weight:700; line-height:1.35; position:relative;}
+  .pcard-stat .more{margin-top:auto; font-size:14px; font-weight:700; color:#FFC48F; position:relative;}
 
   /* ===== Split feature (Chatbot) ===== */
-  .feature{
-    display:grid; grid-template-columns:0.9fr 1.1fr; gap:64px; align-items:center;
-  }
-  .chat-mock{
-    background:var(--paper); border:1px solid var(--line); border-radius:6px;
-    box-shadow:0 30px 60px -30px rgba(18,24,27,0.25);
-    overflow:hidden;
-  }
-  .chat-mock .chead{
-    background:var(--teal-dark); color:#fff; padding:16px 20px;
-    display:flex; align-items:center; gap:10px; font-size:13.5px; font-weight:600;
-  }
-  .chat-mock .chead .pulse{width:8px; height:8px; border-radius:50%; background:#7BE3A6;}
-  .chat-mock .cbody{padding:22px 20px; display:flex; flex-direction:column; gap:14px; min-height:220px;}
-  .bubble{max-width:80%; padding:12px 15px; font-size:13.5px; line-height:1.5; border-radius:3px;}
-  .bubble.bot{background:var(--paper-dim); align-self:flex-start; border-top-left-radius:0;}
-  .bubble.user{background:var(--teal); color:#fff; align-self:flex-end; border-top-right-radius:0;}
-  .typing{align-self:flex-start; display:flex; gap:4px; padding:12px 15px;}
+  .feature{display:grid; grid-template-columns:0.9fr 1.1fr; gap:64px; align-items:center;}
+  .chat-mock{background:#fff; border:1px solid var(--line); border-radius:16px; box-shadow:0 30px 60px -30px rgba(18,24,27,0.25); overflow:hidden;}
+  .chat-mock .chead{background:var(--teal-darker); color:#fff; padding:16px 20px; display:flex; align-items:center; gap:12px; font-size:13.5px; font-weight:600;}
+  .chat-mock .chead .icon{width:32px; height:32px; border-radius:9px; background:var(--orange); color:#1E1206; display:flex; align-items:center; justify-content:center; flex-shrink:0;}
+  .chat-mock .chead .titles{display:flex; flex-direction:column; gap:2px;}
+  .chat-mock .chead .titles b{font-size:14px; font-weight:700;}
+  .chat-mock .chead .titles .status{display:flex; align-items:center; gap:6px; font-size:11.5px; color:#9DC0C1; font-weight:400;}
+  .chat-mock .chead .pulse{width:7px; height:7px; border-radius:50%; background:#6FD39A;}
+  .chat-mock .cbody{padding:20px; display:flex; flex-direction:column; gap:12px; min-height:220px; background:#FBFAF7;}
+  .bubble{max-width:82%; padding:12px 16px; font-size:13.5px; line-height:1.5; border-radius:16px;}
+  .bubble.bot{background:#fff; align-self:flex-start; border:1px solid var(--line); border-bottom-left-radius:4px;}
+  .bubble.user{background:var(--teal); color:#fff; align-self:flex-end; border-bottom-right-radius:4px;}
+  .typing{align-self:flex-start; display:flex; gap:4px; padding:12px 16px;}
   .typing span{width:6px; height:6px; border-radius:50%; background:#9aa3a7; animation:blink 1.2s infinite ease-in-out;}
   .typing span:nth-child(2){animation-delay:.15s;} .typing span:nth-child(3){animation-delay:.3s;}
   @keyframes blink{0%,80%,100%{opacity:.25} 40%{opacity:1}}
-  .cfoot{border-top:1px solid var(--line); padding:14px 20px; display:flex; gap:10px;}
-  .cfoot input{flex:1; border:1px solid var(--line); border-radius:3px; padding:10px 12px; font-size:13px; font-family:var(--sans); background:var(--paper-dim);}
-  .cfoot button{background:var(--orange); color:#fff; border:none; border-radius:3px; padding:0 16px; font-size:13px; font-weight:600;}
+  .cfoot{border-top:1px solid var(--line); padding:14px; display:flex; gap:8px;}
+  .cfoot input{flex:1; border:1px solid var(--line); border-radius:10px; padding:0 14px; height:46px; font-size:13px; font-family:var(--sans); background:#fff;}
+  .cfoot button{background:var(--orange); color:#1E1206; border:none; border-radius:10px; padding:0 16px; font-size:13px; font-weight:700; cursor:pointer;}
 
-  .feature-text .eyebrow{color:var(--orange); font-weight:600; font-size:13px; margin-bottom:14px;}
-  .feature-text h2{font-family:var(--serif); font-size:clamp(26px,3vw,34px); font-weight:600; line-height:1.15; margin-bottom:18px;}
-  .feature-text p{color:#3a4348; font-size:15.5px; line-height:1.7; margin-bottom:26px; max-width:44ch;}
+  .feature-text .eyebrow{color:#B4530F; font-weight:700; font-size:13px; letter-spacing:.14em; margin-bottom:16px;}
+  .feature-text h2{font-family:var(--serif); font-size:clamp(28px,3.4vw,40px); font-weight:800; line-height:1.15; margin-bottom:18px;}
+  .feature-text p{color:#4E5957; font-size:16px; line-height:1.65; margin-bottom:24px; max-width:44ch;}
   .flist{display:flex; flex-direction:column; gap:16px;}
-  .flist li{display:flex; gap:14px; list-style:none; font-size:14.5px; color:#3a4348;}
-  .flist .fi{
-    width:22px; height:22px; border-radius:50%; background:var(--teal);
-    flex-shrink:0; display:flex; align-items:center; justify-content:center; margin-top:2px;
-  }
-  .flist .fi svg{width:11px; height:11px;}
+  .flist li{display:flex; gap:14px; list-style:none; font-size:15.5px; color:#3a4348; align-items:center;}
+  .flist .fi{width:26px; height:26px; border-radius:50%; background:var(--teal-dark); flex-shrink:0; display:flex; align-items:center; justify-content:center;}
+  .flist .fi svg{width:13px; height:13px;}
 
   /* ===== News ===== */
-  .news-grid{display:grid; grid-template-columns:repeat(auto-fill, minmax(280px, 1fr)); gap:32px;}
-  .ncard{border:1px solid var(--line); background:var(--paper); display:flex; flex-direction:column;}
-  .nthumb{aspect-ratio:16/10; background:linear-gradient(135deg,var(--teal) 0%, var(--teal-dark) 100%); position:relative;}
-  .nthumb .tag{
-    position:absolute; top:14px; left:14px; background:var(--orange); color:#fff;
-    font-size:11px; font-weight:600; padding:5px 10px; letter-spacing:.02em;
-  }
-  .nbody{padding:22px 22px 26px;}
-  .nbody .date{font-size:12px; color:#8a9296; margin-bottom:10px;}
-  .nbody h3{font-size:16.5px; font-weight:600; line-height:1.4; margin-bottom:10px;}
-  .nbody p{font-size:13.5px; color:#5b6469; line-height:1.6;}
-  .nbody .read{display:inline-block; margin-top:16px; font-size:13px; font-weight:600; color:var(--teal-dark);}
+  .news-grid{display:grid; grid-template-columns:repeat(auto-fill, minmax(280px, 1fr)); gap:24px;}
+  .ncard{display:flex; flex-direction:column; gap:18px;}
+  .nthumb{aspect-ratio:16/10; border-radius:18px; background:linear-gradient(135deg,var(--teal) 0%, var(--teal-dark) 100%); position:relative;}
+  .nthumb .tag{position:absolute; top:16px; left:16px; background:var(--orange); color:#1E1206; font-size:12px; font-weight:700; padding:5px 12px; border-radius:999px;}
+  .nbody{display:flex; flex-direction:column; gap:8px;}
+  .nbody .date{font-size:13px; color:#6B7573; font-weight:600;}
+  .nbody h3{font-size:20px; font-weight:800; line-height:1.3;}
+  .nbody p{font-size:14.5px; color:#5b6469; line-height:1.55;}
+  .nbody .read{display:inline-block; margin-top:4px; font-size:14px; font-weight:700; color:var(--teal-dark);}
 
   /* ===== Labs / booking band ===== */
-  .band{
-    background:var(--teal-dark); color:#fff; padding:80px 0;
-  }
-  .band .wrap{display:grid; grid-template-columns:1fr 1fr; gap:64px; align-items:center;}
-  .band .eyebrow{color:var(--orange); font-weight:600; font-size:13px; margin-bottom:14px;}
-  .band h2{font-family:var(--serif); font-size:clamp(26px,3vw,36px); font-weight:600; line-height:1.18; margin-bottom:20px; max-width:16ch;}
-  .band p{color:#c3c9cb; font-size:15px; line-height:1.7; margin-bottom:28px; max-width:44ch;}
-  .lab-list{display:flex; flex-direction:column; gap:0;}
-  .lab-row{
-    display:flex; justify-content:space-between; align-items:center;
-    padding:18px 0; border-bottom:1px solid rgba(255,255,255,0.14);
-  }
-  .lab-row:first-child{border-top:1px solid rgba(255,255,255,0.14);}
-  .lab-row .name{font-size:15px; font-weight:600;}
-  .lab-row .meta{font-size:12.5px; color:#9aa3a7; margin-top:4px;}
-  .status{font-size:11.5px; font-weight:600; padding:5px 11px; border-radius:20px;}
-  .status.open{background:rgba(123,227,166,0.15); color:#7BE3A6;}
-  .status.busy{background:rgba(242,128,31,0.18); color:#F2A05C;}
+  .band{background:var(--teal-darker); color:#fff;}
+  .band .wrap{display:grid; grid-template-columns:1fr 1fr; gap:96px; align-items:center;}
+  .band .eyebrow{color:#F7B77F; font-weight:700; font-size:13px; letter-spacing:.14em; margin-bottom:16px;}
+  .band h2{font-family:var(--serif); font-size:clamp(28px,3.4vw,42px); font-weight:800; line-height:1.15; margin-bottom:18px; max-width:16ch;}
+  .band p{color:#C9DCDC; font-size:16px; line-height:1.65; margin-bottom:28px; max-width:44ch;}
+  .band-actions{display:flex; gap:12px; flex-wrap:wrap;}
+  .lab-list{display:flex; flex-direction:column; border-top:1px solid rgba(255,255,255,0.16);}
+  .lab-row{display:flex; align-items:center; gap:16px; padding:20px 4px; border-bottom:1px solid rgba(255,255,255,0.16);}
+  .lab-row .name{font-size:17px; font-weight:700;}
+  .lab-row .meta{font-size:13px; color:#9aa3a7; margin-top:3px;}
+  .status{font-size:12.5px; font-weight:700; padding:6px 12px; border-radius:999px; white-space:nowrap;}
+  .status.open{background:#CFEBD9; color:#0F4A2B;}
+  .status.busy{background:#FBDDBD; color:#6B3A0C;}
+  .lab-row svg{flex-shrink:0; color:#9DC0C1;}
 
   /* ===== Team preview ===== */
-  .team-grid{display:grid; grid-template-columns:repeat(auto-fill, minmax(220px, 1fr)); gap:28px;}
+  .team-filters{display:flex; flex-wrap:wrap; gap:8px; margin-bottom:40px;}
+  .team-filter{height:40px; padding:0 16px; border:1px solid #DAD5C9; border-radius:999px; background:#fff; font-size:14px; font-weight:600; cursor:pointer; color:var(--ink);}
+  .team-filter.active{background:var(--teal-darker); color:#fff; border-color:var(--teal-darker);}
+  .team-grid{display:grid; grid-template-columns:repeat(auto-fill, minmax(220px, 1fr)); gap:24px;}
   .tcard{display:block; text-align:left;}
-  .tphoto{aspect-ratio:3/3.6; background:var(--paper-dim); border:1px solid var(--line); margin-bottom:14px; position:relative; overflow:hidden;}
-  .tphoto::after{
-    content:""; position:absolute; inset:0;
-    background:linear-gradient(160deg, rgba(14,124,140,0.18), rgba(242,128,31,0.12));
+  .tcard.hidden{display:none;}
+  .tphoto{aspect-ratio:3/3.6; background:var(--paper-dim); border:1px solid var(--line); border-radius:18px; margin-bottom:16px; position:relative; overflow:hidden;}
+  .tphoto::after{content:""; position:absolute; inset:0; background:linear-gradient(160deg, rgba(14,124,140,0.18), rgba(242,128,31,0.12));}
+  .tcard h4{font-size:17px; font-weight:800; margin-bottom:4px;}
+  .tcard .role{font-size:13px; color:var(--teal-dark); font-weight:600; margin-bottom:6px;}
+  .tcard .met{font-size:12.5px; color:#6B7573;}
+  .tbadges{display:flex; gap:6px; padding-top:8px; flex-wrap:wrap;}
+  .tbadge{font-size:11px; font-weight:700; color:#3B4947; border:1px solid #DAD5C9; border-radius:6px; padding:3px 7px;}
+  .tcard-cta{
+    aspect-ratio: unset; min-height:100%; box-sizing:border-box; border-radius:18px; border:1.5px dashed #C9C1B0;
+    display:flex; flex-direction:column; align-items:center; justify-content:center; gap:12px; text-align:center; padding:24px;
   }
-  .tcard h4{font-size:15px; font-weight:600; margin-bottom:3px;}
-  .tcard .role{font-size:12.5px; color:var(--teal-dark); font-weight:500; margin-bottom:8px;}
-  .tcard .met{font-size:12px; color:#8a9296;}
+  .tcard-cta .icon{width:52px; height:52px; border-radius:999px; background:var(--orange-tint); color:#B4530F; display:flex; align-items:center; justify-content:center;}
+  .tcard-cta .icon svg{width:22px; height:22px;}
+  .tcard-cta h4{font-size:17px; font-weight:800;}
+  .tcard-cta p{font-size:14px; line-height:1.5; color:#5B6664;}
+
+  /* ===== Membership ===== */
+  .join-sec{background:var(--orange-tint);}
+  .join-sec .wrap{display:flex; gap:80px; align-items:center;}
+  .join-copy{flex-grow:1; display:flex; flex-direction:column; gap:20px;}
+  .join-copy .eyebrow{font-size:13px; font-weight:700; letter-spacing:.14em; color:#9A430B;}
+  .join-copy h2{font-family:var(--serif); font-size:clamp(28px,3.4vw,42px); font-weight:800; line-height:1.15;}
+  .join-copy p{font-size:16px; line-height:1.6; color:#4E4232; max-width:560px;}
+  .join-chips{display:flex; flex-wrap:wrap; gap:8px;}
+  .join-chip{font-size:13px; font-weight:700; color:#5E3509; background:#fff; border-radius:999px; padding:7px 14px;}
+  .join-steps{list-style:none; display:grid; grid-template-columns:repeat(3, minmax(0, 1fr)); gap:16px; margin-top:6px;}
+  .join-steps li{display:flex; flex-direction:column; gap:8px; padding-top:16px; border-top:2px solid #D9C4A8;}
+  .join-steps li:first-child{border-top-color:var(--teal-darker);}
+  .join-steps .step-n{font-size:12px; font-weight:800; color:#9A430B; letter-spacing:.04em;}
+  .join-steps .step-t{font-size:15px; font-weight:800;}
+  .join-steps .step-d{font-size:13.5px; line-height:1.5; color:#5E5140;}
+  .join-actions{display:flex; gap:16px; align-items:center; flex-wrap:wrap; padding-top:8px;}
+  .join-status-link{font-size:14px; font-weight:700; color:var(--teal-darker);}
+  .join-visual{width:440px; flex-shrink:0; position:relative; height:280px;}
+  .join-visual .card-shadow{position:absolute; left:30px; top:14px; width:380px; height:238px; border-radius:18px; background:#fff; transform:rotate(6deg); box-shadow:0 20px 50px rgba(94,53,9,0.16);}
+  .join-visual .card-face{
+    position:absolute; left:0; top:36px; width:380px; height:238px; border-radius:18px; transform:rotate(-4deg);
+    background:linear-gradient(155deg, var(--teal) 0%, var(--teal-darker) 100%); box-shadow:0 24px 50px rgba(10,63,70,0.32);
+    color:#fff; padding:20px; display:flex; flex-direction:column; gap:10px; overflow:hidden;
+  }
+  .join-visual .card-ring{position:absolute; right:-30px; top:-30px; width:110px; height:110px; border-radius:999px; border:14px solid rgba(255,255,255,0.14);}
+  .join-visual .card-badge{position:relative; margin-left:auto; font-size:9px; font-weight:800; letter-spacing:.1em; background:var(--orange); color:#1E1206; border-radius:999px; padding:3px 8px;}
+  .join-visual .card-name{position:relative; font-size:19px; font-weight:800;}
+  .join-visual .card-sub{position:relative; font-size:12px; color:#F7B77F; font-weight:600;}
+  @media (max-width:980px){ .join-visual{display:none;} }
 
   /* ===== CTA ===== */
-  .cta-sec{
-    background:var(--paper-dim); text-align:center; padding:100px 0;
-    border-top:1px solid var(--line);
-  }
-  .cta-sec h2{
-    font-family:var(--serif); font-weight:600; font-size:clamp(30px,4vw,46px);
-    max-width:16ch; margin:0 auto 20px; line-height:1.12;
-  }
-  .cta-sec p{color:#5b6469; font-size:16px; max-width:42ch; margin:0 auto 34px;}
+  .cta-sec{background:var(--paper-dim); text-align:center; padding:110px 0;}
+  .cta-sec h2{font-family:var(--serif); font-weight:800; font-size:clamp(30px,4.4vw,52px); max-width:16ch; margin:0 auto 20px; line-height:1.12;}
+  .cta-sec p{color:#5b6469; font-size:17px; max-width:42ch; margin:0 auto 34px;}
   .cta-actions{display:flex; gap:16px; justify-content:center; flex-wrap:wrap;}
 
   /* ===== Footer ===== */
-  footer{background:var(--teal-dark); color:#c3c9cb; padding:70px 0 30px;}
-  .foot-grid{display:grid; grid-template-columns:1.4fr 1fr 1fr 1fr; gap:40px; padding-bottom:50px; border-bottom:1px solid rgba(255,255,255,0.12);}
-  .foot-brand img{height:40px; margin-bottom:16px;}
-  .foot-brand p{font-size:13.5px; line-height:1.7; color:#8f979a; max-width:32ch;}
-  .foot-col h5{color:#fff; font-size:13px; font-weight:600; margin-bottom:18px; letter-spacing:.02em;}
-  .foot-col ul{list-style:none; display:flex; flex-direction:column; gap:11px;}
-  .foot-col a{font-size:13.5px; color:#9aa3a7;}
+  footer{background:var(--teal-darker); color:#C9DCDC; padding:80px 0 30px;}
+  .foot-grid{display:grid; grid-template-columns:1.6fr 1fr 1fr 1fr; gap:48px; padding-bottom:50px; border-bottom:1px solid rgba(255,255,255,0.14);}
+  .foot-brand{display:flex; flex-direction:column; gap:16px;}
+  .foot-brand .brand{color:#fff;}
+  .foot-brand p{font-size:14.5px; line-height:1.6; max-width:320px;}
+  .foot-col h5{color:#fff; font-size:13px; font-weight:700; letter-spacing:.12em; margin-bottom:16px;}
+  .foot-col{display:flex; flex-direction:column; gap:12px; font-size:15px;}
+  .foot-col a{color:#C9DCDC;}
   .foot-col a:hover{color:#fff;}
-  .foot-bottom{display:flex; justify-content:space-between; align-items:center; padding-top:24px; font-size:12.5px; color:#7a8285; flex-wrap:wrap; gap:12px;}
-  .foot-bottom .socials{display:flex; gap:16px;}
-  .foot-bottom .socials a{color:#9aa3a7; font-weight:600;}
-  .foot-bottom .socials .social-pending{color:#9aa3a7; font-weight:600; opacity:.55; cursor:default;}
+  .foot-bottom{display:flex; justify-content:space-between; align-items:center; padding-top:24px; font-size:14px; color:#C9DCDC; flex-wrap:wrap; gap:12px;}
+  .foot-bottom .socials{display:flex; gap:20px;}
+  .foot-bottom .socials a{color:#C9DCDC; font-weight:600;}
+  .foot-bottom .socials .social-pending{color:#C9DCDC; font-weight:600; opacity:.55; cursor:default;}
+  .foot-bottom .socials .admin-link{color:#7FA9AB;}
+
+  /* ===== Section background slideshow (admin-configurable) ===== */
+  .section-bg-layer{position:absolute; inset:0; background-size:cover; background-position:center; transition:opacity 1s ease; z-index:0;}
+  .section-bg-overlay{position:absolute; inset:0; z-index:1;}
+  section > .wrap, .hero-copy, .hero-stats{position:relative; z-index:2;}
 
   /* ===== Floating chatbot FAB ===== */
-  .fab{
-    position:fixed; bottom:28px; right:28px; z-index:200;
-    width:58px; height:58px; border-radius:50%; background:var(--orange);
-    display:flex; align-items:center; justify-content:center;
-    box-shadow:0 12px 28px -8px rgba(242,128,31,0.55);
-    cursor:pointer; border:none;
-  }
+  .fab{position:fixed; bottom:28px; right:28px; z-index:200; width:60px; height:60px; border-radius:50%; background:var(--orange); display:flex; align-items:center; justify-content:center; box-shadow:0 12px 30px -8px rgba(242,128,31,0.55); cursor:pointer; border:none;}
   .fab svg{width:24px; height:24px;}
-  .fab-pulse{
-    position:absolute; inset:0; border-radius:50%; background:var(--orange);
-    animation:pulse 2.4s infinite ease-out; z-index:-1;
-  }
+  .fab-pulse{position:absolute; inset:0; border-radius:50%; background:var(--orange); animation:pulse 2.4s infinite ease-out; z-index:-1;}
   @keyframes pulse{0%{transform:scale(1); opacity:.55} 100%{transform:scale(1.9); opacity:0}}
-
-  .fab-panel{
-    position:fixed; bottom:98px; right:28px; z-index:200;
-    width:min(340px, calc(100vw - 48px)); max-height:60vh;
-  }
+  .fab-panel{position:fixed; bottom:100px; right:28px; z-index:200; width:min(340px, calc(100vw - 48px)); max-height:60vh;}
   .fab-panel .cbody{overflow-y:auto; max-height:38vh;}
-  .fab-panel .cfoot input{flex:1; border:1px solid var(--line); border-radius:3px; padding:10px 12px; font-size:13.5px; font-family:var(--sans);}
-  .fab-panel .cfoot button{background:var(--orange); color:#fff; border:none; border-radius:3px; padding:0 16px; font-size:13.5px; font-weight:600; cursor:pointer;}
-  .fab-panel .cfoot input:disabled{opacity:.6;}
 
   @media (max-width:980px){
-    .hero-grid{grid-template-columns:1fr;}
-    .hero-figure{max-width:420px; margin:0 auto; order:2;}
-    .hero-copy{order:1;}
     .feature{grid-template-columns:1fr; gap:40px;}
-    .band .wrap{grid-template-columns:1fr;}
+    .band .wrap{grid-template-columns:1fr; gap:48px;}
     .foot-grid{grid-template-columns:1fr 1fr; gap:32px;}
+    .join-sec .wrap{flex-direction:column;}
+    .hero-stats{gap:32px;}
   }
   @media (max-width:720px){
-    nav ul{display:none;}
+    nav.main-nav ul{display:none;}
     .burger{display:flex;}
-    .nav-cta{display:none;}
+    header.site-nav > div:last-child a.btn{display:none;}
     .wrap{padding:0 20px;}
     section{padding:64px 0;}
+    .hero-copy{padding-left:20px; padding-right:20px;}
+    .hero-stats{padding-left:20px; padding-right:20px; flex-direction:column; align-items:flex-start; gap:20px;}
+    .join-steps{grid-template-columns:1fr;}
   }
 </style>
 </head>
 <body id="top">
 
-<header>
-  <div class="nav-row">
+<section class="hero" id="hero-section">
+  <div class="hero-scrim"></div>
+  <header class="site-nav">
     <a href="#top" class="brand">
-      <img src="/logo-horizontal.png" alt="AILO logo">
+      <span class="mark">LOGO</span>
+      <span class="name">AILO</span>
     </a>
-    <nav>
+    <nav class="main-nav">
       <ul>
         <li><a href="#top" class="active">Home</a></li>
         <li><a href="#research">Research</a></li>
@@ -327,45 +317,40 @@
         <li><a href="#about">About</a></li>
       </ul>
     </nav>
-    <div style="display:flex; align-items:center; gap:18px;">
-      <a href="#contact" class="nav-cta">Contact Us</a>
+    <div style="margin-left:auto; display:flex; align-items:center; gap:10px;">
+      <a href="/join" class="btn btn-outline-light" style="height:44px; padding:0 18px;">Join AILO</a>
+      <a href="#contact" class="btn btn-primary" style="height:44px; padding:0 18px;">Contact us</a>
       <button class="burger" aria-label="Menu"><span></span><span></span><span></span></button>
     </div>
-  </div>
-</header>
+  </header>
 
-<section class="hero" id="hero-section">
-  <div class="wrap hero-grid">
-    <div class="hero-figure">
-      <img class="mark" src="/logo-square.png" alt="AILO mark">
-      <div class="stat-chip">
-        <div><div class="n" id="hero-stat-1-value">18+</div><div class="l" id="hero-stat-1-label">Active projects</div></div>
-        <div><div class="n" id="hero-stat-2-value">32</div><div class="l" id="hero-stat-2-label">Researchers</div></div>
-        <div><div class="n" id="hero-stat-3-value">6</div><div class="l" id="hero-stat-3-label">Labs &amp; facilities</div></div>
-      </div>
+  <div class="hero-copy">
+    <div class="kicker"><span class="dash"></span><span id="hero-kicker">TELKOM UNIVERSITY · CENTER OF EXCELLENCE</span></div>
+    <h1 id="hero-title">Learning systems that <em>optimize</em> how research gets done.</h1>
+    <p class="lede" id="hero-lede">AILO designs and applies AI-driven optimization methods across research, teaching labs, and campus infrastructure, turning open questions into working systems.</p>
+    <div class="hero-actions">
+      <a href="#research" class="btn btn-primary" id="hero-cta-primary">Explore our research</a>
+      <a href="/labs" class="btn btn-outline-light" id="hero-cta-secondary">Book a lab</a>
     </div>
-    <div class="hero-copy">
-      <div class="kicker"><span class="dot"></span><span id="hero-kicker">TELKOM UNIVERSITY, CENTER OF EXCELLENCE</span></div>
-      <h1 id="hero-title">Learning systems that <em>optimize</em> how research gets done.</h1>
-      <p class="lede" id="hero-lede">AILO designs and applies AI-driven optimization methods across research, teaching labs, and campus infrastructure, turning open questions into working systems.</p>
-      <div class="hero-actions">
-        <a href="#research" class="btn btn-primary" id="hero-cta-primary">Explore our research</a>
-        <a href="#labs" class="btn btn-outline" id="hero-cta-secondary">Book a lab</a>
-      </div>
-    </div>
+  </div>
+
+  <div class="hero-stats">
+    <div class="stat"><span class="n" id="hero-stat-1-value">18+</span><span class="l" id="hero-stat-1-label">Active projects</span></div>
+    <div class="stat"><span class="n" id="hero-stat-2-value">32</span><span class="l" id="hero-stat-2-label">Researchers</span></div>
+    <div class="stat"><span class="n" id="hero-stat-3-value">6</span><span class="l" id="hero-stat-3-label">Labs &amp; facilities</span></div>
   </div>
 </section>
 
 <div class="strip">
   <div class="strip-inner" id="marquee">
-    <span><b>Optimization</b>, Reinforcement Learning</span>
-    <span><b>NLP</b>, Retrieval-Augmented Generation</span>
-    <span><b>Computer Vision</b>, Edge Deployment</span>
-    <span><b>Applied ML</b>, Smart Campus Systems</span>
-    <span><b>Optimization</b>, Reinforcement Learning</span>
-    <span><b>NLP</b>, Retrieval-Augmented Generation</span>
-    <span><b>Computer Vision</b>, Edge Deployment</span>
-    <span><b>Applied ML</b>, Smart Campus Systems</span>
+    <span><b>Optimization</b> · Reinforcement Learning</span>
+    <span><b>NLP</b> · Retrieval-Augmented Generation</span>
+    <span><b>Computer Vision</b> · Edge Deployment</span>
+    <span><b>Applied ML</b> · Smart Campus Systems</span>
+    <span><b>Optimization</b> · Reinforcement Learning</span>
+    <span><b>NLP</b> · Retrieval-Augmented Generation</span>
+    <span><b>Computer Vision</b> · Edge Deployment</span>
+    <span><b>Applied ML</b> · Smart Campus Systems</span>
   </div>
 </div>
 
@@ -373,33 +358,40 @@
   <div class="wrap">
     <div class="sec-head">
       <div>
+        <span class="kicker-sm">RESEARCH</span>
         <h2>Four research areas, one lab.</h2>
-        <p>Each track pairs theory with a deployable system, built, tested, and iterated on inside AILO's own labs.</p>
       </div>
-      <a href="/research" class="sec-link">View all research areas</a>
+      <div class="sec-desc">
+        <p>Each track pairs theory with a deployable system, built, tested, and iterated on inside AILO's own labs.</p>
+        <a href="/research" class="sec-link">View all research areas →</a>
+      </div>
     </div>
     <div class="research-grid" id="research-grid">
 <!--RESEARCH_CARDS_START-->
-      <div class="rcard">
-        <div class="num">01</div>
+      <a class="rcard" href="/research">
+        <div class="rcard-top"><span class="num">01</span><span class="ricon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17l5-5 4 4 8-9"/><path d="M14 7h6v6"/></svg></span></div>
         <h3>Optimization &amp; Reinforcement Learning</h3>
         <p>Decision-making algorithms for resource allocation, scheduling, and control under uncertainty.</p>
-      </div>
-      <div class="rcard">
-        <div class="num">02</div>
+        <span class="explore">Explore →</span>
+      </a>
+      <a class="rcard" href="/research">
+        <div class="rcard-top"><span class="num">02</span><span class="ricon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16v11H8l-4 4z"/><path d="M8 9h8M8 12h5"/></svg></span></div>
         <h3>Natural Language Processing</h3>
         <p>Retrieval-augmented generation, information extraction, and Bahasa Indonesia language models.</p>
-      </div>
-      <div class="rcard">
-        <div class="num">03</div>
+        <span class="explore">Explore →</span>
+      </a>
+      <a class="rcard" href="/research">
+        <div class="rcard-top"><span class="num">03</span><span class="ricon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg></span></div>
         <h3>Computer Vision</h3>
         <p>Real-time detection and monitoring systems tuned to run on edge and embedded hardware.</p>
-      </div>
-      <div class="rcard">
-        <div class="num">04</div>
+        <span class="explore">Explore →</span>
+      </a>
+      <a class="rcard" href="/research">
+        <div class="rcard-top"><span class="num">04</span><span class="ricon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18M5 21V9l7-5 7 5v12M9 21v-6h6v6"/></svg></span></div>
         <h3>Applied ML for Smart Campus</h3>
         <p>Models that optimize energy, mobility, and facility use across the Telkom University campus.</p>
-      </div>
+        <span class="explore">Explore →</span>
+      </a>
 <!--RESEARCH_CARDS_END-->
     </div>
   </div>
@@ -409,34 +401,39 @@
   <div class="wrap">
     <div class="sec-head">
       <div>
+        <span class="kicker-sm">PROJECTS</span>
         <h2>18+ projects, from research to production.</h2>
+      </div>
+      <div class="sec-desc">
         <p>Ongoing collaborations and applied builds that carry our research areas into deployable systems.</p>
+        <a href="/projects" class="sec-link">View all projects →</a>
       </div>
-      <a href="/projects" class="sec-link">View all projects</a>
     </div>
-    <div class="research-grid" id="projects-grid">
+    <div class="projects-grid" id="projects-grid">
 <!--PROJECT_CARDS_START-->
-      <div class="rcard">
-        <div class="num">P1</div>
-        <h3>Campus Lab Scheduling Optimizer</h3>
-        <p>A reinforcement-learning scheduler that cuts booking conflicts across shared research facilities.</p>
-      </div>
-      <div class="rcard">
-        <div class="num">P2</div>
-        <h3>Bahasa Indonesia RAG Assistant</h3>
-        <p>Retrieval-augmented chatbot infrastructure for public information access, built with partner institutions.</p>
-      </div>
-      <div class="rcard">
-        <div class="num">P3</div>
-        <h3>Edge Vision Monitoring Kit</h3>
-        <p>Real-time detection models packaged for low-power edge hardware deployed across campus facilities.</p>
-      </div>
-      <div class="rcard">
-        <div class="num">P4</div>
-        <h3>Smart Campus Energy Dashboard</h3>
-        <p>Applied ML models forecasting energy and mobility demand to optimize facility operations.</p>
-      </div>
+      <a class="pcard" href="/projects">
+        <div class="pcard-thumb"></div>
+        <div class="pcard-body">
+          <div class="pcard-meta"><span class="num">P1</span><span class="pstatus status-ongoing">Ongoing</span></div>
+          <h3>Campus Lab Scheduling Optimizer</h3>
+          <p>A reinforcement-learning scheduler that cuts booking conflicts across shared research facilities.</p>
+        </div>
+      </a>
+      <a class="pcard" href="/projects">
+        <div class="pcard-thumb"></div>
+        <div class="pcard-body">
+          <div class="pcard-meta"><span class="num">P2</span><span class="pstatus status-planned">Planned</span></div>
+          <h3>Bahasa Indonesia RAG Assistant</h3>
+          <p>Retrieval-augmented chatbot infrastructure for public information access, built with partner institutions.</p>
+        </div>
+      </a>
 <!--PROJECT_CARDS_END-->
+      <a class="pcard-stat" href="/projects">
+        <div class="ring"></div>
+        <span class="big">18+</span>
+        <span class="txt">active projects across four research tracks</span>
+        <span class="more">See all projects →</span>
+      </a>
     </div>
   </div>
 </section>
@@ -444,7 +441,10 @@
 <section>
   <div class="wrap feature">
     <div class="chat-mock">
-      <div class="chead"><span class="pulse"></span> Ask AILO</div>
+      <div class="chead">
+        <span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><path d="M8 8h8a3 3 0 0 1 3 3v5a3 3 0 0 1-3 3H8a3 3 0 0 1-3-3v-5a3 3 0 0 1 3-3zM12 4v4"/></svg></span>
+        <div class="titles"><b>Ask AILO</b><span class="status"><span class="pulse"></span>Online · answers from AILO's own pages</span></div>
+      </div>
       <div class="cbody">
         <div class="bubble bot">Halo! Saya asisten AILO. Ada yang bisa saya bantu seputar riset, proyek, atau peminjaman lab?</div>
         <div class="bubble user">Lab mana yang punya GPU cluster untuk training model?</div>
@@ -473,70 +473,80 @@
   <div class="wrap">
     <div class="sec-head">
       <div>
+        <span class="kicker-sm">NEWS</span>
         <h2>Latest from the lab.</h2>
-        <p>Research updates, publications, and lab announcements, drafted with AI, reviewed by our team before it goes live.</p>
       </div>
-      <a href="/news" class="sec-link">Browse all news</a>
+      <div class="sec-desc">
+        <p>Research updates, publications, and lab announcements, drafted with AI and reviewed by our team before they go live.</p>
+        <a href="/news" class="sec-link">Browse all news →</a>
+      </div>
     </div>
     <div class="news-grid" id="news-grid">
 <!--NEWS_CARDS_START-->
-      <div class="ncard">
+      <a class="ncard" href="/news">
         <div class="nthumb"><span class="tag">Research</span></div>
         <div class="nbody">
           <div class="date">2 September 2026</div>
           <h3>AILO team publishes new scheduling algorithm for campus lab allocation</h3>
           <p>A reinforcement-learning approach that cuts booking conflicts across shared research facilities.</p>
-          <span class="read">Read article</span>
+          <span class="read">Read article →</span>
         </div>
-      </div>
-      <div class="ncard">
+      </a>
+      <a class="ncard" href="/news">
         <div class="nthumb"><span class="tag">Collaboration</span></div>
         <div class="nbody">
           <div class="date">27 Agustus 2026</div>
           <h3>New partnership expands AILO's applied NLP work in Bahasa Indonesia</h3>
           <p>A joint project focused on retrieval-augmented systems for public information access.</p>
-          <span class="read">Read article</span>
+          <span class="read">Read article →</span>
         </div>
-      </div>
-      <div class="ncard">
-        <div class="nthumb"><span class="tag">Lab Update</span></div>
+      </a>
+      <a class="ncard" href="/news">
+        <div class="nthumb"><span class="tag">Lab update</span></div>
         <div class="nbody">
           <div class="date">14 Agustus 2026</div>
           <h3>Deep Learning Lab adds new GPU cluster for student research</h3>
           <p>Four new GPU nodes are now open for booking through the lab's device inventory.</p>
-          <span class="read">Read article</span>
+          <span class="read">Read article →</span>
         </div>
-      </div>
+      </a>
 <!--NEWS_CARDS_END-->
     </div>
   </div>
 </section>
 
-<section id="labs" class="band" style="border-top:1px solid var(--line);">
+<section id="labs" class="band">
   <div class="wrap">
     <div>
       <div class="eyebrow">LABS &amp; EQUIPMENT</div>
       <h2>Reserve a lab or device in minutes.</h2>
-      <p>Every AILO lab and its equipment is listed here with live availability, submit a request and get a confirmation by email, no account needed.</p>
-      <a href="/labs" class="btn btn-primary">Ajukan peminjaman</a>
+      <p>Every AILO lab and its equipment is listed with live availability. Submit a request and get a confirmation by email, no account needed.</p>
+      <div class="band-actions">
+        <a href="/labs" class="btn btn-primary">Ajukan peminjaman</a>
+        <a href="/labs" class="btn btn-outline-light">See all labs</a>
+      </div>
     </div>
     <div class="lab-list">
-      <div class="lab-row">
-        <div><div class="name">Deep Learning Lab</div><div class="meta">4x GPU node · 12 workstations</div></div>
+      <a class="lab-row" href="/labs">
+        <span style="flex-grow:1;"><span class="name">Deep Learning Lab</span><div class="meta">4x GPU node · 12 workstations</div></span>
         <span class="status open">Available</span>
-      </div>
-      <div class="lab-row">
-        <div><div class="name">Computer Vision Lab</div><div class="meta">Camera rigs · edge devices</div></div>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>
+      </a>
+      <a class="lab-row" href="/labs">
+        <span style="flex-grow:1;"><span class="name">Computer Vision Lab</span><div class="meta">Camera rigs · edge devices</div></span>
         <span class="status open">Available</span>
-      </div>
-      <div class="lab-row">
-        <div><div class="name">Optimization &amp; Robotics Lab</div><div class="meta">Sim rigs · control hardware</div></div>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>
+      </a>
+      <a class="lab-row" href="/labs">
+        <span style="flex-grow:1;"><span class="name">Optimization &amp; Robotics Lab</span><div class="meta">Sim rigs · control hardware</div></span>
         <span class="status busy">Booked today</span>
-      </div>
-      <div class="lab-row">
-        <div><div class="name">NLP &amp; Data Lab</div><div class="meta">Annotation stations · servers</div></div>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>
+      </a>
+      <a class="lab-row" href="/labs">
+        <span style="flex-grow:1;"><span class="name">NLP &amp; Data Lab</span><div class="meta">Annotation stations · servers</div></span>
         <span class="status open">Available</span>
-      </div>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>
+      </a>
     </div>
   </div>
 </section>
@@ -545,18 +555,67 @@
   <div class="wrap">
     <div class="sec-head">
       <div>
+        <span class="kicker-sm">PEOPLE</span>
         <h2>People behind AILO.</h2>
-        <p>Faculty, researchers, and students across our four research tracks, with publication data pulled from Scopus.</p>
       </div>
-      <a href="/team" class="sec-link">View full team</a>
+      <div class="sec-desc">
+        <p>Faculty, researchers, and students across our four research tracks, with publication data pulled from Scopus.</p>
+        <a href="/team" class="sec-link">View full team →</a>
+      </div>
+    </div>
+    <div class="team-filters" id="teamFilters">
+      <button class="team-filter active" data-filter="">All</button>
+      <button class="team-filter" data-filter="Dosen">Dosen</button>
+      <button class="team-filter" data-filter="Peneliti">Peneliti</button>
+      <button class="team-filter" data-filter="Peneliti Mahasiswa">Peneliti Mahasiswa</button>
+      <button class="team-filter" data-filter="Peneliti Alumni">Alumni</button>
+      <button class="team-filter" data-filter="Honorary Advisory Board">Advisory Board</button>
     </div>
     <div class="team-grid" id="team-grid">
 <!--TEAM_CARDS_START-->
-      <div class="tcard"><div class="tphoto"></div><h4>Dr. Andini Prasetyo</h4><div class="role">Lab Director · Optimization</div><div class="met">h-index 14 · 38 publications</div></div>
-      <div class="tcard"><div class="tphoto"></div><h4>Dr. Rangga Wibisono</h4><div class="role">NLP Research Lead</div><div class="met">h-index 9 · 21 publications</div></div>
-      <div class="tcard"><div class="tphoto"></div><h4>Dr. Kirana Salsabila</h4><div class="role">Computer Vision Lead</div><div class="met">h-index 11 · 27 publications</div></div>
-      <div class="tcard"><div class="tphoto"></div><h4>Fajar Nugroho, M.T.</h4><div class="role">Research Engineer</div><div class="met">6 publications</div></div>
+      <a class="tcard" href="/team" data-category="Dosen"><div class="tphoto"></div><h4>Dr. Andini Prasetyo</h4><div class="role">Lab Director · Optimization</div><div class="met">h-index 14 · 38 publications</div></a>
+      <a class="tcard" href="/team" data-category="Peneliti"><div class="tphoto"></div><h4>Dr. Rangga Wibisono</h4><div class="role">NLP Research Lead</div><div class="met">h-index 9 · 21 publications</div></a>
+      <a class="tcard" href="/team" data-category="Peneliti"><div class="tphoto"></div><h4>Dr. Kirana Salsabila</h4><div class="role">Computer Vision Lead</div><div class="met">h-index 11 · 27 publications</div></a>
+      <a class="tcard" href="/team" data-category="Peneliti Mahasiswa"><div class="tphoto"></div><h4>Fajar Nugroho, M.T.</h4><div class="role">Research Engineer</div><div class="met">6 publications</div></a>
 <!--TEAM_CARDS_END-->
+      <a class="tcard tcard-cta" href="/join">
+        <span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></span>
+        <h4>Your profile could be here</h4>
+        <p>Register as an AILO member and join the network.</p>
+      </a>
+    </div>
+  </div>
+</section>
+
+<section id="join" class="join-sec">
+  <div class="wrap">
+    <div class="join-copy">
+      <span class="eyebrow">MEMBERSHIP</span>
+      <h2>Join the AILO research network.</h2>
+      <p>Students, researchers, lecturers and alumni can register as AILO members. Once our team verifies you, your digital member card arrives by email.</p>
+      <div class="join-chips">
+        <span class="join-chip">Peneliti Mahasiswa S1 · S2 · S3</span>
+        <span class="join-chip">Peneliti</span>
+        <span class="join-chip">Dosen</span>
+        <span class="join-chip">Peneliti Alumni</span>
+      </div>
+      <ol class="join-steps">
+        <li><span class="step-n">STEP 1</span><span class="step-t">Register online</span><span class="step-d">Your details, affiliation and proof document.</span></li>
+        <li><span class="step-n">STEP 2</span><span class="step-t">We verify you</span><span class="step-d">An admin or staff member reviews your request.</span></li>
+        <li><span class="step-n">STEP 3</span><span class="step-t">Get your card</span><span class="step-d">A digital member card with a QR you can verify.</span></li>
+      </ol>
+      <div class="join-actions">
+        <a href="/join" class="btn btn-solid-dark">Register as member →</a>
+      </div>
+    </div>
+    <div class="join-visual">
+      <div class="card-shadow"></div>
+      <div class="card-face">
+        <div class="card-ring"></div>
+        <span class="card-badge">MEMBER</span>
+        <span class="card-name" style="margin-top:auto;">Nama Kamu</span>
+        <span class="card-sub">AILO Member</span>
+      </div>
     </div>
   </div>
 </section>
@@ -567,7 +626,7 @@
     <p>Whether it's a research collaboration, a lab booking, or a question for our chatbot, here's where to start.</p>
     <div class="cta-actions">
       <a href="#contact" class="btn btn-primary">Get in touch</a>
-      <a href="#projects" class="btn btn-outline">See our projects</a>
+      <a href="#projects" class="btn btn-outline-dark">See our projects</a>
     </div>
   </div>
 </section>
@@ -576,49 +635,47 @@
   <div class="wrap">
     <div class="foot-grid">
       <div class="foot-brand">
-        <img src="/logo-horizontal.png" alt="AILO logo">
+        <span class="brand"><span class="mark">LOGO</span><span class="name">AILO</span></span>
         <p>AI Learning For Optimization, a Center of Excellence under Telkom University, Bandung.</p>
       </div>
       <div class="foot-col">
-        <h5>Explore</h5>
-        <ul>
-          <li><a href="#research">Research</a></li>
-          <li><a href="#projects">Projects</a></li>
-          <li><a href="#team">Team</a></li>
-          <li><a href="#labs">Labs</a></li>
-        </ul>
+        <h5>EXPLORE</h5>
+        <a href="#research">Research</a>
+        <a href="#projects">Projects</a>
+        <a href="#team">Team</a>
+        <a href="#labs">Labs</a>
       </div>
       <div class="foot-col">
-        <h5>Lab</h5>
-        <ul>
-          <li><a href="#news">News</a></li>
-          <li><a href="#about">About</a></li>
-          <li><a href="/labs">Ajukan peminjaman</a></li>
-          <li><a href="/admin/login">Admin login</a></li>
-        </ul>
+        <h5>AILO</h5>
+        <a href="#news">News</a>
+        <a href="#about">About</a>
+        <a href="/join">Become a member</a>
+        <a href="/labs">Ajukan peminjaman</a>
       </div>
       <div class="foot-col">
-        <h5>Contact</h5>
-        <ul>
-          <li><a href="mailto:ailo@telkomuniversity.ac.id">ailo@telkomuniversity.ac.id</a></li>
-          <li><span>Gedung TULT, Telkom University</span></li>
-          <li><span>Bandung, Jawa Barat, sample address, confirm exact wording</span></li>
-        </ul>
+        <h5>CONTACT</h5>
+        <a href="mailto:ailo@telkomuniversity.ac.id" style="color:#fff;">ailo@telkomuniversity.ac.id</a>
+        <span>+62 22 756 4108</span>
+        <span>Gedung TULT, Telkom University, Bandung</span>
       </div>
     </div>
     <div class="foot-bottom">
-      <span>© 2026 AILO, Telkom University's Center of Excellence.</span>
+      <span>© 2026 AILO · Telkom University Center of Excellence</span>
       <div class="socials">
         <span class="social-pending" title="Coming soon">Instagram</span>
         <span class="social-pending" title="Coming soon">LinkedIn</span>
         <span class="social-pending" title="Coming soon">YouTube</span>
+        <a href="/admin/login" class="admin-link">Admin login</a>
       </div>
     </div>
   </div>
 </footer>
 
 <div class="fab-panel chat-mock" id="fabPanel" hidden>
-  <div class="chead"><span class="pulse"></span> Ask AILO</div>
+  <div class="chead">
+    <span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><path d="M8 8h8a3 3 0 0 1 3 3v5a3 3 0 0 1-3 3H8a3 3 0 0 1-3-3v-5a3 3 0 0 1 3-3zM12 4v4"/></svg></span>
+    <div class="titles"><b>Ask AILO</b><span class="status"><span class="pulse"></span>Online</span></div>
+  </div>
   <div class="cbody" id="fabBody">
     <div class="bubble bot">Halo! Saya asisten AILO. Ada yang bisa saya bantu seputar riset, proyek, tim, atau peminjaman lab?</div>
   </div>
@@ -635,9 +692,22 @@
 
 <script>
   document.querySelector('.burger').addEventListener('click', function(){
-    var nav = document.querySelector('nav ul');
-    nav.style.display = nav.style.display === 'flex' ? 'none' : 'flex';
-    nav.style.cssText += 'flex-direction:column; position:absolute; top:64px; left:0; right:0; background:#FBF9F6; padding:20px 32px; gap:18px; border-bottom:1px solid rgba(18,24,27,0.12);';
+    var nav = document.querySelector('nav.main-nav ul');
+    var isOpen = nav.style.display === 'flex';
+    nav.style.display = isOpen ? 'none' : 'flex';
+    nav.style.cssText += 'flex-direction:column; position:absolute; top:84px; left:0; right:0; background:' + getComputedStyle(document.documentElement).getPropertyValue('--teal-darker') + '; padding:20px 32px; gap:18px; z-index:50;';
+  });
+
+  document.getElementById('teamFilters').addEventListener('click', function (e) {
+    var btn = e.target.closest('.team-filter');
+    if (!btn) return;
+    document.querySelectorAll('.team-filter').forEach(function (b) { b.classList.remove('active'); });
+    btn.classList.add('active');
+    var filter = btn.getAttribute('data-filter');
+    document.querySelectorAll('#team-grid .tcard:not(.tcard-cta)').forEach(function (card) {
+      var match = !filter || card.getAttribute('data-category') === filter;
+      card.classList.toggle('hidden', !match);
+    });
   });
 
   var fabToggle = document.getElementById('fabToggle');

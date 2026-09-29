@@ -14,6 +14,17 @@ const memberSchema = new Schema(
     approvedAs: { type: String, enum: MEMBER_CATEGORIES },
     photo: String,
     proofDocument: String,
+    studyLevel: String,
+    profiles: {
+      linkedin: String,
+      orcid: String,
+      googleScholar: String,
+      sinta: String,
+      scopus: String,
+    },
+    researchInterests: { type: [String], default: [] },
+    motivation: String,
+    showProfilePublicly: { type: Boolean, default: false },
     status: {
       type: String,
       enum: ["pending", "approved", "rejected", "expired"],

@@ -112,6 +112,13 @@ function replaceBlock(html: string, marker: string, replacement: string | null):
   return html.replace(re, replacement);
 }
 
+const RESEARCH_ICONS = [
+  '<path d="M4 5h16v11H8l-4 4z"/><path d="M8 9h8M8 12h5"/>',
+  '<path d="M3 17l5-5 4 4 8-9"/><path d="M14 7h6v6"/>',
+  '<path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/>',
+  '<path d="M3 21h18M5 21V9l7-5 7 5v12M9 21v-6h6v6"/>',
+];
+
 async function buildResearchCards(): Promise<CardResult> {
   const items = await Research.find({ status: "published" })
     .sort({ createdAt: -1 })
@@ -125,33 +132,49 @@ async function buildResearchCards(): Promise<CardResult> {
     .map(
       (item, i) => `
       <a class="rcard" href="/research/${escapeHtml(item.slug)}">
-        <div class="num">${String(i + 1).padStart(2, "0")}</div>
+        <div class="rcard-top">
+          <span class="num">${String(i + 1).padStart(2, "0")}</span>
+          <span class="ricon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${RESEARCH_ICONS[i % RESEARCH_ICONS.length]}</svg></span>
+        </div>
         <h3>${escapeHtml(item.title)}</h3>
-        <p>${escapeHtml(truncate(item.description, 140))}</p>
+        <p>${escapeHtml(truncate(item.description, 110))}</p>
+        <span class="explore">Explore →</span>
       </a>`,
     )
     .join("\n");
   return { html, count: items.length };
 }
 
+const PROJECT_STATUS_LABEL: Record<string, string> = { planned: "Planned", ongoing: "Ongoing", completed: "Completed" };
+const PROJECT_STATUS_CLASS: Record<string, string> = { planned: "status-planned", ongoing: "status-ongoing", completed: "status-completed" };
+
 async function buildProjectCards(): Promise<CardResult> {
   const items = await Project.find()
     .sort({ createdAt: -1 })
     .limit(4)
-    .select("title description slug")
-    .lean<{ title: string; description: string; slug: string }[]>();
+    .select("title description slug status images")
+    .lean<{ title: string; description: string; slug: string; status: string; images?: string[] }[]>();
 
   if (items.length === 0) return { html: null, count: 0 };
 
   const html = items
-    .map(
-      (item, i) => `
-      <a class="rcard" href="/projects/${escapeHtml(item.slug)}">
-        <div class="num">P${i + 1}</div>
-        <h3>${escapeHtml(item.title)}</h3>
-        <p>${escapeHtml(truncate(item.description, 140))}</p>
-      </a>`,
-    )
+    .map((item, i) => {
+      const image = item.images?.[0];
+      const thumb = image
+        ? `<div class="pcard-thumb" style="background-image:url('${escapeHtml(image)}');background-size:cover;background-position:center"></div>`
+        : `<div class="pcard-thumb"></div>`;
+      const statusClass = PROJECT_STATUS_CLASS[item.status] ?? "status-planned";
+      const statusLabel = PROJECT_STATUS_LABEL[item.status] ?? item.status;
+      return `
+      <a class="pcard" href="/projects/${escapeHtml(item.slug)}">
+        ${thumb}
+        <div class="pcard-body">
+          <div class="pcard-meta"><span class="num">P${i + 1}</span><span class="pstatus ${statusClass}">${escapeHtml(statusLabel)}</span></div>
+          <h3>${escapeHtml(item.title)}</h3>
+          <p>${escapeHtml(truncate(item.description, 110))}</p>
+        </div>
+      </a>`;
+    })
     .join("\n");
   return { html, count: items.length };
 }
@@ -159,9 +182,19 @@ async function buildProjectCards(): Promise<CardResult> {
 async function buildTeamCards(): Promise<CardResult> {
   const items = await Team.find({ isActive: true })
     .sort({ name: 1 })
-    .limit(4)
-    .select("name position slug photo scopusData")
-    .lean<{ name: string; position: string; slug: string; photo?: string; scopusData?: { hIndex?: number; documentCount?: number } }[]>();
+    .limit(8)
+    .select("name position slug photo category profiles scopusData")
+    .lean<
+      {
+        name: string;
+        position: string;
+        slug: string;
+        photo?: string;
+        category?: string;
+        profiles?: { linkedin?: string; orcid?: string; googleScholar?: string; sinta?: string; scopus?: string };
+        scopusData?: { hIndex?: number; documentCount?: number };
+      }[]
+    >();
 
   if (items.length === 0) return { html: null, count: 0 };
 
@@ -174,12 +207,19 @@ async function buildTeamCards(): Promise<CardResult> {
         item.scopusData?.hIndex !== undefined
           ? `<div class="met">h-index ${item.scopusData.hIndex}${item.scopusData.documentCount ? ` · ${item.scopusData.documentCount} publications` : ""}</div>`
           : "";
+      const badges = [
+        item.profiles?.scopus ? "Scopus" : null,
+        item.profiles?.googleScholar ? "Scholar" : null,
+        item.profiles?.sinta ? "SINTA" : null,
+      ].filter(Boolean) as string[];
+      const badgeHtml = badges.length > 0 ? `<div class="tbadges">${badges.map((b) => `<span class="tbadge">${b}</span>`).join("")}</div>` : "";
       return `
-      <a class="tcard" href="/team/${escapeHtml(item.slug)}">
+      <a class="tcard" href="/team/${escapeHtml(item.slug)}" data-category="${escapeHtml(item.category ?? "")}">
         <div class="tphoto"${photoStyle}></div>
         <h4>${escapeHtml(item.name)}</h4>
         <div class="role">${escapeHtml(item.position)}</div>
         ${metrics}
+        ${badgeHtml}
       </a>`;
     })
     .join("\n");

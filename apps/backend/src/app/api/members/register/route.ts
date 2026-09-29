@@ -15,6 +15,19 @@ const registerSchema = z.object({
   requestedAs: z.enum(MEMBER_CATEGORIES),
   photo: z.string().trim().min(1),
   proofDocument: z.string().trim().min(1),
+  studyLevel: z.string().trim().max(10).optional(),
+  researchInterests: z.array(z.string().trim().max(60)).max(10).optional(),
+  motivation: z.string().trim().max(1000).optional(),
+  showProfilePublicly: z.boolean().optional(),
+  profiles: z
+    .object({
+      linkedin: z.string().trim().max(300).optional(),
+      orcid: z.string().trim().max(300).optional(),
+      googleScholar: z.string().trim().max(300).optional(),
+      sinta: z.string().trim().max(300).optional(),
+      scopus: z.string().trim().max(300).optional(),
+    })
+    .optional(),
 });
 
 export async function POST(request: NextRequest) {
