@@ -8,6 +8,7 @@ import { ChatEmbedding } from "@/models/ChatEmbedding";
 import { News } from "@/models/News";
 import { Project } from "@/models/Project";
 import { Research } from "@/models/Research";
+import { SiteSettings } from "@/models/SiteSettings";
 import { Team } from "@/models/Team";
 import { Lab } from "@/models/Lab";
 
@@ -42,12 +43,15 @@ export async function POST(request: NextRequest) {
   try {
     await connectToDatabase();
 
+    const settings = await SiteSettings.findOne({ key: "global" }).lean<{ chatbot?: { knowledgeSources?: string[] } }>();
+    const enabled = new Set(settings?.chatbot?.knowledgeSources ?? ["news", "research", "project", "team", "lab"]);
+
     const [news, research, projects, team, labs] = await Promise.all([
-      News.find({ status: "published" }).lean(),
-      Research.find({ status: "published" }).lean(),
-      Project.find().lean(),
-      Team.find({ isActive: true }).lean(),
-      Lab.find({ isActive: true }).lean(),
+      enabled.has("news") ? News.find({ status: "published" }).lean() : [],
+      enabled.has("research") ? Research.find({ status: "published" }).lean() : [],
+      enabled.has("project") ? Project.find().lean() : [],
+      enabled.has("team") ? Team.find({ isActive: true }).lean() : [],
+      enabled.has("lab") ? Lab.find({ isActive: true }).lean() : [],
     ]);
 
     await ChatEmbedding.deleteMany({});

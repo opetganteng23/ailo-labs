@@ -65,6 +65,35 @@ const siteSettingsSchema = new Schema(
       isEnabled: { type: Boolean, default: true },
       welcomeMessage: String,
       widgetColor: String,
+      knowledgeSources: {
+        type: [String],
+        default: ["news", "research", "project", "team", "lab"],
+      },
+      provider: {
+        type: String,
+        enum: ["openai", "anthropic", "gemini", "custom"],
+        default: "openai",
+      },
+      apiKeyEncrypted: String,
+      apiKeyLast4: String,
+      baseUrl: String,
+      chatModel: String,
+      embeddingModel: String,
+      temperature: { type: Number, default: 0.3 },
+      maxTokens: { type: Number, default: 800 },
+      topK: { type: Number, default: 5 },
+      systemPrompt: {
+        type: String,
+        default:
+          "Kamu adalah asisten virtual CoE AILO Telkom University. Jawab dengan bahasa yang sopan dan ringkas, hanya berdasarkan knowledge yang tersedia. Jika tidak tahu, katakan tidak tahu dan arahkan pengguna ke halaman kontak.",
+      },
+      fallbackReply: {
+        type: String,
+        default: "Maaf, saya belum punya informasi tentang itu. Silakan hubungi kami lewat halaman Kontak.",
+      },
+      monthlyTokenBudget: Number,
+      perVisitorDailyLimit: { type: Number, default: 20 },
+      tokensUsedThisMonth: { type: Number, default: 0 },
     },
     featureToggles: {
       booking: { type: Boolean, default: true },

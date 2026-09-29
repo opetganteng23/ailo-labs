@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 
 import { connectToDatabase } from "@/lib/mongodb";
+import { ChatbotQA } from "@/models/ChatbotQA";
 import { ChatEmbedding } from "@/models/ChatEmbedding";
 
 export const dynamic = "force-dynamic";
@@ -50,6 +51,23 @@ export async function POST(request: NextRequest) {
         success: true,
         data: { answer: "Bisa tolong perjelas pertanyaannya? Saya bisa bantu seputar riset, proyek, tim, dan lab AILO." },
       });
+    }
+
+    const qaEntries = await ChatbotQA.find({}).lean<{ question: string; answer: string }[]>();
+    let bestQA: { answer: string; score: number } | null = null;
+    for (const qa of qaEntries) {
+      const questionWords = new Set(tokenize(qa.question));
+      let score = 0;
+      for (const word of queryWords) {
+        if (questionWords.has(word)) score += 1;
+      }
+      const overlap = score / Math.max(questionWords.size, 1);
+      if (overlap >= 0.6 && (!bestQA || score > bestQA.score)) {
+        bestQA = { answer: qa.answer, score };
+      }
+    }
+    if (bestQA) {
+      return NextResponse.json({ success: true, data: { answer: bestQA.answer } });
     }
 
     const chunks = await ChatEmbedding.find({}).lean();
