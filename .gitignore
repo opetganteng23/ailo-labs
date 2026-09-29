@@ -8,6 +8,7 @@ coverage/
 *.tsbuildinfo
 .DS_Store
 apps/backend/data/uploads/
+AILO Admin Redesign*.html
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*

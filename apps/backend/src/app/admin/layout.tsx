@@ -22,12 +22,15 @@ export default async function AdminLayout({ children }: { children: ReactNode })
       <aside>
         <div className="admin-brand">
           <Image src="/logo-horizontal.png" alt="AILO" width={140} height={35} />
+          <span className="admin-brand-subtitle">Content console</span>
         </div>
         <AdminNavLinks showUsers={session.role === "super_admin"} />
-        <div style={{ marginTop: 24, borderTop: "1px solid rgba(255,255,255,0.15)", paddingTop: 16 }}>
-          <p style={{ fontSize: 12, color: "#9aa3a7" }}>
-            {session.name} ({session.role})
-          </p>
+        <div className="admin-account-card">
+          <div className="admin-account-avatar">{session.name.charAt(0).toUpperCase()}</div>
+          <div className="admin-account-info">
+            <span className="admin-account-name">{session.name}</span>
+            <span className="admin-account-role">{session.role === "super_admin" ? "Super admin" : session.role}</span>
+          </div>
           <LogoutButton />
         </div>
       </aside>
