@@ -52,3 +52,13 @@ export async function deleteProjectAction(formData: FormData) {
   await Project.findByIdAndDelete(String(formData.get("id")));
   revalidatePath("/admin/projects");
 }
+
+/** Called directly (not as a <form> action) when a card is dropped into a different board column. */
+export async function moveProjectStatusAction(id: string, status: "planned" | "ongoing" | "completed") {
+  const session = await getSession();
+  if (!session || !isAdminRole(session.role)) return;
+
+  await connectToDatabase();
+  await Project.findByIdAndUpdate(id, { status });
+  revalidatePath("/admin/projects");
+}
