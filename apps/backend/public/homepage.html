@@ -57,9 +57,11 @@
   .hero > *{position:relative; z-index:2;}
   header.site-nav{
     display:flex; align-items:center; gap:40px;
-    padding:0 32px; height:84px; max-width:1180px; width:100%; margin:0 auto;
-    border-bottom:1px solid rgba(255,255,255,0.12);
+    padding:0 32px; height:84px; width:100%; box-sizing:border-box;
+    background:rgba(7,26,28,0.55); backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px);
+    border-bottom:1px solid rgba(255,255,255,0.14);
   }
+  header.site-nav > .nav-inner{display:flex; align-items:center; gap:40px; width:100%; max-width:1180px; margin:0 auto;}
   .brand{display:flex; align-items:center; gap:10px; color:#fff;}
   .brand .mark{width:38px; height:38px; border-radius:10px; background:#fff; display:flex; align-items:center; justify-content:center; flex-shrink:0; overflow:hidden;}
   .brand .mark img{width:100%; height:100%; object-fit:contain; padding:4px;}
@@ -303,25 +305,27 @@
 <section class="hero" id="hero-section">
   <div class="hero-scrim"></div>
   <header class="site-nav">
-    <a href="#top" class="brand">
-      <span class="mark"><img src="/logo-square.png" alt="AILO"></span>
-      <span class="name">AILO</span>
-    </a>
-    <nav class="main-nav">
-      <ul>
-        <li><a href="#top" class="active">Home</a></li>
-        <li><a href="#research">Research</a></li>
-        <li><a href="#projects">Projects</a></li>
-        <li><a href="#team">Team</a></li>
-        <li><a href="#labs">Labs</a></li>
-        <li><a href="#news">News</a></li>
-        <li><a href="#about">About</a></li>
-      </ul>
-    </nav>
-    <div style="margin-left:auto; display:flex; align-items:center; gap:10px;">
-      <a href="/join" class="btn btn-outline-light" style="height:44px; padding:0 18px;">Join AILO</a>
-      <a href="#contact" class="btn btn-primary" style="height:44px; padding:0 18px;">Contact us</a>
-      <button class="burger" aria-label="Menu"><span></span><span></span><span></span></button>
+    <div class="nav-inner">
+      <a href="#top" class="brand">
+        <span class="mark"><img src="/logo-square.png" alt="AILO"></span>
+        <span class="name">AILO</span>
+      </a>
+      <nav class="main-nav">
+        <ul>
+          <li><a href="#top" class="active">Home</a></li>
+          <li><a href="#research">Research</a></li>
+          <li><a href="#projects">Projects</a></li>
+          <li><a href="#team">Team</a></li>
+          <li><a href="#labs">Labs</a></li>
+          <li><a href="#news">News</a></li>
+          <li><a href="#about">About</a></li>
+        </ul>
+      </nav>
+      <div style="margin-left:auto; display:flex; align-items:center; gap:10px;">
+        <a href="/join" class="btn btn-outline-light" style="height:44px; padding:0 18px;">Join AILO</a>
+        <a href="#contact" class="btn btn-primary" style="height:44px; padding:0 18px;">Contact us</a>
+        <button class="burger" aria-label="Menu"><span></span><span></span><span></span></button>
+      </div>
     </div>
   </header>
 
