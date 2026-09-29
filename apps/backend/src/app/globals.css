@@ -923,6 +923,19 @@ footer.site .foot-bottom .socials .admin-link { color: #7fa9ab; }
   .research-grid, .projects-grid, .news-grid, .team-grid, .lab2-grid { grid-template-columns: 1fr; }
 }
 
+/* ===== Minimal header (Join, Booking flows) ===== */
+.minimal-header { height: 76px; background: var(--teal-darker); }
+.minimal-header-row { display: flex; align-items: center; gap: 40px; height: 100%; }
+.minimal-header-brand { display: flex; align-items: center; gap: 10px; color: #fff; font-size: 19px; font-weight: 800; }
+.minimal-header-brand img { border-radius: 6px; }
+.minimal-header-back { margin-left: auto; font-size: 14px; font-weight: 600; color: #c9dcdc; }
+.minimal-header-back:hover { color: #fff; }
+.minimal-header-cta { font-size: 14px; font-weight: 700; color: #fff; }
+.minimal-header-cta:hover { color: #f7b77f; }
+@media (max-width: 640px) {
+  .minimal-header-back { display: none; }
+}
+
 /* ===== Split auth layout (public /login, /register) ===== */
 .auth-split {
   max-width: 920px;

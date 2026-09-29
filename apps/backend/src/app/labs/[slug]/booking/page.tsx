@@ -1,7 +1,6 @@
 import { notFound, redirect } from "next/navigation";
 
-import { SiteFooter } from "@/components/SiteFooter";
-import { SiteHeader } from "@/components/SiteHeader";
+import { MinimalSiteHeader } from "@/components/MinimalSiteHeader";
 import { getSession } from "@/lib/auth";
 import { connectToDatabase } from "@/lib/mongodb";
 import { Device } from "@/models/Device";
@@ -29,7 +28,7 @@ export default async function LabBookingPage({ params }: { params: Promise<{ slu
 
   return (
     <>
-      <SiteHeader />
+      <MinimalSiteHeader rightLabel="Track my booking" rightHref="mailto:ailo@telkomuniversity.ac.id" />
       <main className="wrap" style={{ paddingTop: 48, paddingBottom: 64 }}>
         <div style={{ display: "flex", alignItems: "flex-end", gap: 40, flexWrap: "wrap", marginBottom: 32 }}>
           <div style={{ display: "flex", flexDirection: "column", gap: 10, flexGrow: 1 }}>
@@ -50,7 +49,6 @@ export default async function LabBookingPage({ params }: { params: Promise<{ slu
           defaultEmail={session.email}
         />
       </main>
-      <SiteFooter />
     </>
   );
 }
