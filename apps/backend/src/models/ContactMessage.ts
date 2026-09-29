@@ -7,6 +7,8 @@ const contactMessageSchema = new Schema(
     subject: { type: String, required: true, trim: true, maxlength: 160 },
     message: { type: String, required: true, trim: true, maxlength: 5000 },
     isRead: { type: Boolean, default: false, index: true },
+    archived: { type: Boolean, default: false, index: true },
+    repliedAt: Date,
   },
   { timestamps: true },
 );
