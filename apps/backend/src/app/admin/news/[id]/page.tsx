@@ -11,6 +11,7 @@ export const dynamic = "force-dynamic";
 export default async function AdminNewsEditPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   await connectToDatabase();
+  const categories = (await News.distinct("category")) as string[];
   const item = await News.findById(id).lean<{
     _id: string;
     title: string;
@@ -35,6 +36,7 @@ export default async function AdminNewsEditPage({ params }: { params: Promise<{ 
       </div>
       <NewsForm
         mode="edit"
+        categories={categories}
         initial={{
           _id: String(item._id),
           title: item.title,

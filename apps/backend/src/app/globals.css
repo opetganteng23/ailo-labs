@@ -1,5 +1,4 @@
-@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap");
-@import url("https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap");
 
 :root {
   --teal: #0e7c8c;
@@ -253,14 +252,16 @@ textarea { min-height: 100px; }
   background: #0b454c;
   color: #d5e6e6;
   padding: 24px 16px;
-  font-family: "Plus Jakarta Sans", var(--sans);
+  font-family: var(--sans);
   display: flex;
   flex-direction: column;
   gap: 24px;
   z-index: 10;
 }
-.admin-shell aside .admin-brand { display: flex; flex-direction: column; gap: 4px; margin-bottom: 0; padding: 0 8px; }
-.admin-shell aside .admin-brand img { height: 26px; width: auto; }
+.admin-shell aside .admin-brand { display: flex; align-items: center; gap: 10px; margin-bottom: 0; padding: 0 8px; }
+.admin-brand-mark { width: 36px; height: 36px; flex-shrink: 0; border-radius: 10px; background: #fff; display: flex; align-items: center; justify-content: center; }
+.admin-brand-text { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.admin-brand-title { font-size: 15px; font-weight: 700; color: #fff; }
 .admin-brand-subtitle { font-size: 12px; color: #9dc0c1; }
 .admin-shell aside nav { display: flex; flex-direction: column; gap: 2px; flex: 1; }
 .admin-nav-group { display: flex; flex-direction: column; gap: 2px; }
@@ -809,6 +810,31 @@ footer.site .foot-bottom .socials .social-pending { color: #9aa3a7; font-weight:
 .auth-heading p { margin: 4px 0 0; font-size: 14px; color: #5b6664; }
 .auth-back { align-self: center; font-size: 13px; font-weight: 600; color: #5b6664; }
 .auth-back:hover { color: var(--teal-dark); }
+
+/* ===== Rich text editor ===== */
+.rte { border: 1px solid #dad7cf; border-radius: 10px; overflow: hidden; background: #fbfaf7; }
+.rte-toolbar { display: flex; flex-wrap: wrap; gap: 4px; padding: 6px 8px; border-bottom: 1px solid #eeece6; background: #f7f6f2; }
+.rte-toolbar button {
+  height: 30px;
+  padding: 0 10px;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  font-size: 13px;
+  font-weight: 600;
+  color: #15201f;
+  cursor: pointer;
+  font-family: inherit;
+}
+.rte-toolbar button:hover { background: #eeece6; }
+.rte-body-wrap { position: relative; }
+.rte-placeholder { position: absolute; top: 16px; left: 16px; color: #8a9391; font-size: 15px; pointer-events: none; }
+.rte-body { padding: 16px; font-size: 15px; line-height: 1.65; outline: none; }
+.rte-body h2 { font-size: 20px; font-weight: 700; margin: 12px 0 6px; }
+.rte-body p { margin: 0 0 10px; }
+.rte-body ul, .rte-body ol { margin: 0 0 10px; padding-left: 24px; }
+.rte-body blockquote { margin: 0 0 10px; padding-left: 14px; border-left: 3px solid var(--teal); color: #4e5957; font-style: italic; }
+.rte-body a { color: var(--teal-dark); text-decoration: underline; }
 
 @media print {
   body * { visibility: hidden; }

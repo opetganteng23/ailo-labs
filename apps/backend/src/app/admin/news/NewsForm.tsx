@@ -2,10 +2,13 @@
 
 import { useMemo, useState } from "react";
 
+import { RichTextEditor } from "@/components/RichTextEditor";
+
 import { createNewsAction, updateNewsAction } from "./actions";
 
 type NewsFormProps = {
   mode?: "create" | "edit";
+  categories?: string[];
   initial?: {
     _id: string;
     title: string;
@@ -36,12 +39,23 @@ function slugify(input: string) {
     .replace(/(^-|-$)/g, "");
 }
 
-export function NewsForm({ mode = "create", initial }: NewsFormProps) {
+const DEFAULT_CATEGORIES = ["General", "Collaboration", "Research", "Event"];
+
+export function NewsForm({ mode = "create", initial, categories = [] }: NewsFormProps) {
   const [title, setTitle] = useState(initial?.title ?? "");
   const [summary, setSummary] = useState(initial?.summary ?? "");
   const [draft, setDraft] = useState(initial?.content ?? "");
+  const [draftVersion, setDraftVersion] = useState(0);
   const [status, setStatus] = useState(initial?.status ?? "draft");
   const [category, setCategory] = useState(initial?.category ?? "General");
+  const [contentMode, setContentMode] = useState<"ai" | "manual">(
+    initial && !Object.values(initial.source5W1H ?? {}).some((v) => v?.trim()) && initial.content ? "manual" : "ai",
+  );
+  const categoryOptions = useMemo(() => {
+    const set = new Set([...DEFAULT_CATEGORIES, ...categories]);
+    if (initial?.category) set.add(initial.category);
+    return Array.from(set);
+  }, [categories, initial]);
   const [tags, setTags] = useState<string[]>(initial?.tags ?? []);
   const [tagInput, setTagInput] = useState("");
   const [cover, setCover] = useState(initial?.images?.[0] ?? "");
@@ -61,7 +75,7 @@ export function NewsForm({ mode = "create", initial }: NewsFormProps) {
   const checklist = [
     { label: "Headline", done: title.trim().length > 0 },
     { label: "Category & tags", done: tags.length > 0 },
-    { label: "Article body", done: draft.trim().length > 0 },
+    { label: "Article body", done: draftVersion > 0 || draft.trim().length > 0 },
     { label: "5W+1H complete", done: answeredCount === 6 },
     { label: "Summary", done: summary.trim().length > 0 },
     { label: "Cover image", done: cover.length > 0 },
@@ -77,7 +91,8 @@ export function NewsForm({ mode = "create", initial }: NewsFormProps) {
       fields.why && `Latar belakang: ${fields.why}`,
       fields.how && `Detail pelaksanaan: ${fields.how}`,
     ].filter(Boolean);
-    setDraft(lines.join("\n\n"));
+    setDraft(lines.map((l) => `<p>${l}</p>`).join(""));
+    setDraftVersion((v) => v + 1);
   }
 
   function addTag(value: string) {
@@ -151,74 +166,90 @@ export function NewsForm({ mode = "create", initial }: NewsFormProps) {
           </section>
 
           <section className="admin2-section" style={{ padding: 0 }}>
-            <div className="admin2-panel-toolbar" style={{ padding: "24px 28px" }}>
+            <div className="admin2-panel-toolbar" style={{ padding: "20px 28px 0", borderBottom: 0 }}>
               <div style={{ display: "flex", flexDirection: "column", gap: 2, flexGrow: 1 }}>
-                <h2>Story facts - 5W + 1H</h2>
+                <h2>How do you want to write this article?</h2>
                 <p style={{ margin: 0, fontSize: 14, color: "#5b6664" }}>
-                  Answer the six questions. The draft below is assembled from your answers.
+                  {contentMode === "ai" ? "Answer 5W+1H and generate a draft, or switch to writing it yourself." : "Write the article body directly."}
                 </p>
               </div>
-              <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 6 }}>
-                <span style={{ fontSize: 13, fontWeight: 700 }}>{answeredCount} of 6 answered</span>
-                <div style={{ width: 140, height: 6, borderRadius: 999, background: "#eeece6", overflow: "hidden" }}>
-                  <div style={{ width: `${(answeredCount / 6) * 100}%`, height: "100%", background: "#0e6b73", borderRadius: 999 }} />
-                </div>
+              <div className="admin2-radio-group" role="radiogroup" aria-label="Content mode" style={{ flexShrink: 0 }}>
+                <button type="button" className={contentMode === "ai" ? "active" : ""} onClick={() => setContentMode("ai")}>
+                  AI (5W+1H)
+                </button>
+                <button type="button" className={contentMode === "manual" ? "active" : ""} onClick={() => setContentMode("manual")}>
+                  Manual
+                </button>
               </div>
             </div>
-            <div className="admin2-5w1h-grid" style={{ padding: "24px 28px" }}>
-              {FIVE_W_1_H.map((f) => (
-                <div key={f.key} className={`admin2-field${f.required ? " required" : ""}`}>
-                  <label htmlFor={`w-${f.key}`}>
-                    <span className="admin2-5w1h-tag">{f.tag}</span>
-                    {f.label}
-                    {f.required && <span style={{ marginLeft: "auto", fontSize: 12, fontWeight: 600, color: "#b4410c" }}>Required</span>}
-                  </label>
-                  {"isInput" in f && f.isInput ? (
-                    <input
-                      id={`w-${f.key}`}
-                      type="text"
-                      placeholder={f.placeholder}
-                      value={fields[f.key]}
-                      onChange={(e) => setFields((s) => ({ ...s, [f.key]: e.target.value }))}
-                    />
-                  ) : (
-                    <textarea
-                      id={`w-${f.key}`}
-                      rows={2}
-                      placeholder={f.placeholder}
-                      value={fields[f.key]}
-                      onChange={(e) => setFields((s) => ({ ...s, [f.key]: e.target.value }))}
-                    />
-                  )}
+
+            {contentMode === "ai" && (
+              <>
+                <div className="admin2-panel-toolbar" style={{ padding: "20px 28px" }}>
+                  <div style={{ display: "flex", flexDirection: "column", gap: 2, flexGrow: 1 }}>
+                    <h2>Story facts - 5W + 1H</h2>
+                    <p style={{ margin: 0, fontSize: 14, color: "#5b6664" }}>
+                      Answer the six questions. The draft below is assembled from your answers.
+                    </p>
+                  </div>
+                  <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 6 }}>
+                    <span style={{ fontSize: 13, fontWeight: 700 }}>{answeredCount} of 6 answered</span>
+                    <div style={{ width: 140, height: 6, borderRadius: 999, background: "#eeece6", overflow: "hidden" }}>
+                      <div style={{ width: `${(answeredCount / 6) * 100}%`, height: "100%", background: "#0e6b73", borderRadius: 999 }} />
+                    </div>
+                  </div>
                 </div>
-              ))}
-            </div>
-            <div style={{ padding: "16px 28px", background: "#f7f6f2", borderTop: "1px solid #eeece6", display: "flex", alignItems: "center", gap: 16 }}>
-              <span style={{ fontSize: 13, color: "#5b6664", flexGrow: 1 }}>
-                Template mode - connect an LLM API key in <a href="/admin/chatbot">Settings</a> to get fluent prose.
-              </span>
-              <button type="button" className="admin2-btn teal-outline" onClick={generateDraft}>
-                Generate draft
-              </button>
-            </div>
+                <div className="admin2-5w1h-grid" style={{ padding: "0 28px 24px" }}>
+                  {FIVE_W_1_H.map((f) => (
+                    <div key={f.key} className={`admin2-field${f.required ? " required" : ""}`}>
+                      <label htmlFor={`w-${f.key}`}>
+                        <span className="admin2-5w1h-tag">{f.tag}</span>
+                        {f.label}
+                        {f.required && <span style={{ marginLeft: "auto", fontSize: 12, fontWeight: 600, color: "#b4410c" }}>Required</span>}
+                      </label>
+                      {"isInput" in f && f.isInput ? (
+                        <input
+                          id={`w-${f.key}`}
+                          type="text"
+                          placeholder={f.placeholder}
+                          value={fields[f.key]}
+                          onChange={(e) => setFields((s) => ({ ...s, [f.key]: e.target.value }))}
+                        />
+                      ) : (
+                        <textarea
+                          id={`w-${f.key}`}
+                          rows={2}
+                          placeholder={f.placeholder}
+                          value={fields[f.key]}
+                          onChange={(e) => setFields((s) => ({ ...s, [f.key]: e.target.value }))}
+                        />
+                      )}
+                    </div>
+                  ))}
+                </div>
+                <div style={{ padding: "16px 28px", background: "#f7f6f2", borderTop: "1px solid #eeece6", display: "flex", alignItems: "center", gap: 16 }}>
+                  <span style={{ fontSize: 13, color: "#5b6664", flexGrow: 1 }}>
+                    Template mode - connect an LLM API key in <a href="/admin/chatbot/model">AI settings</a> to get fluent prose.
+                  </span>
+                  <button type="button" className="admin2-btn teal-outline" onClick={generateDraft}>
+                    Generate draft
+                  </button>
+                </div>
+              </>
+            )}
           </section>
 
           <section className="admin2-section" style={{ padding: 0 }}>
             <div className="admin2-panel-toolbar" style={{ padding: "18px 28px" }}>
               <h2>Article body</h2>
-              <span style={{ fontSize: 12, fontWeight: 600, color: "#0e6b73", background: "#e3f1f1", borderRadius: 999, padding: "4px 10px" }}>
-                Generated from 5W+1H - editable
-              </span>
+              {contentMode === "ai" && (
+                <span style={{ fontSize: 12, fontWeight: 600, color: "#0e6b73", background: "#e3f1f1", borderRadius: 999, padding: "4px 10px" }}>
+                  Generated from 5W+1H - editable
+                </span>
+              )}
             </div>
             <div style={{ padding: "20px 28px 28px" }}>
-              <textarea
-                name="content"
-                required
-                rows={10}
-                value={draft}
-                onChange={(e) => setDraft(e.target.value)}
-                style={{ border: "1px solid #dad7cf", borderRadius: 10, background: "#fbfaf7", padding: 16, fontSize: 15, lineHeight: 1.6, width: "100%" }}
-              />
+              <RichTextEditor key={draftVersion} name="content" defaultValue={draft} placeholder="Write the article body…" />
             </div>
           </section>
         </div>
@@ -238,14 +269,15 @@ export function NewsForm({ mode = "create", initial }: NewsFormProps) {
           <section className="admin2-section pad-sm">
             <h2>Organize</h2>
             <div className="admin2-field">
-              <label htmlFor="category">Category</label>
-              <select id="category" name="category" value={category} onChange={(e) => setCategory(e.target.value)}>
-                {["General", "Collaboration", "Research", "Event"].map((c) => (
-                  <option key={c} value={c}>
-                    {c}
-                  </option>
+              <label htmlFor="category">
+                Category <span style={{ fontWeight: 500, color: "#6b7573" }}>(pick one or type a new one)</span>
+              </label>
+              <input id="category" name="category" type="text" list="category-options" required value={category} onChange={(e) => setCategory(e.target.value)} />
+              <datalist id="category-options">
+                {categoryOptions.map((c) => (
+                  <option key={c} value={c} />
                 ))}
-              </select>
+              </datalist>
             </div>
             <div className="admin2-field">
               <label htmlFor="tags">Tags</label>

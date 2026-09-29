@@ -3,6 +3,7 @@
 import { useState } from "react";
 
 import { ImageUploadField } from "@/components/ImageUploadField";
+import { RichTextEditor } from "@/components/RichTextEditor";
 
 import { createResearchAction, updateResearchAction } from "./actions";
 
@@ -39,7 +40,7 @@ export function ResearchForm({ mode = "create", initial }: ResearchFormProps) {
             </div>
             <div className="admin2-field">
               <label htmlFor="content">Content</label>
-              <textarea id="content" name="content" required rows={12} defaultValue={initial?.content} />
+              <RichTextEditor name="content" defaultValue={initial?.content} placeholder="Write the research content…" />
             </div>
           </section>
         </div>

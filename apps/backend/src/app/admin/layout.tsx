@@ -31,8 +31,13 @@ export default async function AdminLayout({ children }: { children: ReactNode })
     <div className="admin-shell">
       <aside>
         <div className="admin-brand">
-          <Image src="/logo-horizontal.png" alt="AILO" width={140} height={35} />
-          <span className="admin-brand-subtitle">Content console</span>
+          <span className="admin-brand-mark">
+            <Image src="/logo-icon.png" alt="AILO" width={26} height={26} />
+          </span>
+          <div className="admin-brand-text">
+            <span className="admin-brand-title">AILO Admin</span>
+            <span className="admin-brand-subtitle">Content console</span>
+          </div>
         </div>
         <AdminNavLinks showUsers={session.role === "super_admin"} pendingMembersCount={pendingMembersCount} />
         <div className="admin-account-card">

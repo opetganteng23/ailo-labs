@@ -27,7 +27,7 @@ export default async function ResearchDetailPage({ params }: { params: Promise<{
         <p style={{ color: "#5b6469" }}>{item.description}</p>
         {/* eslint-disable-next-line @next/next/no-img-element -- arbitrary uploaded image, no static optimization needed */}
         {item.image && <img className="detail-thumb" src={item.image} alt={item.title} />}
-        <div style={{ whiteSpace: "pre-wrap", marginTop: 24 }}>{item.content}</div>
+        <div className="rte-body" style={{ marginTop: 24, padding: 0 }} dangerouslySetInnerHTML={{ __html: item.content }} />
       </main>
       <SiteFooter />
     </>

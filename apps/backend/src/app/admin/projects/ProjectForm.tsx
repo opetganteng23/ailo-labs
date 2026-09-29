@@ -3,6 +3,7 @@
 import { useState } from "react";
 
 import { ImageUploadField } from "@/components/ImageUploadField";
+import { RichTextEditor } from "@/components/RichTextEditor";
 
 import { createProjectAction, updateProjectAction } from "./actions";
 
@@ -39,7 +40,7 @@ export function ProjectForm({ mode = "create", initial }: ProjectFormProps) {
             </div>
             <div className="admin2-field">
               <label htmlFor="content">Content</label>
-              <textarea id="content" name="content" required rows={12} defaultValue={initial?.content} />
+              <RichTextEditor name="content" defaultValue={initial?.content} placeholder="Write the project content…" />
             </div>
           </section>
         </div>

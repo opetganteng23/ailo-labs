@@ -46,7 +46,7 @@ function LoginFormInner() {
       <div className="auth-card">
         <Link href="/" className="auth-brand">
           <span className="auth-brand-mark">
-            <Image src="/logo-square.png" alt="AILO" width={40} height={40} />
+            <Image src="/logo-icon.png" alt="AILO" width={26} height={26} />
           </span>
           <span className="auth-brand-name">AILO</span>
         </Link>

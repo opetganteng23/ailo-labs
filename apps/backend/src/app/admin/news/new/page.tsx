@@ -1,8 +1,16 @@
 import Link from "next/link";
 
+import { connectToDatabase } from "@/lib/mongodb";
+import { News } from "@/models/News";
+
 import { NewsForm } from "../NewsForm";
 
-export default function AdminNewsNewPage() {
+export const dynamic = "force-dynamic";
+
+export default async function AdminNewsNewPage() {
+  await connectToDatabase();
+  const categories = (await News.distinct("category")) as string[];
+
   return (
     <div>
       <div style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 14, color: "#5b6664", marginBottom: 20 }}>
@@ -12,7 +20,7 @@ export default function AdminNewsNewPage() {
         <span>/</span>
         <span style={{ color: "#15201f", fontWeight: 600 }}>New article</span>
       </div>
-      <NewsForm mode="create" />
+      <NewsForm mode="create" categories={categories} />
     </div>
   );
 }
