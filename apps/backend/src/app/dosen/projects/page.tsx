@@ -5,8 +5,7 @@ import { getSession } from "@/lib/auth";
 import { connectToDatabase } from "@/lib/mongodb";
 import { Project } from "@/models/Project";
 
-import { ProjectDrawer } from "../../admin/projects/ProjectDrawer";
-import { createDosenProjectAction, deleteDosenProjectAction, updateDosenProjectAction } from "../actions";
+import { deleteDosenProjectAction } from "../actions";
 import { ReviewPill } from "../ReviewPill";
 
 export const dynamic = "force-dynamic";
@@ -23,12 +22,10 @@ type Item = {
   reviewNote?: string;
 };
 
-export default async function DosenProjectsPage({ searchParams }: { searchParams: Promise<{ panel?: string; id?: string }> }) {
-  const { panel, id } = await searchParams;
+export default async function DosenProjectsPage() {
   const session = (await getSession())!;
   await connectToDatabase();
   const items = (await Project.find({ owner: session.sub }).sort({ updatedAt: -1 }).lean()) as unknown as Item[];
-  const editing = panel === "edit" && id ? items.find((p) => String(p._id) === id && p.publishStatus !== "published") : undefined;
   const cols = "minmax(0, 1fr) 120px 130px 130px 96px";
 
   return (
@@ -39,7 +36,7 @@ export default async function DosenProjectsPage({ searchParams }: { searchParams
           <p>Projects you lead. New projects and edits go to an admin for review before they appear on the site.</p>
         </div>
         <div className="admin2-actions">
-          <Link href="/dosen/projects?panel=new" className="admin2-btn">
+          <Link href="/dosen/projects/new" className="admin2-btn">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
               <path d="M12 5v14M5 12h14" />
             </svg>
@@ -71,7 +68,7 @@ export default async function DosenProjectsPage({ searchParams }: { searchParams
               <span style={{ fontSize: 12.5, color: "#6b7573" }}>Locked</span>
             ) : (
               <div style={{ display: "flex", gap: 4 }}>
-                <Link href={`/dosen/projects?panel=edit&id=${item._id}`} aria-label="Edit" className="admin2-btn ghost" style={{ padding: 0, width: 40, height: 40, justifyContent: "center" }}>
+                <Link href={`/dosen/projects/${item._id}`} aria-label="Edit" className="admin2-btn ghost" style={{ padding: 0, width: 40, height: 40, justifyContent: "center" }}>
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
                     <path d="M4 20h4L19 9l-4-4L4 16z" />
                   </svg>
@@ -89,18 +86,6 @@ export default async function DosenProjectsPage({ searchParams }: { searchParams
           </div>
         ))}
       </section>
-
-      {panel === "new" && <ProjectDrawer mode="create" closeHref="/dosen/projects" createAction={createDosenProjectAction} updateAction={updateDosenProjectAction} forReview />}
-      {editing && (
-        <ProjectDrawer
-          mode="edit"
-          closeHref="/dosen/projects"
-          createAction={createDosenProjectAction}
-          updateAction={updateDosenProjectAction}
-          forReview
-          initial={{ _id: String(editing._id), title: editing.title, description: editing.description, content: editing.content, status: editing.status, image: editing.images?.[0] }}
-        />
-      )}
     </div>
   );
 }

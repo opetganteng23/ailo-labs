@@ -13,8 +13,7 @@ const COLUMNS: { key: ProjectCard["status"]; label: string; dot: string; pillBg:
   { key: "completed", label: "Completed", dot: "#2E8A5A", pillBg: "#DCF1E4", pillColor: "#17603A" },
 ];
 
-/** `panelPrefix` is the list URL ending in "?" or "&", to which drawer params are appended. */
-export function ProjectsBoard({ items, panelPrefix }: { items: ProjectCard[]; panelPrefix: string }) {
+export function ProjectsBoard({ items }: { items: ProjectCard[] }) {
   const [cards, setCards] = useState(items);
   const [dragId, setDragId] = useState<string | null>(null);
   const [, startTransition] = useTransition();
@@ -44,7 +43,7 @@ export function ProjectsBoard({ items, panelPrefix }: { items: ProjectCard[]; pa
               <span style={{ width: 10, height: 10, borderRadius: 999, background: col.dot }} />
               <h2 style={{ margin: 0, fontSize: 15, fontWeight: 700 }}>{col.label}</h2>
               <span style={{ fontSize: 13, fontWeight: 700, color: "#5b6664" }}>{colCards.length}</span>
-              <Link href={`${panelPrefix}panel=new&status=${col.key}`} aria-label={`Add ${col.label.toLowerCase()} project`} style={{ marginLeft: "auto", width: 32, height: 32, borderRadius: 8, background: "transparent", color: "#3b4947", fontSize: 18, display: "flex", alignItems: "center", justifyContent: "center" }}>
+              <Link href={`/admin/projects/new?status=${col.key}`} aria-label={`Add ${col.label.toLowerCase()} project`} style={{ marginLeft: "auto", width: 32, height: 32, borderRadius: 8, background: "transparent", color: "#3b4947", fontSize: 18, display: "flex", alignItems: "center", justifyContent: "center" }}>
                 +
               </Link>
             </div>
@@ -73,7 +72,7 @@ export function ProjectsBoard({ items, panelPrefix }: { items: ProjectCard[]; pa
                       <span style={{ fontSize: 12, fontWeight: 700, color: col.pillColor, background: col.pillBg, borderRadius: 999, padding: "4px 10px" }}>
                         {col.label}
                       </span>
-                      <Link href={`${panelPrefix}panel=edit&id=${c._id}`} className="admin2-btn outline" style={{ marginLeft: "auto", height: 32, padding: "0 10px", fontSize: 13 }}>
+                      <Link href={`/admin/projects/${c._id}`} className="admin2-btn outline" style={{ marginLeft: "auto", height: 32, padding: "0 10px", fontSize: 13 }}>
                         Edit
                       </Link>
                     </div>

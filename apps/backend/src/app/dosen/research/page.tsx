@@ -5,20 +5,17 @@ import { getSession } from "@/lib/auth";
 import { connectToDatabase } from "@/lib/mongodb";
 import { Research } from "@/models/Research";
 
-import { ResearchDrawer } from "../../admin/research/ResearchDrawer";
-import { createDosenResearchAction, deleteDosenResearchAction, updateDosenResearchAction } from "../actions";
+import { deleteDosenResearchAction } from "../actions";
 import { ReviewPill } from "../ReviewPill";
 
 export const dynamic = "force-dynamic";
 
 type Item = { _id: string; title: string; description: string; content: string; image?: string; status: "draft" | "review" | "published"; updatedAt: string; reviewNote?: string };
 
-export default async function DosenResearchPage({ searchParams }: { searchParams: Promise<{ panel?: string; id?: string }> }) {
-  const { panel, id } = await searchParams;
+export default async function DosenResearchPage() {
   const session = (await getSession())!;
   await connectToDatabase();
   const items = (await Research.find({ owner: session.sub }).sort({ updatedAt: -1 }).lean()) as unknown as Item[];
-  const editing = panel === "edit" && id ? items.find((r) => String(r._id) === id && r.status !== "published") : undefined;
   const cols = "minmax(0, 1fr) 130px 130px 96px";
 
   return (
@@ -29,7 +26,7 @@ export default async function DosenResearchPage({ searchParams }: { searchParams
           <p>Your research topics. New items and edits go to an admin for review before they appear on the site.</p>
         </div>
         <div className="admin2-actions">
-          <Link href="/dosen/research?panel=new" className="admin2-btn">
+          <Link href="/dosen/research/new" className="admin2-btn">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
               <path d="M12 5v14M5 12h14" />
             </svg>
@@ -59,7 +56,7 @@ export default async function DosenResearchPage({ searchParams }: { searchParams
               <span style={{ fontSize: 12.5, color: "#6b7573" }}>Locked</span>
             ) : (
               <div style={{ display: "flex", gap: 4 }}>
-                <Link href={`/dosen/research?panel=edit&id=${item._id}`} aria-label="Edit" className="admin2-btn ghost" style={{ padding: 0, width: 40, height: 40, justifyContent: "center" }}>
+                <Link href={`/dosen/research/${item._id}`} aria-label="Edit" className="admin2-btn ghost" style={{ padding: 0, width: 40, height: 40, justifyContent: "center" }}>
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
                     <path d="M4 20h4L19 9l-4-4L4 16z" />
                   </svg>
@@ -77,18 +74,6 @@ export default async function DosenResearchPage({ searchParams }: { searchParams
           </div>
         ))}
       </section>
-
-      {panel === "new" && <ResearchDrawer mode="create" createAction={createDosenResearchAction} updateAction={updateDosenResearchAction} closeHref="/dosen/research" forReview />}
-      {editing && (
-        <ResearchDrawer
-          mode="edit"
-          createAction={createDosenResearchAction}
-          updateAction={updateDosenResearchAction}
-          closeHref="/dosen/research"
-          forReview
-          initial={{ _id: String(editing._id), title: editing.title, description: editing.description, content: editing.content, status: editing.status, image: editing.image }}
-        />
-      )}
     </div>
   );
 }
