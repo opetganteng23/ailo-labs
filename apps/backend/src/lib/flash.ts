@@ -49,8 +49,13 @@ export async function withFlash(run: () => Promise<void>, messages: { success: s
       return false;
     }
     console.error(messages.error, error);
-    const duplicate = (error as { code?: number })?.code === 11000;
-    await flash("error", duplicate ? "An item with the same name or email already exists." : messages.error);
+    const mongoError = error as { code?: number; keyPattern?: Record<string, unknown> };
+    if (mongoError?.code === 11000) {
+      const field = Object.keys(mongoError.keyPattern ?? {})[0];
+      await flash("error", field ? `An item with the same ${field} already exists.` : "An item with the same value already exists.");
+    } else {
+      await flash("error", messages.error);
+    }
     return false;
   }
 }
