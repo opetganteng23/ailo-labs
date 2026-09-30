@@ -180,10 +180,31 @@
   .flist .fi{width:26px; height:26px; border-radius:50%; background:var(--teal-dark); flex-shrink:0; display:flex; align-items:center; justify-content:center;}
   .flist .fi svg{width:13px; height:13px;}
 
-  /* ===== News ===== */
-  .news-grid{display:grid; grid-template-columns:repeat(auto-fill, minmax(280px, 1fr)); gap:24px;}
-  .ncard{display:flex; flex-direction:column; gap:18px; text-decoration:none; color:var(--ink); background:#fff; border:1px solid var(--line); border-radius:22px; padding:16px 16px 22px; box-shadow:0 8px 20px -12px rgba(18,24,27,0.18); transition:transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;}
+  /* ===== News (homepage preview: horizontal scroll, not a wrapping grid) ===== */
+  .news-grid{display:flex; gap:28px; overflow-x:auto; scroll-snap-type:x proximity; padding:14px 4px 22px; -webkit-overflow-scrolling:touch; scrollbar-width:thin;}
+  .ncard{
+    position:relative;
+    flex:0 0 340px;
+    scroll-snap-align:start;
+    display:flex; flex-direction:column; gap:18px;
+    text-decoration:none; color:var(--ink);
+    background:#fff; border:1px solid var(--line); border-radius:22px; padding:16px 16px 22px;
+    box-shadow:0 8px 20px -12px rgba(18,24,27,0.18);
+    transition:transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+  }
+  .ncard::before{
+    content:""; position:absolute; inset:14px -14px -14px 14px; z-index:-1;
+    background:var(--paper-dim); border:1px solid var(--line); border-radius:22px;
+    transform:rotate(-3deg); transition:transform 0.3s ease;
+  }
+  .ncard::after{
+    content:""; position:absolute; inset:7px -7px -7px 7px; z-index:-1;
+    background:#fff; border:1px solid var(--line); border-radius:22px;
+    transform:rotate(-1.5deg); transition:transform 0.3s ease;
+  }
   .ncard:hover{transform:translateY(-6px); box-shadow:0 20px 36px -14px rgba(18,24,27,0.28); border-color:var(--teal);}
+  .ncard:hover::before{transform:rotate(-6deg) translate(2px,4px);}
+  .ncard:hover::after{transform:rotate(-3deg) translate(1px,2px);}
   .nthumb{aspect-ratio:16/9; border-radius:16px; background:linear-gradient(135deg,var(--teal) 0%, var(--teal-dark) 100%); background-size:cover !important; position:relative; overflow:hidden;}
   .nthumb::after{content:""; position:absolute; inset:0; background-size:cover; background-position:center; background-image:inherit; transform:scale(1); transition:transform 0.35s ease;}
   .ncard:hover .nthumb::after{transform:scale(1.06);}
