@@ -1,8 +1,10 @@
 import Image from "next/image";
 import Link from "next/link";
 
-/** The dark, minimal header used on the Join and Booking flows (not the full site nav). */
-export function MinimalSiteHeader({ rightLabel, rightHref }: { rightLabel: string; rightHref: string }) {
+import { BackButton } from "./BackButton";
+
+/** Dark header for the Join and Booking flows: logo and a Back button only. */
+export function MinimalSiteHeader({ backHref = "/" }: { backHref?: string }) {
   return (
     <header className="minimal-header">
       <div className="wrap minimal-header-row">
@@ -12,12 +14,7 @@ export function MinimalSiteHeader({ rightLabel, rightHref }: { rightLabel: strin
           </span>
           <span>AILO</span>
         </Link>
-        <Link href="/" className="minimal-header-back">
-          Back to site
-        </Link>
-        <Link href={rightHref} className="minimal-header-cta">
-          {rightLabel}
-        </Link>
+        <BackButton fallbackHref={backHref} />
       </div>
     </header>
   );

@@ -23,7 +23,7 @@ export default async function LabBookingPage({ params }: { params: Promise<{ slu
 
   return (
     <>
-      <MinimalSiteHeader rightLabel="Not a member? Join AILO" rightHref="/join" />
+      <MinimalSiteHeader backHref={`/labs/${slug}`} />
       <main className="wrap" style={{ paddingTop: 48, paddingBottom: 64 }}>
         <div style={{ display: "flex", alignItems: "flex-end", gap: 40, flexWrap: "wrap", marginBottom: 32 }}>
           <div style={{ display: "flex", flexDirection: "column", gap: 10, flexGrow: 1 }}>

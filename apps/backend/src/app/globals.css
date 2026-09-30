@@ -409,7 +409,7 @@ textarea { min-height: 100px; }
 /* ===== Upload drop area (QA RP-01) ===== */
 .upload-field { display: flex; flex-direction: column; gap: 10px; }
 .upload-field-label { font-size: 13px; font-weight: 600; color: #5b6664; }
-.upload-drop { display: flex; align-items: center; gap: 14px; padding: 16px; border: 1.5px dashed #bfc9c7; border-radius: 12px; background: #f7faf9; cursor: pointer; transition: border-color .15s, background-color .15s; min-width: 0; }
+.upload-drop { display: flex; flex-direction: row; align-items: center; gap: 14px; padding: 16px; border: 1.5px dashed #bfc9c7; border-radius: 12px; background: #f7faf9; cursor: pointer; transition: border-color .15s, background-color .15s; min-width: 0; }
 .upload-drop:hover, .upload-drop.dragging { border-color: var(--hover-border); background: var(--hover-bg); }
 .upload-drop.has-file { border-style: solid; border-color: #d7e7e7; background: #fff; }
 .upload-icon { width: 44px; height: 44px; flex-shrink: 0; border-radius: 999px; background: #e3f1f1; color: #0e6b73; display: flex; align-items: center; justify-content: center; }
@@ -1168,6 +1168,8 @@ footer.site .foot-bottom .socials .admin-link { color: #7fa9ab; }
 .minimal-header-brand { display: flex; align-items: center; gap: 10px; color: #fff; font-size: 19px; font-weight: 800; }
 .minimal-header-mark { width: 36px; height: 36px; border-radius: 10px; background: #fff; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
 .minimal-header-back { margin-left: auto; font-size: 14px; font-weight: 600; color: #c9dcdc; }
+.minimal-header .back-btn { margin-left: auto; background: transparent; border-color: rgba(255, 255, 255, 0.4); color: #fff; }
+.minimal-header .back-btn:hover { background: rgba(255, 255, 255, 0.1); border-color: #fff; color: #fff; }
 .minimal-header-back:hover { color: #fff; }
 .minimal-header-cta { font-size: 14px; font-weight: 700; color: #fff; }
 .minimal-header-cta:hover { color: #f7b77f; }

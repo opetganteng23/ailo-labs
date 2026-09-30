@@ -5,7 +5,7 @@ import { JoinForm } from "./JoinForm";
 export default function JoinPage() {
   return (
     <>
-      <MinimalSiteHeader rightLabel="Questions? Contact us" rightHref="/contact" />
+      <MinimalSiteHeader />
       <main className="wrap" style={{ paddingTop: 56, paddingBottom: 64 }}>
         <div style={{ display: "flex", flexDirection: "column", gap: 10, marginBottom: 36 }}>
           <span style={{ fontSize: 13, fontWeight: 700, letterSpacing: "0.14em", color: "#b4530f" }}>MEMBERSHIP</span>
