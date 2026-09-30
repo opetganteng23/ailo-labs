@@ -6,6 +6,7 @@ import { redirect } from "next/navigation";
 import { getSession, isAdminRole } from "@/lib/auth";
 import { FlashError, withFlash } from "@/lib/flash";
 import { connectToDatabase } from "@/lib/mongodb";
+import { Member } from "@/models/Member";
 import { Team } from "@/models/Team";
 
 function slugify(input: string) {
@@ -70,13 +71,18 @@ export async function updateTeamAction(formData: FormData) {
   const ok = await withFlash(
     async () => {
       const data = readMember(formData);
+      const isActive = formData.get("isActive") === "on";
       await connectToDatabase();
-      await Team.findByIdAndUpdate(id, { ...data, isActive: formData.get("isActive") === "on" });
+      const team = await Team.findByIdAndUpdate(id, { ...data, isActive });
+      // Keep Admin -> Members' "Include in Team Board" checkbox in sync either way.
+      if (team?.member) await Member.findByIdAndUpdate(team.member, { includeInTeamBoard: isActive });
     },
     { success: "Changes saved.", error: "Couldn't save your changes. Please try again." },
   );
   revalidatePath("/admin/team");
   revalidatePath(`/admin/team/${id}`);
+  revalidatePath("/admin/members");
+  revalidatePath("/team");
   if (ok) redirect("/admin/team");
 }
 
@@ -85,11 +91,14 @@ export async function deleteTeamAction(formData: FormData) {
   await withFlash(
     async () => {
       await connectToDatabase();
-      await Team.findByIdAndDelete(String(formData.get("id")));
+      const team = await Team.findByIdAndDelete(String(formData.get("id")));
+      // Keep Admin -> Members in sync if this profile came from "Include in Team Board".
+      if (team?.member) await Member.findByIdAndUpdate(team.member, { includeInTeamBoard: false });
     },
     { success: "Team member deleted.", error: "Couldn't delete the team member. Please try again." },
   );
   revalidatePath("/admin/team");
+  revalidatePath("/admin/members");
 }
 
 /** Applies the profile edits a lecturer submitted from the dosen dashboard and publishes the profile. */

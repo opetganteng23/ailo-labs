@@ -3,13 +3,16 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
+import crypto from "node:crypto";
+
 import { getSession, isAdminRole } from "@/lib/auth";
 import { flash, FlashError, withFlash } from "@/lib/flash";
 import { provisionDosenAccount } from "@/lib/dosenAccount";
 import { sendMail } from "@/lib/mailer";
 import { generateCardId } from "@/lib/memberCard";
 import { connectToDatabase } from "@/lib/mongodb";
-import { Member } from "@/models/Member";
+import { MEMBER_CATEGORIES, Member } from "@/models/Member";
+import { Team } from "@/models/Team";
 
 async function requireAdmin() {
   const session = await getSession();
@@ -116,6 +119,80 @@ export async function revokeMemberAction(formData: FormData) {
     { success: "Membership revoked.", error: "Couldn't revoke the membership. Please try again." },
   );
   revalidatePath("/admin/members");
+}
+
+function slugify(input: string) {
+  return input.toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
+}
+
+/**
+ * Admin-only control over who appears on the public Team page (§12-14 of the
+ * eval doc). Only approved members are eligible. Turning it on creates or
+ * reuses that member's Team profile and makes it public; turning it off just
+ * hides the profile again (isActive: false) without deleting anything a
+ * lecturer or admin may have already filled in.
+ */
+export async function setMemberTeamBoardAction(formData: FormData) {
+  await requireAdmin();
+  const id = String(formData.get("id"));
+  const include = formData.get("include") === "on";
+  const category = String(formData.get("teamCategory") ?? "");
+
+  await withFlash(
+    async () => {
+      await connectToDatabase();
+      const member = await Member.findById(id);
+      if (!member) throw new FlashError("This member no longer exists.");
+      if (member.status !== "approved") throw new FlashError("Only approved members can be added to the Team Board.");
+      if (include && !MEMBER_CATEGORIES.includes(category as (typeof MEMBER_CATEGORIES)[number])) {
+        throw new FlashError("Choose a category for the Team Board.");
+      }
+
+      member.includeInTeamBoard = include;
+      if (include) member.teamCategory = category;
+      await member.save();
+
+      let team = await Team.findOne({ member: member._id }).catch(() => null);
+      if (!team) team = await Team.findOne({ email: member.email.toLowerCase() });
+
+      if (!include) {
+        // Leave the profile in place (a lecturer's edits, Scopus data, etc. aren't lost) - just hide it.
+        if (team) {
+          team.isActive = false;
+          await team.save();
+        }
+        return;
+      }
+
+      if (team) {
+        team.category = category as (typeof MEMBER_CATEGORIES)[number];
+        team.isActive = true;
+        team.member = member._id;
+        if (!team.photo && member.photo) team.photo = member.photo;
+        await team.save();
+      } else {
+        let slug = slugify(member.name) || "member";
+        if (await Team.exists({ slug })) slug = `${slug}-${crypto.randomBytes(2).toString("hex")}`;
+        await Team.create({
+          name: member.name,
+          slug,
+          position: member.approvedAs ?? member.requestedAs,
+          category,
+          email: member.email.toLowerCase(),
+          photo: member.photo,
+          member: member._id,
+          isActive: true,
+        });
+      }
+    },
+    {
+      success: include ? "Added to the Team Board." : "Removed from the Team Board.",
+      error: "Couldn't update the Team Board. Please try again.",
+    },
+  );
+  revalidatePath("/admin/members");
+  revalidatePath("/admin/team");
+  revalidatePath("/team");
 }
 
 export async function resendCardEmailAction(formData: FormData) {

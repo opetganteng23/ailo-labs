@@ -7,7 +7,7 @@ export function SiteFooter() {
       <div className="wrap">
         <div className="foot-grid">
           <div className="foot-brand">
-            <Image src="/logo-horizontal.png" alt="AILO" width={160} height={40} style={{ height: 36, width: "auto" }} />
+            <Image src="/logo-horizontal-light.png" alt="AILO" width={160} height={40} style={{ height: 36, width: "auto" }} />
             <p>AI Learning For Optimization, a Center of Excellence under Telkom University, Bandung.</p>
           </div>
           <div className="foot-col">
@@ -33,6 +33,7 @@ export function SiteFooter() {
             <ul>
               <li><Link href="/contact">Contact form</Link></li>
               <li><a href="mailto:ailo@telkomuniversity.ac.id">ailo@telkomuniversity.ac.id</a></li>
+              <li><span>+62 22 756 4108</span></li>
               <li><span>Gedung TULT, Telkom University</span></li>
               <li><span>Bandung, Jawa Barat</span></li>
             </ul>

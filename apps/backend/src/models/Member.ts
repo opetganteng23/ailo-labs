@@ -42,6 +42,11 @@ const memberSchema = new Schema(
     },
     reviewedBy: { type: Schema.Types.ObjectId, ref: "User" },
     reviewedAt: Date,
+    // Admin-controlled visibility on the public Team page (§12-14 of the eval doc).
+    // Separate from `showProfilePublicly` (the member's own consent at registration) -
+    // an admin decides who actually appears, and can take someone off again.
+    includeInTeamBoard: { type: Boolean, default: false, index: true },
+    teamCategory: { type: String, enum: MEMBER_CATEGORIES },
   },
   { timestamps: true },
 );

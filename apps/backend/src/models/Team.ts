@@ -36,6 +36,9 @@ const teamSchema = new Schema(
     // Edits a lecturer made from the dosen dashboard, applied once an admin approves them.
     pendingChanges: { type: Schema.Types.Mixed },
     pendingSince: Date,
+    // Set when this profile was created from Admin -> Members -> "Include in Team Board",
+    // so toggling it again finds the same profile instead of creating a duplicate.
+    member: { type: Schema.Types.ObjectId, ref: "Member", index: true },
   },
   { timestamps: true },
 );

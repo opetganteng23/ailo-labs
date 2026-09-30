@@ -17,6 +17,7 @@ type TeamItem = {
   profiles?: Record<string, string | undefined>;
   isActive?: boolean;
   pendingSince?: Date;
+  member?: string;
 };
 
 export default async function AdminTeamPage({ searchParams }: { searchParams: Promise<{ category?: string }> }) {
@@ -127,6 +128,7 @@ export default async function AdminTeamPage({ searchParams }: { searchParams: Pr
                     Hidden
                   </span>
                 )}
+                {item.member && <span className="msg-source" style={{ fontSize: 11 }}>From Member</span>}
               </div>
               <div style={{ display: "flex", gap: 6, fontSize: 12, color: "#6b7573" }}>{links.length === 0 ? "No profile links yet" : `${links.length} profile link${links.length === 1 ? "" : "s"}`}</div>
               <div style={{ display: "flex", gap: 8, paddingTop: 12, borderTop: "1px solid #eeece6" }}>
