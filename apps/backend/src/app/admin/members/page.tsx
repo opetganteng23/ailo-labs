@@ -47,7 +47,7 @@ export default async function AdminMembersPage({
     .filter((m) => m.status === current)
     .filter((m) => !query || `${m.name} ${m.email}`.toLowerCase().includes(query));
 
-  const selected = (id ? all.find((m) => m._id === id) : items[0]) ?? null;
+  const selected = (id ? all.find((m) => String(m._id) === id) : items[0]) ?? null;
   const baseUrl = selected?.cardId ? await getBaseUrl() : null;
 
   return (

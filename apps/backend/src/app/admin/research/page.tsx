@@ -53,7 +53,7 @@ export default async function AdminResearchPage({
     .filter((r) => current === "all" || r.status === current)
     .filter((r) => !query || r.title.toLowerCase().includes(query));
 
-  const editing = panel === "edit" && id ? all.find((r) => r._id === id) : undefined;
+  const editing = panel === "edit" && id ? all.find((r) => String(r._id) === id) : undefined;
   const drawerBase = `/admin/research?status=${current}${q ? `&q=${q}` : ""}`;
 
   return (
