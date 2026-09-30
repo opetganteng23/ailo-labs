@@ -12,6 +12,9 @@ const researchSchema = new Schema(
     status: { type: String, enum: ["draft", "review", "published"], default: "draft", index: true },
     owner: { type: Schema.Types.ObjectId, ref: "User", index: true },
     reviewNote: String,
+    publishedAt: Date,
+    /** True when an admin picked the date by hand instead of using the publish moment. */
+    publishedAtManual: { type: Boolean, default: false },
   },
   { timestamps: true },
 );

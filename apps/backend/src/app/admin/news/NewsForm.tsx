@@ -28,8 +28,17 @@ type NewsFormProps = {
     tags?: string[];
     images?: string[];
     source5W1H?: { what?: string; who?: string; when?: string; where?: string; why?: string; how?: string };
+    publishedAt?: string;
+    publishedAtManual?: boolean;
   };
 };
+
+function toDateInputValue(iso?: string) {
+  if (!iso) return "";
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return "";
+  return d.toISOString().slice(0, 10);
+}
 
 // Every 5W+1H answer is needed to generate a complete draft (QA NEWS-01/02).
 const FIVE_W_1_H = [
@@ -68,6 +77,8 @@ export function NewsForm({
   const [draft, setDraft] = useState(initial?.content ?? "");
   const [draftVersion, setDraftVersion] = useState(0);
   const [status, setStatus] = useState(forReview ? "review" : initial?.status ?? "draft");
+  const [dateMode, setDateMode] = useState<"auto" | "manual">(initial?.publishedAtManual ? "manual" : "auto");
+  const [manualDate, setManualDate] = useState(toDateInputValue(initial?.publishedAt));
   const [category, setCategory] = useState(initial?.category ?? (categories.includes("General") ? "General" : categories[0] ?? ""));
   const [contentMode, setContentMode] = useState<"ai" | "manual">(
     initial && !Object.values(initial.source5W1H ?? {}).some((v) => v?.trim()) && initial.content ? "manual" : "ai",
@@ -181,6 +192,8 @@ export function NewsForm({
     <form action={mode === "edit" ? updateAction : createAction}>
       {mode === "edit" && initial && <input type="hidden" name="id" value={initial._id} />}
       <input type="hidden" name="status" value={status} />
+      <input type="hidden" name="dateMode" value={dateMode} />
+      <input type="hidden" name="publishedAtManual" value={manualDate} />
       <input type="hidden" name="tags" value={tags.join(",")} />
       <input type="hidden" name="image" value={cover} />
 
@@ -215,13 +228,12 @@ export function NewsForm({
                 id="summary"
                 name="summary"
                 required
-                maxLength={500}
                 rows={4}
                 placeholder="Ringkas berita dalam 1-3 kalimat..."
                 value={summary}
                 onChange={(e) => setSummary(e.target.value)}
               />
-              <span style={{ fontSize: 12, color: "#6b7573", alignSelf: "flex-end" }}>{summary.length} / 500</span>
+              <span style={{ fontSize: 12, color: "#6b7573", alignSelf: "flex-end" }}>{summary.length} characters</span>
             </div>
           </section>
 
@@ -340,6 +352,28 @@ export function NewsForm({
                   {s === "draft" ? "Draft" : s === "review" ? "Review" : "Published"}
                 </button>
               ))}
+            </div>
+            <div className="admin2-field" style={{ marginTop: 16 }}>
+              <label>Publish date</label>
+              <div className="admin2-radio-group" role="radiogroup" aria-label="Publish date mode">
+                <button type="button" className={dateMode === "auto" ? "active" : ""} onClick={() => setDateMode("auto")}>
+                  Automatic
+                </button>
+                <button type="button" className={dateMode === "manual" ? "active" : ""} onClick={() => setDateMode("manual")}>
+                  Manual
+                </button>
+              </div>
+              {dateMode === "auto" ? (
+                <p style={{ margin: "8px 0 0", fontSize: 12.5, color: "#6b7573" }}>Uses the moment this article is first published.</p>
+              ) : (
+                <input
+                  type="date"
+                  aria-label="Publish date"
+                  style={{ marginTop: 8 }}
+                  value={manualDate}
+                  onChange={(e) => setManualDate(e.target.value)}
+                />
+              )}
             </div>
           </section>
           )}

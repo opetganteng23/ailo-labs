@@ -31,13 +31,27 @@ function readProject(formData: FormData) {
   };
 }
 
+/** Manual date override: "manual" + a date input, or "auto" to keep using the publish moment. */
+function readManualDate(formData: FormData): Date | undefined {
+  if (formData.get("dateMode") !== "manual") return undefined;
+  const raw = String(formData.get("publishedAtManual") ?? "").trim();
+  if (!raw) return undefined;
+  const date = new Date(raw);
+  return Number.isNaN(date.getTime()) ? undefined : date;
+}
+
+function isManualDate(formData: FormData): boolean {
+  return formData.get("dateMode") === "manual" && Boolean(String(formData.get("publishedAtManual") ?? "").trim());
+}
+
 export async function createProjectAction(formData: FormData) {
   await requireAdmin();
   const ok = await withFlash(
     async () => {
       const data = readProject(formData);
+      const manualDate = readManualDate(formData);
       await connectToDatabase();
-      await Project.create({ ...data, slug: slugify(data.title) });
+      await Project.create({ ...data, slug: slugify(data.title), publishedAt: manualDate ?? new Date(), publishedAtManual: isManualDate(formData) });
     },
     { success: "Project saved.", error: "Couldn't save the project. Please try again." },
   );
@@ -51,9 +65,17 @@ export async function updateProjectAction(formData: FormData) {
   const ok = await withFlash(
     async () => {
       const data = readProject(formData);
+      const manualDate = readManualDate(formData);
       await connectToDatabase();
+      const existing = await Project.findById(id).lean<{ publishedAt?: Date }>();
+      if (!existing) throw new FlashError("This project no longer exists.");
       // An admin saving a lecturer's submission publishes it.
-      await Project.findByIdAndUpdate(id, { ...data, publishStatus: "published" });
+      await Project.findByIdAndUpdate(id, {
+        ...data,
+        publishStatus: "published",
+        publishedAt: manualDate ?? existing.publishedAt ?? new Date(),
+        publishedAtManual: isManualDate(formData),
+      });
     },
     { success: "Changes saved.", error: "Couldn't save your changes. Please try again." },
   );

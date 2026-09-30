@@ -46,6 +46,19 @@ function readTags(formData: FormData): string[] {
     .filter(Boolean);
 }
 
+/** Manual date override: "manual" + a date input, or "auto" to keep using the publish moment. */
+function readManualDate(formData: FormData): Date | undefined {
+  if (formData.get("dateMode") !== "manual") return undefined;
+  const raw = String(formData.get("publishedAtManual") ?? "").trim();
+  if (!raw) return undefined;
+  const date = new Date(raw);
+  return Number.isNaN(date.getTime()) ? undefined : date;
+}
+
+function isManualDate(formData: FormData): boolean {
+  return formData.get("dateMode") === "manual" && Boolean(String(formData.get("publishedAtManual") ?? "").trim());
+}
+
 export async function generateDraftAction(_prevState: unknown, formData: FormData) {
   const draft = formatDraftFromFiveW1H({
     what: String(formData.get("what") ?? ""),
@@ -66,13 +79,15 @@ export async function createNewsAction(formData: FormData) {
     async () => {
       const article = readArticle(formData);
       const status = readStatus(formData);
+      const manualDate = readManualDate(formData);
       await connectToDatabase();
       await News.create({
         ...article,
         slug: slugify(article.title),
         tags: readTags(formData),
         status,
-        publishedAt: status === "published" ? new Date() : undefined,
+        publishedAt: status === "published" ? (manualDate ?? new Date()) : undefined,
+        publishedAtManual: isManualDate(formData),
         author: session.sub,
         images: formData.get("image") ? [String(formData.get("image"))] : [],
         source5W1H: read5W1H(formData),
@@ -93,6 +108,7 @@ export async function updateNewsAction(formData: FormData) {
     async () => {
       const article = readArticle(formData);
       const status = readStatus(formData);
+      const manualDate = readManualDate(formData);
       const id = String(formData.get("id"));
       await connectToDatabase();
       const existing = await News.findById(id).lean<{ publishedAt?: Date }>();
@@ -101,7 +117,8 @@ export async function updateNewsAction(formData: FormData) {
         ...article,
         tags: readTags(formData),
         status,
-        publishedAt: status === "published" ? existing.publishedAt ?? new Date() : undefined,
+        publishedAt: status === "published" ? (manualDate ?? existing.publishedAt ?? new Date()) : undefined,
+        publishedAtManual: isManualDate(formData),
         images: formData.get("image") ? [String(formData.get("image"))] : [],
         source5W1H: read5W1H(formData),
       });

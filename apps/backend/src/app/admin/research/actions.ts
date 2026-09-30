@@ -31,13 +31,32 @@ function readResearch(formData: FormData) {
   };
 }
 
+/** Manual date override: "manual" + a date input, or "auto" to keep using the publish moment. */
+function readManualDate(formData: FormData): Date | undefined {
+  if (formData.get("dateMode") !== "manual") return undefined;
+  const raw = String(formData.get("publishedAtManual") ?? "").trim();
+  if (!raw) return undefined;
+  const date = new Date(raw);
+  return Number.isNaN(date.getTime()) ? undefined : date;
+}
+
+function isManualDate(formData: FormData): boolean {
+  return formData.get("dateMode") === "manual" && Boolean(String(formData.get("publishedAtManual") ?? "").trim());
+}
+
 export async function createResearchAction(formData: FormData) {
   await requireAdmin();
   const ok = await withFlash(
     async () => {
       const data = readResearch(formData);
+      const manualDate = readManualDate(formData);
       await connectToDatabase();
-      await Research.create({ ...data, slug: slugify(data.title) });
+      await Research.create({
+        ...data,
+        slug: slugify(data.title),
+        publishedAt: data.status === "published" ? (manualDate ?? new Date()) : undefined,
+        publishedAtManual: isManualDate(formData),
+      });
     },
     { success: "Research saved.", error: "Couldn't save the research item. Please try again." },
   );
@@ -51,8 +70,15 @@ export async function updateResearchAction(formData: FormData) {
   const ok = await withFlash(
     async () => {
       const data = readResearch(formData);
+      const manualDate = readManualDate(formData);
       await connectToDatabase();
-      await Research.findByIdAndUpdate(id, data);
+      const existing = await Research.findById(id).lean<{ publishedAt?: Date }>();
+      if (!existing) throw new FlashError("This research item no longer exists.");
+      await Research.findByIdAndUpdate(id, {
+        ...data,
+        publishedAt: data.status === "published" ? (manualDate ?? existing.publishedAt ?? new Date()) : undefined,
+        publishedAtManual: isManualDate(formData),
+      });
     },
     { success: "Changes saved.", error: "Couldn't save your changes. Please try again." },
   );

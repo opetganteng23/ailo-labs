@@ -7,14 +7,23 @@ import { Project } from "@/models/Project";
 
 export const dynamic = "force-dynamic";
 
-type ProjectItem = { _id: string; title: string; slug: string; description: string; status: "planned" | "ongoing" | "completed"; images?: string[] };
+type ProjectItem = {
+  _id: string;
+  title: string;
+  slug: string;
+  description: string;
+  status: "planned" | "ongoing" | "completed";
+  images?: string[];
+  publishedAt?: string;
+  createdAt?: string;
+};
 
 const STATUS_LABEL: Record<string, string> = { planned: "Planned", ongoing: "Ongoing", completed: "Completed" };
 const STATUS_CLASS: Record<string, string> = { planned: "status-planned", ongoing: "status-ongoing", completed: "status-completed" };
 
 export default async function ProjectsListPage() {
   await connectToDatabase();
-  const items = (await Project.find({ publishStatus: { $ne: "review" } }).sort({ createdAt: -1 }).lean()) as unknown as ProjectItem[];
+  const items = (await Project.find({ publishStatus: { $ne: "review" } }).sort({ publishedAt: -1, createdAt: -1 }).lean()) as unknown as ProjectItem[];
 
   return (
     <>
@@ -47,6 +56,11 @@ export default async function ProjectsListPage() {
                   <span className={`pstatus ${STATUS_CLASS[item.status]}`}>{STATUS_LABEL[item.status]}</span>
                 </div>
                 <h3>{item.title}</h3>
+                {(item.publishedAt ?? item.createdAt) && (
+                  <span className="rcard-date">
+                    {new Date(item.publishedAt ?? item.createdAt!).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" })}
+                  </span>
+                )}
                 <p>{item.description}</p>
               </div>
             </Link>

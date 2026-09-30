@@ -18,6 +18,8 @@ export default async function AdminProjectEditPage({ params }: { params: Promise
     content: string;
     status: string;
     images?: string[];
+    publishedAt?: Date;
+    publishedAtManual?: boolean;
   }>();
   if (!item) notFound();
 
@@ -39,6 +41,8 @@ export default async function AdminProjectEditPage({ params }: { params: Promise
           content: item.content,
           status: item.status,
           image: item.images?.[0],
+          publishedAt: item.publishedAt ? item.publishedAt.toISOString() : undefined,
+          publishedAtManual: item.publishedAtManual,
         }}
       />
     </div>

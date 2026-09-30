@@ -17,6 +17,8 @@ const newsSchema = new Schema(
       index: true,
     },
     publishedAt: Date,
+    /** True when an admin picked the date by hand instead of using the publish moment. */
+    publishedAtManual: { type: Boolean, default: false },
     author: { type: Schema.Types.ObjectId, ref: "User" },
     source5W1H: {
       what: String,

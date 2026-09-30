@@ -23,6 +23,8 @@ export default async function AdminNewsEditPage({ params }: { params: Promise<{ 
     tags?: string[];
     images?: string[];
     source5W1H?: { what?: string; who?: string; when?: string; where?: string; why?: string; how?: string };
+    publishedAt?: Date;
+    publishedAtManual?: boolean;
   }>();
   if (!item) notFound();
 
@@ -48,6 +50,8 @@ export default async function AdminNewsEditPage({ params }: { params: Promise<{ 
           tags: item.tags,
           images: item.images,
           source5W1H: item.source5W1H,
+          publishedAt: item.publishedAt ? item.publishedAt.toISOString() : undefined,
+          publishedAtManual: item.publishedAtManual,
         }}
       />
     </div>

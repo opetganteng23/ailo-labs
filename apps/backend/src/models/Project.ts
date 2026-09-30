@@ -15,6 +15,9 @@ const projectSchema = new Schema(
     publishStatus: { type: String, enum: ["review", "published"], default: "published", index: true },
     owner: { type: Schema.Types.ObjectId, ref: "User", index: true },
     reviewNote: String,
+    publishedAt: Date,
+    /** True when an admin picked the date by hand instead of using the publish moment. */
+    publishedAtManual: { type: Boolean, default: false },
   },
   { timestamps: true },
 );

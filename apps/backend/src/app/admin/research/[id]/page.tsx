@@ -18,6 +18,8 @@ export default async function AdminResearchEditPage({ params }: { params: Promis
     content: string;
     status: string;
     image?: string;
+    publishedAt?: Date;
+    publishedAtManual?: boolean;
   }>();
   if (!item) notFound();
 
@@ -39,6 +41,8 @@ export default async function AdminResearchEditPage({ params }: { params: Promis
           content: item.content,
           status: item.status,
           image: item.image,
+          publishedAt: item.publishedAt ? item.publishedAt.toISOString() : undefined,
+          publishedAtManual: item.publishedAtManual,
         }}
       />
     </div>

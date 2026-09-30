@@ -23,8 +23,17 @@ type ProjectFormProps = {
     content: string;
     status: string;
     image?: string;
+    publishedAt?: string;
+    publishedAtManual?: boolean;
   };
 };
+
+function toDateInputValue(iso?: string) {
+  if (!iso) return "";
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return "";
+  return d.toISOString().slice(0, 10);
+}
 
 /** Full-page project editor - same layout family as News/Research (§2 of the eval doc). */
 export function ProjectForm({
@@ -36,6 +45,8 @@ export function ProjectForm({
   forReview = false,
 }: ProjectFormProps) {
   const [status, setStatus] = useState(initial?.status ?? defaultStatus ?? "planned");
+  const [dateMode, setDateMode] = useState<"auto" | "manual">(initial?.publishedAtManual ? "manual" : "auto");
+  const [manualDate, setManualDate] = useState(toDateInputValue(initial?.publishedAt));
   const [title, setTitle] = useState(initial?.title ?? "");
   const [description, setDescription] = useState(initial?.description ?? "");
   const [cover, setCover] = useState(initial?.image ?? "");
@@ -52,6 +63,8 @@ export function ProjectForm({
     <form action={mode === "edit" ? updateAction : createAction}>
       {mode === "edit" && initial && <input type="hidden" name="id" value={initial._id} />}
       <input type="hidden" name="status" value={status} />
+      <input type="hidden" name="dateMode" value={dateMode} />
+      <input type="hidden" name="publishedAtManual" value={manualDate} />
 
       <div className="admin2-editor-grid">
         <div style={{ display: "flex", flexDirection: "column", gap: 24, minWidth: 0 }}>
@@ -70,8 +83,7 @@ export function ProjectForm({
                 id="description"
                 name="description"
                 required
-                maxLength={500}
-                rows={2}
+                rows={3}
                 placeholder="One or two sentences shown on cards"
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
@@ -100,6 +112,24 @@ export function ProjectForm({
               ))}
             </div>
             {forReview && <p style={{ margin: "10px 0 0", fontSize: 13, lineHeight: 1.55, color: "#5b6664" }}>An admin reviews it before it goes live.</p>}
+            {!forReview && (
+              <div className="admin2-field" style={{ marginTop: 16 }}>
+                <label>Publish date</label>
+                <div className="admin2-radio-group" role="radiogroup" aria-label="Publish date mode">
+                  <button type="button" className={dateMode === "auto" ? "active" : ""} onClick={() => setDateMode("auto")}>
+                    Automatic
+                  </button>
+                  <button type="button" className={dateMode === "manual" ? "active" : ""} onClick={() => setDateMode("manual")}>
+                    Manual
+                  </button>
+                </div>
+                {dateMode === "auto" ? (
+                  <p style={{ margin: "8px 0 0", fontSize: 12.5, color: "#6b7573" }}>Uses the moment this project is saved.</p>
+                ) : (
+                  <input type="date" aria-label="Publish date" style={{ marginTop: 8 }} value={manualDate} onChange={(e) => setManualDate(e.target.value)} />
+                )}
+              </div>
+            )}
           </section>
 
           <section className="admin2-section pad-sm">

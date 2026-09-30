@@ -132,7 +132,7 @@ const RESEARCH_ICONS = [
 
 async function buildResearchCards(): Promise<CardResult> {
   const items = await Research.find({ status: "published" })
-    .sort({ createdAt: -1 })
+    .sort({ publishedAt: -1, createdAt: -1 })
     .limit(4)
     .select("title description slug")
     .lean<{ title: string; description: string; slug: string }[]>();
@@ -161,7 +161,7 @@ const PROJECT_STATUS_CLASS: Record<string, string> = { planned: "status-planned"
 
 async function buildProjectCards(): Promise<CardResult> {
   const items = await Project.find({ publishStatus: { $ne: "review" } })
-    .sort({ createdAt: -1 })
+    .sort({ publishedAt: -1, createdAt: -1 })
     .limit(4)
     .select("title description slug status images")
     .lean<{ title: string; description: string; slug: string; status: string; images?: string[] }[]>();

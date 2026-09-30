@@ -7,11 +7,11 @@ import { Research } from "@/models/Research";
 
 export const dynamic = "force-dynamic";
 
-type ResearchItem = { _id: string; title: string; slug: string; description: string; image?: string };
+type ResearchItem = { _id: string; title: string; slug: string; description: string; image?: string; publishedAt?: string; createdAt?: string };
 
 export default async function ResearchListPage() {
   await connectToDatabase();
-  const items = (await Research.find({ status: "published" }).sort({ createdAt: -1 }).lean()) as unknown as ResearchItem[];
+  const items = (await Research.find({ status: "published" }).sort({ publishedAt: -1, createdAt: -1 }).lean()) as unknown as ResearchItem[];
 
   return (
     <>
@@ -36,6 +36,11 @@ export default async function ResearchListPage() {
                 <span className="num">{String(i + 1).padStart(2, "0")}</span>
               </div>
               <h3>{item.title}</h3>
+              {(item.publishedAt ?? item.createdAt) && (
+                <span className="rcard-date">
+                  {new Date(item.publishedAt ?? item.createdAt!).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" })}
+                </span>
+              )}
               <p>{item.description}</p>
               <span className="explore">Explore</span>
             </Link>

@@ -23,8 +23,17 @@ type ResearchFormProps = {
     content: string;
     status: string;
     image?: string;
+    publishedAt?: string;
+    publishedAtManual?: boolean;
   };
 };
+
+function toDateInputValue(iso?: string) {
+  if (!iso) return "";
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return "";
+  return d.toISOString().slice(0, 10);
+}
 
 /** Full-page research editor - same layout family as the News editor (§2 of the eval doc). */
 export function ResearchForm({
@@ -35,6 +44,8 @@ export function ResearchForm({
   forReview = false,
 }: ResearchFormProps) {
   const [status, setStatus] = useState(forReview ? "review" : initial?.status ?? "draft");
+  const [dateMode, setDateMode] = useState<"auto" | "manual">(initial?.publishedAtManual ? "manual" : "auto");
+  const [manualDate, setManualDate] = useState(toDateInputValue(initial?.publishedAt));
   const [title, setTitle] = useState(initial?.title ?? "");
   const [description, setDescription] = useState(initial?.description ?? "");
   const [cover, setCover] = useState(initial?.image ?? "");
@@ -51,6 +62,8 @@ export function ResearchForm({
     <form action={mode === "edit" ? updateAction : createAction}>
       {mode === "edit" && initial && <input type="hidden" name="id" value={initial._id} />}
       <input type="hidden" name="status" value={status} />
+      <input type="hidden" name="dateMode" value={dateMode} />
+      <input type="hidden" name="publishedAtManual" value={manualDate} />
 
       <div className="admin2-editor-grid">
         <div style={{ display: "flex", flexDirection: "column", gap: 24, minWidth: 0 }}>
@@ -69,8 +82,7 @@ export function ResearchForm({
                 id="description"
                 name="description"
                 required
-                maxLength={500}
-                rows={2}
+                rows={3}
                 placeholder="One or two sentences shown on cards"
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
@@ -103,6 +115,22 @@ export function ResearchForm({
                     {s === "draft" ? "Draft" : s === "review" ? "Review" : "Published"}
                   </button>
                 ))}
+              </div>
+              <div className="admin2-field" style={{ marginTop: 16 }}>
+                <label>Publish date</label>
+                <div className="admin2-radio-group" role="radiogroup" aria-label="Publish date mode">
+                  <button type="button" className={dateMode === "auto" ? "active" : ""} onClick={() => setDateMode("auto")}>
+                    Automatic
+                  </button>
+                  <button type="button" className={dateMode === "manual" ? "active" : ""} onClick={() => setDateMode("manual")}>
+                    Manual
+                  </button>
+                </div>
+                {dateMode === "auto" ? (
+                  <p style={{ margin: "8px 0 0", fontSize: 12.5, color: "#6b7573" }}>Uses the moment this item is first published.</p>
+                ) : (
+                  <input type="date" aria-label="Publish date" style={{ marginTop: 8 }} value={manualDate} onChange={(e) => setManualDate(e.target.value)} />
+                )}
               </div>
             </section>
           )}
