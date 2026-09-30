@@ -1147,14 +1147,25 @@ footer.site .foot-bottom .socials .admin-link { color: #7fa9ab; }
 .pcard p { font-size: 14.5px; color: #5b6469; line-height: 1.55; margin: 0; }
 
 .news-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 24px; }
-.ncard { display: flex; flex-direction: column; gap: 18px; text-decoration: none; color: var(--ink); transition: transform 0.25s ease; }
-.ncard:hover { transform: translateY(-6px); }
-.nthumb { aspect-ratio: 16/9; border-radius: 18px; background: linear-gradient(135deg, var(--teal) 0%, var(--teal-dark) 100%); background-size: cover !important; position: relative; overflow: hidden; box-shadow: 0 8px 20px -8px rgba(18, 24, 27, 0.28); transition: box-shadow 0.25s ease; }
-.ncard:hover .nthumb { box-shadow: 0 18px 32px -10px rgba(18, 24, 27, 0.4); }
+.ncard {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  text-decoration: none;
+  color: var(--ink);
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 22px;
+  padding: 16px 16px 22px;
+  box-shadow: 0 8px 20px -12px rgba(18, 24, 27, 0.18);
+  transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+}
+.ncard:hover { transform: translateY(-6px); box-shadow: 0 20px 36px -14px rgba(18, 24, 27, 0.28); border-color: var(--teal); }
+.nthumb { aspect-ratio: 16/9; border-radius: 16px; background: linear-gradient(135deg, var(--teal) 0%, var(--teal-dark) 100%); background-size: cover !important; position: relative; overflow: hidden; }
 .nthumb::after { content: ""; position: absolute; inset: 0; background-size: cover; background-position: center; background-image: inherit; transform: scale(1); transition: transform 0.35s ease; }
 .ncard:hover .nthumb::after { transform: scale(1.06); }
 .nthumb .tag { position: absolute; top: 16px; left: 16px; background: var(--orange); color: #1e1206; font-size: 12px; font-weight: 700; padding: 5px 12px; border-radius: 999px; z-index: 1; }
-.nbody { display: flex; flex-direction: column; gap: 8px; }
+.nbody { display: flex; flex-direction: column; gap: 8px; padding: 0 6px; }
 .nbody .date { font-size: 13px; color: #6b7573; font-weight: 600; }
 .nbody h3 { font-size: 20px; font-weight: 800; line-height: 1.3; margin: 0; }
 .nbody p { font-size: 14.5px; color: #5b6469; line-height: 1.55; margin: 0; }
