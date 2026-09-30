@@ -12,7 +12,10 @@ function readFlashCookie(): Toast[] {
   if (!match) return [];
   document.cookie = `${FLASH_COOKIE}=; path=/; max-age=0`;
   try {
-    const parsed = JSON.parse(decodeURIComponent(match.slice(FLASH_COOKIE.length + 1)));
+    let raw = match.slice(FLASH_COOKIE.length + 1);
+    // Tolerate values encoded once or twice.
+    for (let i = 0; i < 3 && /%[0-9A-F]{2}/i.test(raw); i++) raw = decodeURIComponent(raw);
+    const parsed = JSON.parse(raw);
     const list: unknown[] = Array.isArray(parsed) ? parsed : [parsed];
     return list.flatMap((item) => {
       const t = item as { id?: unknown; type?: unknown; message?: unknown };

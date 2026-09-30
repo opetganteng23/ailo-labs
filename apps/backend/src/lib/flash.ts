@@ -14,13 +14,15 @@ export async function flash(type: FlashType, message: string) {
   const store = await cookies();
   let queue: unknown[] = [];
   try {
-    const existing = JSON.parse(decodeURIComponent(store.get(FLASH_COOKIE)?.value ?? "[]"));
+    const existing = JSON.parse(store.get(FLASH_COOKIE)?.value ?? "[]");
     queue = Array.isArray(existing) ? existing : [];
   } catch {
     queue = [];
   }
   queue.push({ type, message, id: Date.now() + queue.length });
-  store.set(FLASH_COOKIE, encodeURIComponent(JSON.stringify(queue.slice(-4))), {
+  // Next.js URI-encodes cookie values itself; encoding here too made the
+  // browser-side JSON unreadable and every toast was silently dropped.
+  store.set(FLASH_COOKIE, JSON.stringify(queue.slice(-4)), {
     path: "/",
     maxAge: 60,
     sameSite: "lax",

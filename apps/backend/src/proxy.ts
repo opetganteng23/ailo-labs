@@ -22,6 +22,13 @@ async function handleAdminAuth(request: NextRequest): Promise<NextResponse> {
   const token = request.cookies.get(SESSION_COOKIE)?.value;
   const session = token ? await verifySessionToken(token) : null;
 
+  if (session?.role === "dosen") {
+    const dosenUrl = request.nextUrl.clone();
+    dosenUrl.pathname = "/dosen";
+    dosenUrl.search = "";
+    return NextResponse.redirect(dosenUrl);
+  }
+
   if (!session || !isAdminRole(session.role)) {
     const loginUrl = request.nextUrl.clone();
     loginUrl.pathname = "/admin/login";
