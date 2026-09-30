@@ -97,8 +97,9 @@ export function BookingForm({
   }
 
   function isPast(day: number): boolean {
-    const d = new Date(year, month, day, 23, 59, 59);
-    return d < new Date();
+    // The day is over once its last bookable slot has started.
+    const lastSlot = new Date(year, month, day, START_HOUR + SLOT_COUNT - 1);
+    return lastSlot <= new Date();
   }
 
   function slotBooked(day: number, hourOffset: number): boolean {
@@ -287,12 +288,14 @@ export function BookingForm({
                 {Array.from({ length: SLOT_COUNT }, (_, i) => {
                   const hour = START_HOUR + i;
                   const booked = selectedDay ? slotBooked(selectedDay.getDate(), i) : false;
+                  // Today's slots that already started can't be booked.
+                  const gone = selectedDay ? new Date(selectedDay.getFullYear(), selectedDay.getMonth(), selectedDay.getDate(), hour) <= new Date() : false;
                   const on = selectedSlots.includes(i);
                   let cls = "booking-slot";
-                  if (booked) cls += " booked";
+                  if (booked || gone) cls += " booked";
                   else if (on) cls += " selected";
                   return (
-                    <button key={i} type="button" className={cls} disabled={!selectedDay || booked} onClick={() => toggleSlot(i)}>
+                    <button key={i} type="button" className={cls} disabled={!selectedDay || booked || gone} onClick={() => toggleSlot(i)}>
                       {String(hour).padStart(2, "0")}:00
                     </button>
                   );
