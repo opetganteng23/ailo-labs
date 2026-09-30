@@ -241,8 +241,8 @@ async function buildNewsCards(): Promise<CardResult> {
   const items = await News.find({ status: "published" })
     .sort({ publishedAt: -1 })
     .limit(3)
-    .select("title summary slug category publishedAt")
-    .lean<{ title: string; summary: string; slug: string; category: string; publishedAt?: Date }[]>();
+    .select("title summary slug category publishedAt images")
+    .lean<{ title: string; summary: string; slug: string; category: string; publishedAt?: Date; images?: string[] }[]>();
 
   if (items.length === 0) return { html: null, count: 0 };
 
@@ -251,9 +251,11 @@ async function buildNewsCards(): Promise<CardResult> {
       const date = item.publishedAt
         ? new Date(item.publishedAt).toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric" })
         : "";
+      const image = item.images?.[0];
+      const thumbStyle = image ? ` style="background-image:url('${escapeHtml(image)}');background-size:cover;background-position:center"` : "";
       return `
       <a class="ncard" href="/news/${escapeHtml(item.slug)}">
-        <div class="nthumb"><span class="tag">${escapeHtml(item.category)}</span></div>
+        <div class="nthumb"${thumbStyle}><span class="tag">${escapeHtml(item.category)}</span></div>
         <div class="nbody">
           <div class="date">${escapeHtml(date)}</div>
           <h3>${escapeHtml(item.title)}</h3>
