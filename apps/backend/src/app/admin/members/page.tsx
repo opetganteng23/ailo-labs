@@ -150,7 +150,7 @@ export default async function AdminMembersPage({
                     <span style={{ color: "#6b7573" }}>Affiliation</span>
                     <span style={{ fontWeight: 600 }}>{selected.affiliation}</span>
                     <span style={{ color: "#6b7573" }}>Phone</span>
-                    <span style={{ fontWeight: 600 }}>{selected.phone}</span>
+                    <span style={{ fontWeight: 600 }}>{selected.phone || "Not provided"}</span>
                     <span style={{ color: "#6b7573" }}>Submitted</span>
                     <span style={{ fontWeight: 600 }}>{new Date(selected.createdAt).toLocaleString("en-GB")}</span>
                     <span style={{ color: "#6b7573" }}>Proof</span>
