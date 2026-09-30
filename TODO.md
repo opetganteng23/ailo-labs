@@ -16,7 +16,7 @@ Sumber: `AILO_Evaluasi_Menyeluruh_dan_Rencana_Perbaikan.md` (evaluasi 30 Sep 202
 - [x] §5 Balas pesan admin: loading (useActionState + useFormStatus spinner), sukses/gagal panel, penerima, status Sent, waktu kirim - DONE & VERIFIED on live (633a049): replied to the test message, saw "Reply berhasil dikirim. Recipient: ... Status: Sent Sent: ..."
 - [x] §9 Logo tanpa kotak/latar di semua tempat - DONE & VERIFIED on live (633a049): checked computed background-color is transparent on admin sidebar, auth card, minimal header (Join), homepage header and footer. Left as-is: favicon (needs a raster icon) and the member card's own white ID-badge slot (intentional card design, not a stray background)
 - [x] §6 (moved up, same code change) Message status NEW/OPENED/REPLIED/CLOSED + reply timeline - DONE & VERIFIED on live (633a049): status went New -> Opened (on click) -> Replied after sending, timeline showed the reply
-- [x] Bugfix found while testing §15/§3 above: `/admin/members` and `/admin/research` compared a Mongoose ObjectId to a string with `===` (always false), so clicking any member/research row other than the tab's first item silently showed "Select an applicant to review" / never opened the edit drawer. Fixed both to compare via `String(_id) === id` (commit pending) - verified: typecheck+lint+build pass; re-tested opening a specific pending member by ID on a fresh hard navigation, needs one more live re-check after this deploy
+- [x] Bugfix found while testing §15/§3 above: `/admin/members` and `/admin/research` compared a Mongoose ObjectId to a string with `===` (always false), so clicking any member/research row other than the tab's first item silently showed "Select an applicant to review" / never opened the edit drawer. Fixed both to compare via `String(_id) === id` - DONE & VERIFIED on live (c842069): opened an approved member and a pending member by their distinct IDs via fresh hard navigation, both showed the correct detail panel; opened a research item's edit drawer via its ID link, drawer opened with its data
 - [ ] §12-14 Team Board dari Members: checkbox Include + kategori; hanya yang dicentang tampil publik; bisa dikeluarkan lagi
 - [ ] §7-8 Header & footer: satu komponen masing-masing (tinggi/logo/jarak seragam, homepage ikut)
 - [ ] §1 Editor lengkap: justify, H1-H4, font size/family, warna teks, highlight, code block, nested list
@@ -47,3 +47,5 @@ Sumber: `AILO_Evaluasi_Menyeluruh_dan_Rencana_Perbaikan.md` (evaluasi 30 Sep 202
 ## Data uji di produksi (hapus kalau sudah tidak dipakai)
 - Member + akun dosen "Rizky Fadhillah (QA Test)" rizkyfadhillahx@gmail.com, kartu AILO-2026-0001, password dosen `QaTest-2026!`
 - Booking QA 30 Sep 2026 09:00-10:00 (approved)
+- Contact message "QA Test Contact" / "QA test message - safe to ignore" - replied to during §5/§6 test, can be closed/deleted
+- (Cleaned up) test pending applicant "QA ValidUntil Test ..." - rejected during verification, no longer in the database
