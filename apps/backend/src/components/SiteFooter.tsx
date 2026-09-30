@@ -7,7 +7,7 @@ export function SiteFooter() {
       <div className="wrap">
         <div className="foot-grid">
           <div className="foot-brand">
-            <Image src="/logo-horizontal-light.png" alt="AILO" width={160} height={40} style={{ height: 36, width: "auto" }} />
+            <Image src="/logo-horizontal.png" alt="AILO" width={160} height={40} style={{ height: 36, width: "auto" }} />
             <p>AI Learning For Optimization, a Center of Excellence under Telkom University, Bandung.</p>
           </div>
           <div className="foot-col">

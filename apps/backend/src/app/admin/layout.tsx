@@ -33,7 +33,7 @@ export default async function AdminLayout({ children }: { children: ReactNode })
       <aside>
         <div className="admin-brand">
           <span className="admin-brand-mark">
-            <Image src="/logo-mark-light.png" alt="AILO" width={30} height={30} style={{ objectFit: "contain", width: "100%", height: "100%" }} />
+            <Image src="/logo-square.png" alt="AILO" width={30} height={30} style={{ objectFit: "contain", width: "100%", height: "100%" }} />
           </span>
           <div className="admin-brand-text">
             <span className="admin-brand-title">AILO Admin</span>
