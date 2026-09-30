@@ -37,7 +37,8 @@ export default async function AdminMessagesPage({
     SiteSettings.findOne({ key: "global" }).lean<{ contact?: { email?: string } }>(),
   ]);
 
-  const replyFrom = settings?.contact?.email || process.env.APP_EMAIL || "ailo@telkomuniversity.ac.id";
+  // Replies are sent through the mail account, so show that address.
+  const replyFrom = process.env.APP_EMAIL || settings?.contact?.email || "ailo@telkomuniversity.ac.id";
 
   const query = (q ?? "").toLowerCase().trim();
   const filtered = all
