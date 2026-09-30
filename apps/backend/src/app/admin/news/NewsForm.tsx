@@ -215,13 +215,13 @@ export function NewsForm({
                 id="summary"
                 name="summary"
                 required
-                maxLength={280}
-                rows={3}
-                placeholder="Ringkas berita dalam 1-2 kalimat..."
+                maxLength={500}
+                rows={4}
+                placeholder="Ringkas berita dalam 1-3 kalimat..."
                 value={summary}
                 onChange={(e) => setSummary(e.target.value)}
               />
-              <span style={{ fontSize: 12, color: "#6b7573", alignSelf: "flex-end" }}>{summary.length} / 280</span>
+              <span style={{ fontSize: 12, color: "#6b7573", alignSelf: "flex-end" }}>{summary.length} / 500</span>
             </div>
           </section>
 
