@@ -3,6 +3,7 @@ import Link from "next/link";
 import { ConfirmSubmit } from "@/components/ConfirmSubmit";
 import { connectToDatabase } from "@/lib/mongodb";
 import { Research } from "@/models/Research";
+import { User } from "@/models/User";
 
 import { deleteResearchAction } from "./actions";
 import { ResearchDrawer } from "./ResearchDrawer";
@@ -16,11 +17,12 @@ type ResearchItem = {
   description: string;
   content: string;
   image?: string;
-  status: "draft" | "published";
+  status: "draft" | "review" | "published";
+  owner?: string;
   updatedAt: string;
 };
 
-const STATUSES = ["all", "published", "draft"] as const;
+const STATUSES = ["all", "review", "published", "draft"] as const;
 
 export default async function AdminResearchPage({
   searchParams,
@@ -33,8 +35,15 @@ export default async function AdminResearchPage({
   await connectToDatabase();
   const all = (await Research.find().sort({ updatedAt: -1 }).lean()) as unknown as ResearchItem[];
 
+  // Lecturer names for items submitted from the dosen dashboard.
+  const ownerIds = Array.from(new Set(all.map((r) => r.owner).filter(Boolean).map(String)));
+  const owners = new Map(
+    ((await User.find({ _id: { $in: ownerIds } }).select("name").lean()) as unknown as { _id: string; name: string }[]).map((u) => [String(u._id), u.name]),
+  );
+
   const counts = {
     all: all.length,
+    review: all.filter((r) => r.status === "review").length,
     published: all.filter((r) => r.status === "published").length,
     draft: all.filter((r) => r.status === "draft").length,
   };
@@ -69,7 +78,7 @@ export default async function AdminResearchPage({
           <div className="admin2-tabs">
             {STATUSES.map((s) => (
               <Link key={s} href={`/admin/research?status=${s}`} className={`admin2-tab${current === s ? " active" : ""}`}>
-                {s === "all" ? "All" : s.charAt(0).toUpperCase() + s.slice(1)} <span className="count">{counts[s]}</span>
+                {s === "all" ? "All" : s === "review" ? "In review" : s.charAt(0).toUpperCase() + s.slice(1)} <span className="count">{counts[s]}</span>
               </Link>
             ))}
           </div>
@@ -105,12 +114,15 @@ export default async function AdminResearchPage({
                 <Link href={`${drawerBase}&panel=edit&id=${item._id}`} style={{ fontSize: 15, fontWeight: 700, color: "#15201f" }}>
                   {item.title}
                 </Link>
-                <span style={{ fontSize: 13, color: "#6b7573" }}>/research/{item.slug}</span>
+                <span style={{ fontSize: 13, color: "#6b7573" }}>
+                  /research/{item.slug}
+                  {item.owner && owners.get(String(item.owner)) && <span className="msg-source" style={{ marginLeft: 8, fontSize: 11 }}>By {owners.get(String(item.owner))}</span>}
+                </span>
               </div>
             </div>
             <span className={`admin2-pill ${item.status}`}>
               <span className="dot" />
-              {item.status === "draft" ? "Draft" : "Published"}
+              {item.status === "draft" ? "Draft" : item.status === "review" ? "In review" : "Published"}
             </span>
             <span style={{ fontSize: 14, color: "#5b6664" }}>{new Date(item.updatedAt).toLocaleDateString("en-GB")}</span>
             <div style={{ display: "flex", gap: 4 }}>

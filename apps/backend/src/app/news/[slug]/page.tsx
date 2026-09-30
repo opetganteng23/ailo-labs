@@ -24,7 +24,7 @@ export default async function NewsDetailPage({ params }: { params: Promise<{ slu
 
   return (
     <>
-      <SiteHeader />
+      <SiteHeader backHref="/news" />
       <main className="wrap page-head" style={{ maxWidth: 820 }}>
         <Link href="/news" className="sec-link" style={{ fontSize: 14 }}>
           News

@@ -34,6 +34,14 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ success: false, error: "Invalid email or password." }, { status: 401 });
     }
 
+    // Only lecturers and admins sign in now; old public "borrower" accounts are retired.
+    if (user.role === "borrower") {
+      return NextResponse.json(
+        { success: false, error: "Accounts are only for AILO lecturers and admins. Lab bookings now use your member card number - no sign-in needed." },
+        { status: 403 },
+      );
+    }
+
     const token = await createSessionToken({
       sub: user._id.toString(),
       email: user.email,

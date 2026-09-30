@@ -38,7 +38,7 @@ export default async function TeamDetailPage({ params }: { params: Promise<{ slu
 
   return (
     <>
-      <SiteHeader />
+      <SiteHeader backHref="/team" />
       <main className="wrap page-head" style={{ maxWidth: 820 }}>
         <Link href="/team" className="sec-link" style={{ fontSize: 14 }}>
           Team

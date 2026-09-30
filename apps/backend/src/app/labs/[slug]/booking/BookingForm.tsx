@@ -29,15 +29,11 @@ export function BookingForm({
   labSlug,
   labName,
   devices,
-  defaultName,
-  defaultEmail,
 }: {
   labId: string;
   labSlug: string;
   labName: string;
   devices: Device[];
-  defaultName?: string;
-  defaultEmail?: string;
 }) {
   const [mode, setMode] = useState<"room" | "device">(devices.length > 0 ? "room" : "room");
   const [deviceId, setDeviceId] = useState<string>("");
@@ -46,10 +42,10 @@ export function BookingForm({
   const [selectedDay, setSelectedDay] = useState<Date | null>(null);
   const [selectedSlots, setSelectedSlots] = useState<number[]>([]);
 
-  const [name, setName] = useState(defaultName ?? "");
-  const [email, setEmail] = useState(defaultEmail ?? "");
-  const [nim, setNim] = useState("");
-  const [institution, setInstitution] = useState("");
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
+  const [cardId, setCardId] = useState("");
   const [people, setPeople] = useState("1");
   const [purpose, setPurpose] = useState("");
   const [letter, setLetter] = useState("");
@@ -126,7 +122,16 @@ export function BookingForm({
       ? `${String(START_HOUR + selectedSlots[0]).padStart(2, "0")}:00 - ${String(START_HOUR + selectedSlots[selectedSlots.length - 1] + 1).padStart(2, "0")}:00`
       : "Pick a time";
 
-  const canSubmit = !!(selectedDay && selectedSlots.length > 0 && name.trim() && email.trim() && institution.trim() && purpose.trim().length >= 5 && agreeRules);
+  const canSubmit = !!(
+    selectedDay &&
+    selectedSlots.length > 0 &&
+    name.trim() &&
+    email.trim() &&
+    phone.trim().length >= 8 &&
+    cardId.trim().length >= 4 &&
+    purpose.trim().length >= 5 &&
+    agreeRules
+  );
 
   async function submit() {
     if (!selectedDay || selectedSlots.length === 0) return;
@@ -145,8 +150,8 @@ export function BookingForm({
         body: JSON.stringify({
           borrowerName: name,
           borrowerEmail: email,
-          borrowerPhone: nim || "-",
-          institution,
+          borrowerPhone: phone,
+          memberCardId: cardId,
           lab: labId,
           device: mode === "device" && deviceId ? deviceId : undefined,
           purpose: `${purpose}${people && people !== "1" ? ` (${people} people)` : ""}${letter ? `\nRequest letter: ${letter}` : ""}`,
@@ -177,7 +182,7 @@ export function BookingForm({
         </span>
         <h2 style={{ margin: 0, fontSize: 28, fontWeight: 800 }}>Request sent</h2>
         <p style={{ margin: 0, fontSize: 16, lineHeight: 1.6, color: "#4e5957" }}>
-          {labName} · {selectedDay?.toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long", year: "numeric" })} · {timeLabel}. You&apos;ll get an email when the lab admin responds.
+          {labName} · {selectedDay?.toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long", year: "numeric" })} · {timeLabel}. When the lab admin approves it, you&apos;ll get an email at {email} with a QR code to show at the lab. The QR only works during your booked time.
         </p>
         <div style={{ display: "flex", gap: 12, paddingTop: 8 }}>
           <Link href="/" className="join-btn join-btn-dark">
@@ -305,20 +310,28 @@ export function BookingForm({
           </div>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: 16 }}>
             <div className="join-field">
-              <label htmlFor="bname">Full name</label>
+              <label htmlFor="bname">
+                Full name<span className="req">*</span>
+              </label>
               <input id="bname" type="text" value={name} onChange={(e) => setName(e.target.value)} required />
             </div>
             <div className="join-field">
-              <label htmlFor="bemail">Email</label>
+              <label htmlFor="bcard">
+                Member card number<span className="req">*</span>
+              </label>
+              <input id="bcard" type="text" placeholder="AILO-2026-0001" value={cardId} onChange={(e) => setCardId(e.target.value.toUpperCase())} required />
+            </div>
+            <div className="join-field">
+              <label htmlFor="bemail">
+                Email<span className="req">*</span> <span style={{ fontWeight: 500, color: "#6b7573" }}>- the one on your member card</span>
+              </label>
               <input id="bemail" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
             </div>
             <div className="join-field">
-              <label htmlFor="bid">NIM / NIP</label>
-              <input id="bid" type="text" value={nim} onChange={(e) => setNim(e.target.value)} />
-            </div>
-            <div className="join-field">
-              <label htmlFor="binst">Institution</label>
-              <input id="binst" type="text" value={institution} onChange={(e) => setInstitution(e.target.value)} required />
+              <label htmlFor="bwa">
+                WhatsApp<span className="req">*</span>
+              </label>
+              <input id="bwa" type="tel" placeholder="+62 8…" value={phone} onChange={(e) => setPhone(e.target.value)} required />
             </div>
             <div className="join-field">
               <label htmlFor="bppl">Number of people</label>
@@ -326,7 +339,9 @@ export function BookingForm({
             </div>
           </div>
           <div className="join-field">
-            <label htmlFor="bpurpose">Purpose</label>
+            <label htmlFor="bpurpose">
+              Purpose<span className="req">*</span>
+            </label>
             <textarea id="bpurpose" rows={3} placeholder="e.g. Training a vision model for my thesis" value={purpose} onChange={(e) => setPurpose(e.target.value)} required />
           </div>
           <div className="join-field">
@@ -358,7 +373,7 @@ export function BookingForm({
               <circle cx="12" cy="12" r="9" />
               <path d="M12 8h.01M11 12h1v5h1" />
             </svg>
-            <span>Not confirmed yet. The lab admin approves or declines and emails you.</span>
+            <span>Not confirmed yet. Once the lab admin approves, you&apos;ll get an email with a QR code to enter the lab. It&apos;s only valid during the time you booked.</span>
           </div>
           <div style={{ padding: "0 24px 22px", display: "flex", flexDirection: "column", gap: 10 }}>
             <label style={{ display: "flex", gap: 10, alignItems: "flex-start", fontSize: 14, lineHeight: 1.5 }}>

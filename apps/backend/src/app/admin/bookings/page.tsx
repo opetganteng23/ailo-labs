@@ -33,6 +33,9 @@ export default async function AdminBookingsPage({
         _id: string;
         borrowerName: string;
         borrowerEmail: string;
+        borrowerPhone?: string;
+        memberCardId?: string;
+        accessCode?: string;
         status: "pending" | "approved" | "rejected" | "completed" | "cancelled";
         startDateTime: string;
         endDateTime: string;
@@ -55,7 +58,7 @@ export default async function AdminBookingsPage({
       <div className="admin2-header">
         <div>
           <h1>Bookings</h1>
-          <p>Approve or reject lab and device requests from visitors.</p>
+          <p>Requests from AILO members (checked against their member card). Approving emails the member an access QR valid only for the booked time.</p>
         </div>
         <div className="admin2-actions">
           <a href={`/api/admin/bookings/export?status=${currentStatus}`} className="admin2-btn outline">
@@ -145,6 +148,10 @@ export default async function AdminBookingsPage({
               <div style={{ display: "flex", flexDirection: "column" }}>
                 <span style={{ fontWeight: 700 }}>{b.borrowerName}</span>
                 <span style={{ fontSize: 13, color: "#6b7573" }}>{b.borrowerEmail}</span>
+                <span style={{ fontSize: 12.5, color: "#6b7573" }}>
+                  {b.memberCardId ? <span className="msg-source" style={{ fontFamily: "ui-monospace, Menlo, monospace" }}>{b.memberCardId}</span> : "No member card"}
+                  {b.borrowerPhone && b.borrowerPhone !== "-" ? ` · WA ${b.borrowerPhone}` : ""}
+                </span>
               </div>
               <span>{b.lab?.name ?? "-"}</span>
               <span>{b.device?.name ?? "-"}</span>
@@ -173,6 +180,11 @@ export default async function AdminBookingsPage({
                       </button>
                     </form>
                   </div>
+                )}
+                {b.status === "approved" && b.accessCode && (
+                  <a href={`/booking-pass/${b.accessCode}`} target="_blank" rel="noopener noreferrer" style={{ fontSize: 13, fontWeight: 700, color: "#00809d" }}>
+                    Open access pass
+                  </a>
                 )}
               </div>
             </div>

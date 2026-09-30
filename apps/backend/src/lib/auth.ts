@@ -6,7 +6,7 @@ import { NextResponse } from "next/server";
 export const SESSION_COOKIE = "ailo_session";
 const ALG = "HS256";
 
-export type Role = "super_admin" | "admin" | "staff_lab" | "borrower";
+export type Role = "super_admin" | "admin" | "staff_lab" | "dosen" | "borrower";
 
 const ADMIN_ROLES: Role[] = ["super_admin", "admin", "staff_lab"];
 

@@ -1,14 +1,6 @@
-import { SiteFooter } from "@/components/SiteFooter";
-import { SiteHeader } from "@/components/SiteHeader";
+import { redirect } from "next/navigation";
 
-import { RegisterForm } from "./RegisterForm";
-
+/** Public accounts are gone: visitors join as members instead (no login needed). */
 export default function RegisterPage() {
-  return (
-    <>
-      <SiteHeader />
-      <RegisterForm />
-      <SiteFooter />
-    </>
-  );
+  redirect("/join");
 }

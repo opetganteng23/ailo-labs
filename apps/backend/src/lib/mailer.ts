@@ -5,6 +5,8 @@ type MailInput = {
   subject: string;
   text: string;
   html?: string;
+  /** Inline images referenced from `html` as <img src="cid:..."> (email clients block data: URIs). */
+  attachments?: { filename: string; content: Buffer; cid?: string; contentType?: string }[];
 };
 
 /**
@@ -38,6 +40,7 @@ export async function sendMail(input: MailInput): Promise<{ sent: boolean }> {
       subject: input.subject,
       text: input.text,
       html: input.html,
+      attachments: input.attachments,
     });
 
     return { sent: true };

@@ -14,7 +14,7 @@ const STATUS_CLASS: Record<string, string> = { planned: "status-planned", ongoin
 
 export default async function ProjectsListPage() {
   await connectToDatabase();
-  const items = (await Project.find().sort({ createdAt: -1 }).lean()) as unknown as ProjectItem[];
+  const items = (await Project.find({ publishStatus: { $ne: "review" } }).sort({ createdAt: -1 }).lean()) as unknown as ProjectItem[];
 
   return (
     <>

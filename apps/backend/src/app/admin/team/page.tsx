@@ -8,7 +8,16 @@ import { deleteTeamAction } from "./actions";
 
 export const dynamic = "force-dynamic";
 
-type TeamItem = { _id: string; name: string; position: string; category?: string; photo?: string; profiles?: Record<string, string | undefined> };
+type TeamItem = {
+  _id: string;
+  name: string;
+  position: string;
+  category?: string;
+  photo?: string;
+  profiles?: Record<string, string | undefined>;
+  isActive?: boolean;
+  pendingSince?: Date;
+};
 
 export default async function AdminTeamPage({ searchParams }: { searchParams: Promise<{ category?: string }> }) {
   const { category } = await searchParams;
@@ -106,11 +115,23 @@ export default async function AdminTeamPage({ searchParams }: { searchParams: Pr
                 {item.category && (
                   <span style={{ fontSize: 12, fontWeight: 700, color: "#0b454c", background: "#e3f1f1", borderRadius: 999, padding: "4px 10px" }}>{item.category}</span>
                 )}
+                {item.pendingSince && (
+                  <span className="admin2-pill review" style={{ fontSize: 12 }}>
+                    <span className="dot" />
+                    Changes to review
+                  </span>
+                )}
+                {item.isActive === false && (
+                  <span className="admin2-pill draft" style={{ fontSize: 12 }}>
+                    <span className="dot" />
+                    Hidden
+                  </span>
+                )}
               </div>
               <div style={{ display: "flex", gap: 6, fontSize: 12, color: "#6b7573" }}>{links.length === 0 ? "No profile links yet" : `${links.length} profile link${links.length === 1 ? "" : "s"}`}</div>
               <div style={{ display: "flex", gap: 8, paddingTop: 12, borderTop: "1px solid #eeece6" }}>
-                <Link href={`/admin/team/${item._id}`} className="admin2-btn outline" style={{ height: 38, fontSize: 13 }}>
-                  Edit
+                <Link href={`/admin/team/${item._id}`} className={item.pendingSince ? "admin2-btn" : "admin2-btn outline"} style={{ height: 38, fontSize: 13 }}>
+                  {item.pendingSince ? "Review changes" : "Edit"}
                 </Link>
                 <form action={deleteTeamAction} style={{ marginLeft: "auto" }}>
                   <input type="hidden" name="id" value={item._id} />

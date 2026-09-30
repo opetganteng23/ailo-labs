@@ -23,7 +23,7 @@ export default async function ResearchDetailPage({ params }: { params: Promise<{
 
   return (
     <>
-      <SiteHeader />
+      <SiteHeader backHref="/research" />
       <main className="wrap page-head" style={{ maxWidth: 820 }}>
         <Link href="/research" className="sec-link" style={{ fontSize: 14 }}>
           Research

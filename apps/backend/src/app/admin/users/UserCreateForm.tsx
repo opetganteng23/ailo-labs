@@ -88,7 +88,7 @@ export function UserCreateForm({ members }: { members: MemberOption[] }) {
                       <strong>{m.name}</strong>
                       <span>
                         {m.email}
-                        {m.hasAccount ? " · has a borrower account" : ""}
+                        {m.hasAccount ? " · already has an account" : ""}
                       </span>
                     </span>
                   </button>
@@ -125,6 +125,7 @@ export function UserCreateForm({ members }: { members: MemberOption[] }) {
         <select id="role" name="role" defaultValue="admin">
           <option value="admin">Admin</option>
           <option value="staff_lab">Staff (lab)</option>
+          <option value="dosen">Dosen (lecturer dashboard)</option>
           <option value="super_admin">Super admin</option>
         </select>
       </div>

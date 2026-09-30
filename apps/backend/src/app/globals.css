@@ -500,6 +500,45 @@ textarea { min-height: 100px; }
 .dash-team { --accent: #b4530f; --tint: #fbe6d4; }
 .dash-labs { --accent: #4e5957; --tint: #eeece6; }
 
+/* ===== Booking pass (opened from the approval QR) ===== */
+.pass-shell { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 24px 16px; background: linear-gradient(160deg, #00495a 0%, #006680 100%); }
+.pass-card { width: min(440px, 100%); background: #fff; border-radius: 22px; padding: 24px; display: flex; flex-direction: column; gap: 18px; box-shadow: 0 30px 60px -24px rgba(0, 0, 0, 0.45); }
+.pass-brand { display: flex; align-items: center; gap: 10px; }
+.pass-brand span:last-child { display: flex; flex-direction: column; }
+.pass-brand strong { font-size: 15px; }
+.pass-brand small { font-size: 12px; color: #6b7573; }
+.pass-mark { width: 38px; height: 38px; border-radius: 10px; background: #f1eee8; display: flex; align-items: center; justify-content: center; }
+.pass-status { border-radius: 16px; padding: 22px; display: flex; flex-direction: column; gap: 4px; text-align: center; color: #fff; }
+.pass-status-title { font-size: 30px; font-weight: 800; letter-spacing: -0.01em; }
+.pass-status-sub { font-size: 14px; opacity: 0.92; }
+.pass-valid { background: #1f8a55; }
+.pass-early { background: #d9731f; }
+.pass-expired { background: #6b7573; }
+.pass-invalid { background: #c0392b; }
+.pass-person { display: flex; align-items: center; gap: 14px; }
+.pass-person img, .pass-avatar { width: 72px; height: 90px; border-radius: 12px; object-fit: cover; flex-shrink: 0; }
+.pass-avatar { background: #f37121; color: #1e1206; font-size: 28px; font-weight: 800; display: flex; align-items: center; justify-content: center; }
+.pass-person span { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.pass-person strong { font-size: 18px; }
+.pass-person small { font-size: 13px; color: #5b6664; font-family: ui-monospace, Menlo, monospace; }
+.pass-details { display: grid; grid-template-columns: 90px minmax(0, 1fr); gap: 8px 12px; margin: 0; padding: 16px; background: #f7f5f0; border-radius: 14px; font-size: 14px; }
+.pass-details dt { color: #6b7573; }
+.pass-details dd { margin: 0; font-weight: 700; overflow-wrap: anywhere; }
+.pass-foot { margin: 0; font-size: 12.5px; color: #6b7573; text-align: center; }
+
+/* ===== Interior page header: logo + Back ===== */
+.back-btn { display: inline-flex; align-items: center; gap: 6px; height: 42px; padding: 0 18px 0 12px; border: 1px solid #cfccc3; border-radius: 10px; background: #fff; font-size: 14px; font-weight: 700; color: var(--ink); text-decoration: none; transition: background-color .15s, border-color .15s, color .15s; }
+.back-btn:hover { background: var(--hover-bg); border-color: var(--hover-border); color: var(--hover-ink); }
+header.site.site-back .row { justify-content: space-between; }
+
+.review-diff { display: grid; grid-template-columns: 170px minmax(0, 1fr) minmax(0, 1fr); border: 1px solid #e3e1da; border-radius: 12px; overflow: hidden; font-size: 14px; }
+.review-diff-head { padding: 10px 14px; background: #f7f6f2; font-size: 12px; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; color: #5b6664; }
+.review-diff-row { display: contents; }
+.review-diff-row > span { padding: 10px 14px; border-top: 1px solid #eeece6; white-space: pre-line; overflow-wrap: anywhere; }
+.review-diff-row > span:first-child { font-weight: 600; color: #3b4947; }
+.review-diff-row.changed > span:last-child { background: #eef8f1; color: #14532d; font-weight: 600; }
+.review-diff img { width: 56px; height: 56px; border-radius: 10px; object-fit: cover; }
+
 /* ===== Public contact page ===== */
 .contact-layout { display: grid; grid-template-columns: minmax(0, 1fr) 320px; gap: 32px; align-items: start; }
 @media (max-width: 900px) { .contact-layout { grid-template-columns: 1fr; } }

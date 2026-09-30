@@ -35,6 +35,19 @@ export default async function AdminDashboardPage() {
     Member.countDocuments({ status: "pending" }),
     ContactMessage.countDocuments({ isRead: false, archived: false }),
   ]);
+  // Lecturer submissions waiting for an admin (dosen dashboard).
+  const [researchReview, projectReview, newsReview, profileReview] = await Promise.all([
+    Research.countDocuments({ status: "review" }),
+    Project.countDocuments({ publishStatus: "review" }),
+    News.countDocuments({ status: "review" }),
+    Team.countDocuments({ pendingSince: { $exists: true, $ne: null } }),
+  ]);
+  const reviewItems = [
+    { label: "Research", n: researchReview, href: "/admin/research?status=review" },
+    { label: "Projects", n: projectReview, href: "/admin/projects" },
+    { label: "News", n: newsReview, href: "/admin/news?status=review" },
+    { label: "Team profiles", n: profileReview, href: "/admin/team" },
+  ].filter((r) => r.n > 0);
 
   // Each kind of card has its own accent from the AILO palette so it can be
   // recognised at a glance (QA UMUM-03).
@@ -57,6 +70,22 @@ export default async function AdminDashboardPage() {
           <p>An overview of what needs attention across the site.</p>
         </div>
       </div>
+
+      {reviewItems.length > 0 && (
+        <section className="admin2-banner" style={{ marginBottom: 20 }}>
+          <div style={{ display: "flex", flexDirection: "column", gap: 2, flexGrow: 1 }}>
+            <strong>Waiting for your review</strong>
+            <span className="sub">Submitted by lecturers from their dashboard.</span>
+          </div>
+          <div className="admin2-banner-steps">
+            {reviewItems.map((r) => (
+              <Link key={r.label} href={r.href} style={{ color: "inherit", fontWeight: 700 }}>
+                {r.label} · {r.n}
+              </Link>
+            ))}
+          </div>
+        </section>
+      )}
 
       <div className="dash-grid">
         {cards.map((c) => (

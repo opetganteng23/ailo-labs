@@ -44,7 +44,7 @@ export function SiteFooter() {
             <span className="social-pending" title="Coming soon">Instagram</span>
             <span className="social-pending" title="Coming soon">LinkedIn</span>
             <span className="social-pending" title="Coming soon">YouTube</span>
-            <Link href="/admin/login" className="admin-link">Admin login</Link>
+            <Link href="/login" className="admin-link">Lecturer &amp; admin login</Link>
           </div>
         </div>
       </div>

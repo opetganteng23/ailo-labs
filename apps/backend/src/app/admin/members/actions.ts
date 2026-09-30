@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 
 import { getSession, isAdminRole } from "@/lib/auth";
 import { flash, FlashError, withFlash } from "@/lib/flash";
+import { provisionDosenAccount } from "@/lib/dosenAccount";
 import { sendMail } from "@/lib/mailer";
 import { generateCardId } from "@/lib/memberCard";
 import { connectToDatabase } from "@/lib/mongodb";
@@ -24,6 +25,7 @@ async function reportMail(sent: boolean, success: string) {
 export async function approveMemberAction(formData: FormData) {
   const session = await requireAdmin();
   let mailSent = true;
+  let dosenNote = "";
   const ok = await withFlash(
     async () => {
       await connectToDatabase();
@@ -58,10 +60,18 @@ export async function approveMemberAction(formData: FormData) {
         text: `Halo ${member.name},\n\nSelamat! Pengajuan keanggotaan AILO Anda sebagai "${member.approvedAs}" telah disetujui.\n\nID kartu: ${cardId}\nMasa berlaku: ${validText}\n\nLihat kartu digital Anda di: /verify/${cardId}\n\nTerima kasih,\nTim AILO`,
       });
       mailSent = mail.sent;
+
+      if (member.approvedAs === "Dosen") {
+        const account = await provisionDosenAccount(member);
+        dosenNote = account.skipped
+          ? `No dosen account created (${account.skipped}).`
+          : `${account.created ? "Dosen account created" : "Account upgraded to dosen"}${account.mailSent ? "; a set-password link was emailed." : ", but the set-password email could not be sent."}`;
+      }
     },
     { success: "Member approved and card issued.", error: "Couldn't approve the member. Please try again." },
   );
   if (ok) await reportMail(mailSent, "Member approved.");
+  if (ok && dosenNote) await flash(dosenNote.includes("could not") ? "error" : "success", dosenNote);
   revalidatePath("/admin/members");
 }
 

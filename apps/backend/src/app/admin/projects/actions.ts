@@ -52,7 +52,8 @@ export async function updateProjectAction(formData: FormData) {
     async () => {
       const data = readProject(formData);
       await connectToDatabase();
-      await Project.findByIdAndUpdate(id, data);
+      // An admin saving a lecturer's submission publishes it.
+      await Project.findByIdAndUpdate(id, { ...data, publishStatus: "published" });
     },
     { success: "Changes saved.", error: "Couldn't save your changes. Please try again." },
   );
@@ -70,6 +71,20 @@ export async function deleteProjectAction(formData: FormData) {
     { success: "Project deleted.", error: "Couldn't delete the project. Please try again." },
   );
   revalidatePath("/admin/projects");
+}
+
+/** Publishes a project a lecturer submitted for review. */
+export async function publishProjectAction(formData: FormData) {
+  await requireAdmin();
+  await withFlash(
+    async () => {
+      await connectToDatabase();
+      await Project.findByIdAndUpdate(String(formData.get("id")), { publishStatus: "published" });
+    },
+    { success: "Project published.", error: "Couldn't publish the project. Please try again." },
+  );
+  revalidatePath("/admin/projects");
+  revalidatePath("/projects");
 }
 
 /** Called directly (not as a <form> action) when a card is dropped into a different board column. */

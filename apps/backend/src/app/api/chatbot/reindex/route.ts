@@ -49,7 +49,7 @@ export async function POST(request: NextRequest) {
     const [news, research, projects, team, labs] = await Promise.all([
       enabled.has("news") ? News.find({ status: "published" }).lean() : [],
       enabled.has("research") ? Research.find({ status: "published" }).lean() : [],
-      enabled.has("project") ? Project.find().lean() : [],
+      enabled.has("project") ? Project.find({ publishStatus: { $ne: "review" } }).lean() : [],
       enabled.has("team") ? Team.find({ isActive: true }).lean() : [],
       enabled.has("lab") ? Lab.find({ isActive: true }).lean() : [],
     ]);

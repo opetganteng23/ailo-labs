@@ -6,6 +6,7 @@ const newsSchema = new Schema(
     slug: { type: String, required: true, unique: true, trim: true },
     summary: { type: String, required: true, trim: true },
     content: { type: String, required: true },
+    reviewNote: String,
     images: { type: [String], default: [] },
     category: { type: String, required: true, trim: true },
     tags: { type: [String], default: [] },

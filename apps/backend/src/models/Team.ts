@@ -33,6 +33,9 @@ const teamSchema = new Schema(
       lastFetchedAt: Date,
     },
     isActive: { type: Boolean, default: true, index: true },
+    // Edits a lecturer made from the dosen dashboard, applied once an admin approves them.
+    pendingChanges: { type: Schema.Types.Mixed },
+    pendingSince: Date,
   },
   { timestamps: true },
 );

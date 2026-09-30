@@ -66,6 +66,7 @@ export default async function AdminUserEditPage({ params }: { params: Promise<{ 
             <select id="role" name="role" defaultValue={user.role} disabled={isSelf}>
               <option value="admin">Admin</option>
               <option value="staff_lab">Staff (lab)</option>
+              <option value="dosen">Dosen (lecturer dashboard)</option>
               <option value="super_admin">Super admin</option>
             </select>
           </div>

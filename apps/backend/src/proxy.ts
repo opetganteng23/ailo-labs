@@ -51,19 +51,19 @@ async function handleAdminAuth(request: NextRequest): Promise<NextResponse> {
   return response;
 }
 
-async function handleBookingAuth(request: NextRequest): Promise<NextResponse | null> {
+/** The lecturer dashboard is only for "dosen" accounts; everyone else signs in first. */
+async function handleDosenAuth(request: NextRequest): Promise<NextResponse> {
   const { pathname } = request.nextUrl;
   const token = request.cookies.get(SESSION_COOKIE)?.value;
   const session = token ? await verifySessionToken(token) : null;
 
-  if (!session) {
+  if (!session || session.role !== "dosen") {
     const loginUrl = request.nextUrl.clone();
-    loginUrl.pathname = "/login";
-    loginUrl.search = `?next=${encodeURIComponent(pathname)}`;
+    loginUrl.pathname = session && isAdminRole(session.role) ? "/admin/dashboard" : "/login";
+    loginUrl.search = session ? "" : `?next=${encodeURIComponent(pathname)}`;
     return NextResponse.redirect(loginUrl);
   }
-
-  return null;
+  return NextResponse.next();
 }
 
 function applyCors(request: NextRequest, response: NextResponse) {
@@ -88,10 +88,8 @@ export async function proxy(request: NextRequest) {
     return handleAdminAuth(request);
   }
 
-  if (/^\/labs\/[^/]+\/booking\/?$/.test(pathname)) {
-    const redirect = await handleBookingAuth(request);
-    if (redirect) return redirect;
-    return NextResponse.next();
+  if (pathname.startsWith("/dosen")) {
+    return handleDosenAuth(request);
   }
 
   const response = request.method === "OPTIONS" ? new NextResponse(null, { status: 204 }) : NextResponse.next();
@@ -99,5 +97,5 @@ export async function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/api/:path*", "/admin/:path*", "/labs/:slug/booking"],
+  matcher: ["/api/:path*", "/admin/:path*", "/dosen/:path*"],
 };

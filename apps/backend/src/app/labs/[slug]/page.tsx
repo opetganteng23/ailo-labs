@@ -35,7 +35,7 @@ export default async function LabDetailPage({ params }: { params: Promise<{ slug
 
   return (
     <>
-      <SiteHeader />
+      <SiteHeader backHref="/labs" />
       <main className="wrap page-head">
         <Link href="/labs" className="sec-link" style={{ fontSize: 14 }}>
           Labs

@@ -8,8 +8,14 @@ import { RichTextEditor } from "@/components/RichTextEditor";
 
 import { createProjectAction, updateProjectAction } from "./actions";
 
+type FormAction = (formData: FormData) => Promise<void>;
+
 type ProjectDrawerProps = {
   mode: "create" | "edit";
+  createAction?: FormAction;
+  updateAction?: FormAction;
+  /** Lecturer mode: saving submits the project for admin review. */
+  forReview?: boolean;
   closeHref: string;
   defaultStatus?: string;
   initial?: {
@@ -23,7 +29,15 @@ type ProjectDrawerProps = {
 };
 
 /** Side panel for adding or editing a project, same pattern as the Research drawer (QA RP-03). */
-export function ProjectDrawer({ mode, closeHref, defaultStatus, initial }: ProjectDrawerProps) {
+export function ProjectDrawer({
+  mode,
+  closeHref,
+  defaultStatus,
+  initial,
+  createAction = createProjectAction,
+  updateAction = updateProjectAction,
+  forReview = false,
+}: ProjectDrawerProps) {
   const router = useRouter();
   const [status, setStatus] = useState(initial?.status ?? defaultStatus ?? "planned");
 
@@ -43,7 +57,7 @@ export function ProjectDrawer({ mode, closeHref, defaultStatus, initial }: Proje
           </button>
         </div>
 
-        <form id="project-drawer-form" action={mode === "edit" ? updateProjectAction : createProjectAction} className="drawer-body">
+        <form id="project-drawer-form" action={mode === "edit" ? updateAction : createAction} className="drawer-body">
           {mode === "edit" && initial && <input type="hidden" name="id" value={initial._id} />}
           <input type="hidden" name="status" value={status} />
 
@@ -77,11 +91,12 @@ export function ProjectDrawer({ mode, closeHref, defaultStatus, initial }: Proje
         </form>
 
         <div className="drawer-foot">
+          {forReview && <span style={{ fontSize: 13, color: "#5b6664", marginRight: "auto" }}>An admin reviews it before it goes live.</span>}
           <button type="button" className="admin2-btn ghost" onClick={close}>
             Cancel
           </button>
           <button type="submit" form="project-drawer-form" className="admin2-btn">
-            {mode === "edit" ? "Save changes" : "Create project"}
+            {forReview ? "Submit for review" : mode === "edit" ? "Save changes" : "Create project"}
           </button>
         </div>
       </div>

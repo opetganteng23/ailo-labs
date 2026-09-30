@@ -1,6 +1,6 @@
 "use client";
 
-export function LogoutButton() {
+export function LogoutButton({ redirectTo = "/admin/login" }: { redirectTo?: string }) {
   return (
     <button
       aria-label="Log out"
@@ -9,8 +9,7 @@ export function LogoutButton() {
         await fetch("/api/auth/logout", { method: "POST" });
         // Hard navigation avoids a stale router-cache render after the
         // session cookie is cleared.
-        // eslint-disable-next-line @next/next/no-location-assign-relative-destination -- intentional hard navigation, see comment above
-        window.location.href = "/admin/login";
+        window.location.href = redirectTo;
       }}
     >
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">

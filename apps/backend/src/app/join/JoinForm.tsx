@@ -4,7 +4,6 @@ import Link from "next/link";
 import { useState } from "react";
 
 import { MemberCardFront } from "@/components/MemberCardFront";
-import { PasswordInput } from "@/components/PasswordInput";
 
 const CATEGORY_DEFS = [
   { name: "Peneliti Mahasiswa", hint: "S1, S2 or S3 student doing research with AILO" },
@@ -22,8 +21,6 @@ type FormState = {
   name: string;
   email: string;
   phone: string;
-  password: string;
-  passwordConfirm: string;
   categoryIndex: number;
   studyLevel: string;
   institution: string;
@@ -47,8 +44,6 @@ const INITIAL_STATE: FormState = {
   name: "",
   email: "",
   phone: "",
-  password: "",
-  passwordConfirm: "",
   categoryIndex: 0,
   studyLevel: "S1",
   institution: "Telkom University",
@@ -124,7 +119,7 @@ export function JoinForm() {
 
   function canContinue(): boolean {
     if (step === 1)
-      return !!(state.photo && state.name.trim() && state.email.trim() && state.password.length >= 8 && state.password === state.passwordConfirm);
+      return !!(state.photo && state.name.trim() && state.email.trim());
     if (step === 3) return !!state.proofDocument;
     if (step === 4) return state.agreeTerms;
     return true;
@@ -141,7 +136,6 @@ export function JoinForm() {
           name: state.name,
           email: state.email,
           phone: state.phone || undefined,
-          password: state.password,
           affiliation: affiliation || state.institution,
           requestedAs: CATEGORY_DEFS[state.categoryIndex].name,
           photo: state.photo,
@@ -259,7 +253,7 @@ export function JoinForm() {
           <>
             <div>
               <h2 className="join-step-title">Your account</h2>
-              <p className="join-step-sub">You&apos;ll use this email to sign in and receive your member card.</p>
+              <p className="join-step-sub">We&apos;ll send your confirmation and member card to this email.</p>
             </div>
             <div style={{ display: "flex", alignItems: "center", gap: 18, padding: 16, borderRadius: 14, background: "#f7f5f0" }}>
               <label htmlFor="jphoto" className="join-photo-pick" aria-label="Upload photo">
@@ -298,15 +292,6 @@ export function JoinForm() {
                   WhatsApp <span style={{ fontWeight: 500, color: "#6b7573" }}>(optional)</span>
                 </label>
                 <input id="jwa" type="tel" placeholder="+62 8…" value={state.phone} onChange={(e) => set("phone", e.target.value)} />
-              </div>
-              <div className="join-field">
-                <label htmlFor="jpw">Password</label>
-                <PasswordInput id="jpw" placeholder="At least 8 characters" autoComplete="new-password" value={state.password} onChange={(e) => set("password", e.target.value)} />
-              </div>
-              <div className="join-field">
-                <label htmlFor="jpw2">Confirm password</label>
-                <PasswordInput id="jpw2" autoComplete="new-password" value={state.passwordConfirm} onChange={(e) => set("passwordConfirm", e.target.value)} />
-                {state.passwordConfirm && state.password !== state.passwordConfirm && <span className="error-text">Passwords don&apos;t match.</span>}
               </div>
             </div>
           </>

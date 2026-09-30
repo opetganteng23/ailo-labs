@@ -91,3 +91,42 @@ export async function deleteTeamAction(formData: FormData) {
   );
   revalidatePath("/admin/team");
 }
+
+/** Applies the profile edits a lecturer submitted from the dosen dashboard and publishes the profile. */
+export async function approveTeamChangesAction(formData: FormData) {
+  await requireAdmin();
+  const id = String(formData.get("id"));
+  await withFlash(
+    async () => {
+      await connectToDatabase();
+      const team = await Team.findById(id);
+      if (!team?.pendingChanges) throw new FlashError("There are no changes waiting for this profile.");
+      const changes = team.pendingChanges as Record<string, unknown>;
+      for (const [k, v] of Object.entries(changes)) {
+        team.set(k, v === "" ? undefined : v);
+      }
+      team.pendingChanges = undefined;
+      team.pendingSince = undefined;
+      team.isActive = true;
+      await team.save();
+    },
+    { success: "Profile changes approved and published.", error: "Couldn't approve the changes. Please try again." },
+  );
+  revalidatePath("/admin/team");
+  revalidatePath(`/admin/team/${id}`);
+  revalidatePath("/team");
+}
+
+export async function rejectTeamChangesAction(formData: FormData) {
+  await requireAdmin();
+  const id = String(formData.get("id"));
+  await withFlash(
+    async () => {
+      await connectToDatabase();
+      await Team.findByIdAndUpdate(id, { $unset: { pendingChanges: 1, pendingSince: 1 } });
+    },
+    { success: "Profile changes discarded.", error: "Couldn't discard the changes. Please try again." },
+  );
+  revalidatePath("/admin/team");
+  revalidatePath(`/admin/team/${id}`);
+}

@@ -12,15 +12,16 @@ export const dynamic = "force-dynamic";
 
 type UserRow = { _id: string; name: string; email: string; role: string; photo?: string; member?: string };
 
-const ROLE_LABEL: Record<string, string> = { super_admin: "Super admin", admin: "Admin", staff_lab: "Staff (lab)", borrower: "Borrower" };
+const ROLE_LABEL: Record<string, string> = { super_admin: "Super admin", admin: "Admin", staff_lab: "Staff (lab)", dosen: "Dosen", borrower: "Old public account" };
 const ROLE_STYLE: Record<string, { bg: string; color: string }> = {
   super_admin: { bg: "#0b454c", color: "#fff" },
   admin: { bg: "#e3f1f1", color: "#0b454c" },
   staff_lab: { bg: "#e3f1f1", color: "#0b454c" },
-  borrower: { bg: "#e1ecfa", color: "#1f4e8c" },
+  dosen: { bg: "#fbe6d4", color: "#7a3d0c" },
+  borrower: { bg: "#eeece6", color: "#6b7573" },
 };
 
-const TABS = ["all", "admins", "borrowers"] as const;
+const TABS = ["all", "admins", "dosen"] as const;
 
 export default async function AdminUsersPage({ searchParams }: { searchParams: Promise<{ tab?: string; q?: string }> }) {
   const session = await getSession();
@@ -36,13 +37,13 @@ export default async function AdminUsersPage({ searchParams }: { searchParams: P
 
   const counts = {
     all: all.length,
-    admins: all.filter((u) => u.role !== "borrower").length,
-    borrowers: all.filter((u) => u.role === "borrower").length,
+    admins: all.filter((u) => ["super_admin", "admin", "staff_lab"].includes(u.role)).length,
+    dosen: all.filter((u) => u.role === "dosen").length,
   };
 
   const query = (q ?? "").toLowerCase().trim();
   const items = all
-    .filter((u) => (currentTab === "admins" ? u.role !== "borrower" : currentTab === "borrowers" ? u.role === "borrower" : true))
+    .filter((u) => (currentTab === "admins" ? ["super_admin", "admin", "staff_lab"].includes(u.role) : currentTab === "dosen" ? u.role === "dosen" : true))
     .filter((u) => !query || `${u.name} ${u.email}`.toLowerCase().includes(query));
 
   return (
@@ -50,7 +51,7 @@ export default async function AdminUsersPage({ searchParams }: { searchParams: P
       <div className="admin2-header">
         <div>
           <h1>Users</h1>
-          <p>Admin, staff and borrower accounts.</p>
+          <p>Admin, staff and lecturer (dosen) accounts. Members and visitors don&apos;t have accounts.</p>
         </div>
         <div className="admin2-actions">
           <Link href="/admin/users/new" className="admin2-btn">
@@ -163,8 +164,11 @@ export default async function AdminUsersPage({ searchParams }: { searchParams: P
             <span style={{ fontSize: 13, lineHeight: 1.5, color: "#4e5957" }}>Content, labs, bookings and messages. No user or system settings.</span>
           </div>
           <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
-            <span style={{ alignSelf: "flex-start", fontSize: 12, fontWeight: 700, color: "#1f4e8c", background: "#e1ecfa", borderRadius: 999, padding: "4px 10px" }}>Borrower</span>
-            <span style={{ fontSize: 13, lineHeight: 1.5, color: "#4e5957" }}>Public account that can request lab and device bookings. No admin access.</span>
+            <span style={{ alignSelf: "flex-start", fontSize: 12, fontWeight: 700, color: "#7a3d0c", background: "#fbe6d4", borderRadius: 999, padding: "4px 10px" }}>Dosen</span>
+            <span style={{ fontSize: 13, lineHeight: 1.5, color: "#4e5957" }}>
+              Lecturer dashboard: their own research, projects, news drafts and team profile. Everything they submit waits for admin review. Approving a member as
+              &quot;Dosen&quot; creates this account automatically.
+            </span>
           </div>
         </section>
       </div>

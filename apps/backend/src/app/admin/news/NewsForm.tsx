@@ -9,8 +9,14 @@ import { toast } from "@/lib/toast";
 import { createNewsAction, updateNewsAction } from "./actions";
 import { addCategoryInlineAction } from "./categories/actions";
 
+type FormAction = (formData: FormData) => Promise<void>;
+
 type NewsFormProps = {
   mode?: "create" | "edit";
+  createAction?: FormAction;
+  updateAction?: FormAction;
+  /** Lecturer mode: status is fixed to "review" and categories can't be managed. */
+  forReview?: boolean;
   categories?: string[];
   initial?: {
     _id: string;
@@ -49,12 +55,19 @@ function slugify(input: string) {
     .replace(/(^-|-$)/g, "");
 }
 
-export function NewsForm({ mode = "create", initial, categories = [] }: NewsFormProps) {
+export function NewsForm({
+  mode = "create",
+  initial,
+  categories = [],
+  createAction = createNewsAction,
+  updateAction = updateNewsAction,
+  forReview = false,
+}: NewsFormProps) {
   const [title, setTitle] = useState(initial?.title ?? "");
   const [summary, setSummary] = useState(initial?.summary ?? "");
   const [draft, setDraft] = useState(initial?.content ?? "");
   const [draftVersion, setDraftVersion] = useState(0);
-  const [status, setStatus] = useState(initial?.status ?? "draft");
+  const [status, setStatus] = useState(forReview ? "review" : initial?.status ?? "draft");
   const [category, setCategory] = useState(initial?.category ?? (categories.includes("General") ? "General" : categories[0] ?? ""));
   const [contentMode, setContentMode] = useState<"ai" | "manual">(
     initial && !Object.values(initial.source5W1H ?? {}).some((v) => v?.trim()) && initial.content ? "manual" : "ai",
@@ -165,7 +178,7 @@ export function NewsForm({ mode = "create", initial, categories = [] }: NewsForm
   }
 
   return (
-    <form action={mode === "edit" ? updateNewsAction : createNewsAction}>
+    <form action={mode === "edit" ? updateAction : createAction}>
       {mode === "edit" && initial && <input type="hidden" name="id" value={initial._id} />}
       <input type="hidden" name="status" value={status} />
       <input type="hidden" name="tags" value={tags.join(",")} />
@@ -311,6 +324,14 @@ export function NewsForm({ mode = "create", initial, categories = [] }: NewsForm
         </div>
 
         <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+          {forReview ? (
+            <section className="admin2-section pad-sm">
+              <h2>Publishing</h2>
+              <p style={{ margin: 0, fontSize: 14, lineHeight: 1.55, color: "#5b6664" }}>
+                Your draft goes to the AILO admins for review. They may edit it before publishing.
+              </p>
+            </section>
+          ) : (
           <section className="admin2-section pad-sm">
             <h2>Publishing</h2>
             <div className="admin2-radio-group" role="radiogroup" aria-label="Status">
@@ -321,6 +342,7 @@ export function NewsForm({ mode = "create", initial, categories = [] }: NewsForm
               ))}
             </div>
           </section>
+          )}
 
           <section className="admin2-section pad-sm">
             <h2>Organize</h2>
@@ -329,9 +351,11 @@ export function NewsForm({ mode = "create", initial, categories = [] }: NewsForm
                 <span>
                   Category<span className="req">*</span>
                 </span>
-                <Link href="/admin/news/categories" style={{ marginLeft: "auto", fontSize: 12.5, fontWeight: 600, color: "#00809d" }}>
-                  Manage
-                </Link>
+                {!forReview && (
+                  <Link href="/admin/news/categories" style={{ marginLeft: "auto", fontSize: 12.5, fontWeight: 600, color: "#00809d" }}>
+                    Manage
+                  </Link>
+                )}
               </label>
               <select id="category" name="category" required value={category} onChange={(e) => setCategory(e.target.value)}>
                 {!categoryOptions.includes(category) && <option value="">Choose a category</option>}
@@ -341,7 +365,7 @@ export function NewsForm({ mode = "create", initial, categories = [] }: NewsForm
                   </option>
                 ))}
               </select>
-              {addingCategory ? (
+              {forReview ? null : addingCategory ? (
                 <div className="admin2-inline-add">
                   <input
                     type="text"
@@ -461,7 +485,7 @@ export function NewsForm({ mode = "create", initial, categories = [] }: NewsForm
           </section>
 
           <button type="submit" className="admin2-btn" style={{ width: "100%", justifyContent: "center" }}>
-            {mode === "edit" ? "Save changes" : "Save article"}
+            {forReview ? "Submit for review" : mode === "edit" ? "Save changes" : "Save article"}
           </button>
         </div>
       </div>

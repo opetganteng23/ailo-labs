@@ -8,8 +8,16 @@ import { RichTextEditor } from "@/components/RichTextEditor";
 
 import { createResearchAction, updateResearchAction } from "./actions";
 
+type FormAction = (formData: FormData) => Promise<void>;
+
 type ResearchDrawerProps = {
   mode: "create" | "edit";
+  /** Defaults to the admin actions; the dosen dashboard passes its own. */
+  createAction?: FormAction;
+  updateAction?: FormAction;
+  closeHref?: string;
+  /** Lecturer mode: no status picker, saving submits the item for admin review. */
+  forReview?: boolean;
   initial?: {
     _id: string;
     title: string;
@@ -20,12 +28,19 @@ type ResearchDrawerProps = {
   };
 };
 
-export function ResearchDrawer({ mode, initial }: ResearchDrawerProps) {
+export function ResearchDrawer({
+  mode,
+  initial,
+  createAction = createResearchAction,
+  updateAction = updateResearchAction,
+  closeHref = "/admin/research",
+  forReview = false,
+}: ResearchDrawerProps) {
   const router = useRouter();
   const [status, setStatus] = useState(initial?.status ?? "draft");
 
   function close() {
-    router.push("/admin/research");
+    router.push(closeHref);
   }
 
   return (
@@ -42,7 +57,7 @@ export function ResearchDrawer({ mode, initial }: ResearchDrawerProps) {
 
         <form
           id="research-drawer-form"
-          action={mode === "edit" ? updateResearchAction : createResearchAction}
+          action={mode === "edit" ? updateAction : createAction}
           className="drawer-body"
         >
           {mode === "edit" && initial && <input type="hidden" name="id" value={initial._id} />}
@@ -68,6 +83,9 @@ export function ResearchDrawer({ mode, initial }: ResearchDrawerProps) {
         </form>
 
         <div className="drawer-foot">
+          {forReview ? (
+            <span style={{ fontSize: 13, color: "#5b6664", marginRight: "auto" }}>An admin reviews it before it goes live.</span>
+          ) : (
           <div className="admin2-field" style={{ margin: 0 }}>
             <select
               aria-label="Status"
@@ -76,14 +94,16 @@ export function ResearchDrawer({ mode, initial }: ResearchDrawerProps) {
               style={{ height: 42, width: 140 }}
             >
               <option value="draft">Draft</option>
+              <option value="review">In review</option>
               <option value="published">Published</option>
             </select>
           </div>
+          )}
           <button type="button" className="admin2-btn ghost" onClick={close}>
             Cancel
           </button>
           <button type="submit" form="research-drawer-form" className="admin2-btn">
-            {mode === "edit" ? "Save changes" : "Create research"}
+            {forReview ? "Submit for review" : mode === "edit" ? "Save changes" : "Create research"}
           </button>
         </div>
       </div>

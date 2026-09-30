@@ -1,11 +1,9 @@
-import bcrypt from "bcryptjs";
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 
 import { sendMail } from "@/lib/mailer";
 import { connectToDatabase } from "@/lib/mongodb";
 import { MEMBER_CATEGORIES, Member } from "@/models/Member";
-import { User } from "@/models/User";
 
 export const dynamic = "force-dynamic";
 
@@ -13,7 +11,6 @@ const registerSchema = z.object({
   name: z.string().trim().min(1).max(160),
   email: z.string().trim().email(),
   phone: z.string().trim().min(5).max(40).optional(),
-  password: z.string().min(8).max(200),
   affiliation: z.string().trim().min(1).max(200),
   requestedAs: z.enum(MEMBER_CATEGORIES),
   photo: z.string().trim().min(1),
@@ -45,39 +42,9 @@ export async function POST(request: NextRequest) {
   try {
     await connectToDatabase();
 
-    // The registration also creates the applicant's sign-in account. An existing
-    // account is reused only when the password matches, so nobody can attach a
-    // membership to someone else's email.
-    const { password, ...memberData } = parsed.data;
-    const email = memberData.email.toLowerCase();
-    const existingUser = await User.findOne({ email }).select("+passwordHash");
-    if (existingUser) {
-      const matches = await bcrypt.compare(password, existingUser.passwordHash);
-      if (!matches) {
-        return NextResponse.json(
-          { success: false, error: "An account with this email already exists. Use its password, or sign in first." },
-          { status: 409 },
-        );
-      }
-    }
-
-    const member = await Member.create({ ...memberData, status: "pending" });
-
-    if (existingUser) {
-      existingUser.member = member._id;
-      existingUser.photo = existingUser.photo || memberData.photo;
-      await existingUser.save();
-    } else {
-      await User.create({
-        name: memberData.name,
-        email,
-        passwordHash: await bcrypt.hash(password, 10),
-        phone: memberData.phone,
-        photo: memberData.photo,
-        member: member._id,
-        role: "borrower",
-      });
-    }
+    // Members don't get a login; their card and status arrive by email. A lecturer
+    // (Dosen) gets a dosen account when an admin approves the application.
+    const member = await Member.create({ ...parsed.data, status: "pending" });
 
     await sendMail({
       to: parsed.data.email,

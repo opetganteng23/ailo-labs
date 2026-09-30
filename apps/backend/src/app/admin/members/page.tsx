@@ -189,6 +189,7 @@ export default async function AdminMembersPage({
                           </option>
                         ))}
                       </select>
+                      <span style={{ fontSize: 12, lineHeight: 1.4, color: "#6b7573" }}>&quot;Dosen&quot; also creates a lecturer dashboard account.</span>
                     </div>
                     <div className="admin2-field">
                       <label htmlFor="validUntil">Valid until (leave empty for no expiry)</label>

@@ -6,7 +6,12 @@ const bookingSchema = new Schema(
     borrowerEmail: { type: String, required: true, lowercase: true, trim: true },
     borrowerPhone: { type: String, required: true, trim: true },
     user: { type: Schema.Types.ObjectId, ref: "User", index: true },
-    institution: { type: String, required: true, trim: true },
+    // Bookings are made by approved AILO members (no account); the card proves membership.
+    memberCardId: { type: String, trim: true, uppercase: true, index: true },
+    member: { type: Schema.Types.ObjectId, ref: "Member" },
+    institution: { type: String, trim: true },
+    // Secret code behind the QR in the approval email, checked at the lab door.
+    accessCode: { type: String, unique: true, sparse: true },
     lab: { type: Schema.Types.ObjectId, ref: "Lab", required: true, index: true },
     device: { type: Schema.Types.ObjectId, ref: "Device", index: true },
     purpose: { type: String, required: true },

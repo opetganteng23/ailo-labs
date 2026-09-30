@@ -29,7 +29,7 @@ export async function POST(request: NextRequest) {
 
   try {
     await connectToDatabase();
-    const user = await User.findOne({ email, isActive: true }).lean<{ _id: unknown; name: string; email: string }>();
+    const user = await User.findOne({ email, isActive: true, role: { $ne: "borrower" } }).lean<{ _id: unknown; name: string; email: string }>();
     if (!user) {
       return NextResponse.json({ success: false, error: "No account uses this email address." }, { status: 404 });
     }

@@ -1,14 +1,14 @@
-import { SiteFooter } from "@/components/SiteFooter";
-import { SiteHeader } from "@/components/SiteHeader";
+import { redirect } from "next/navigation";
+
+import { getSession, isAdminRole } from "@/lib/auth";
 
 import { LoginForm } from "./LoginForm";
 
-export default function LoginPage() {
-  return (
-    <>
-      <SiteHeader />
-      <LoginForm />
-      <SiteFooter />
-    </>
-  );
+export const metadata = { title: "Sign in · AILO" };
+
+export default async function LoginPage() {
+  const session = await getSession();
+  if (session && isAdminRole(session.role)) redirect("/admin/dashboard");
+  if (session?.role === "dosen") redirect("/dosen");
+  return <LoginForm />;
 }

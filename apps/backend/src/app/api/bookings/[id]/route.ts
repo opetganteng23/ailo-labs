@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 
 import { requireAdmin } from "@/lib/auth";
-import { sendMail } from "@/lib/mailer";
+import { sendBookingDecision } from "@/lib/bookingDecision";
 import { connectToDatabase } from "@/lib/mongodb";
 import { Booking } from "@/models/Booking";
 import { Device } from "@/models/Device";
@@ -38,7 +38,9 @@ export async function PATCH(request: NextRequest, ctx: { params: Promise<{ id: s
         reviewedBy: auth.session.sub,
       },
       { new: true },
-    ).populate("lab", "name");
+    )
+      .populate("lab", "name")
+      .populate("device", "name");
 
     if (!booking) {
       return NextResponse.json({ success: false, error: "Booking not found." }, { status: 404 });
@@ -48,12 +50,7 @@ export async function PATCH(request: NextRequest, ctx: { params: Promise<{ id: s
       await Device.findByIdAndUpdate(booking.device, { status: "booked" });
     }
 
-    const labName = (booking.lab as unknown as { name?: string })?.name ?? "the lab";
-    await sendMail({
-      to: booking.borrowerEmail,
-      subject: `AILO Lab Booking ${parsed.data.status === "approved" ? "Approved" : parsed.data.status === "rejected" ? "Rejected" : "Updated"}`,
-      text: `Halo ${booking.borrowerName},\n\nStatus permintaan peminjaman lab "${labName}" Anda telah diperbarui menjadi: ${parsed.data.status}.${parsed.data.reviewNote ? `\nCatatan: ${parsed.data.reviewNote}` : ""}\n\nTerima kasih,\nTim AILO`,
-    });
+    await sendBookingDecision(booking, parsed.data.status, parsed.data.reviewNote);
 
     return NextResponse.json({ success: true, data: booking });
   } catch (error) {

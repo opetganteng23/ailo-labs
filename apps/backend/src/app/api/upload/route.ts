@@ -19,7 +19,8 @@ const ALLOWED_TYPES: Record<string, string> = {
 };
 
 export async function POST(request: NextRequest) {
-  const auth = await requireAdmin(request);
+  // Admins and lecturers (dosen dashboard) can upload images.
+  const auth = await requireAdmin(request, ["super_admin", "admin", "staff_lab", "dosen"]);
   if (!auth.ok) return auth.response;
 
   const formData = await request.formData();

@@ -4,7 +4,9 @@ import { ConfirmSubmit } from "@/components/ConfirmSubmit";
 import { connectToDatabase } from "@/lib/mongodb";
 import { Project } from "@/models/Project";
 
-import { deleteProjectAction } from "./actions";
+import { User } from "@/models/User";
+
+import { deleteProjectAction, publishProjectAction } from "./actions";
 import { ProjectDrawer } from "./ProjectDrawer";
 import { ProjectsBoard } from "./ProjectsBoard";
 
@@ -31,7 +33,14 @@ export default async function AdminProjectsPage({
     content?: string;
     images?: string[];
     updatedAt: string;
+    publishStatus?: "review" | "published";
+    owner?: string;
   }[];
+  const ownerIds = Array.from(new Set(items.map((p) => p.owner).filter(Boolean).map(String)));
+  const owners = new Map(
+    ((await User.find({ _id: { $in: ownerIds } }).select("name").lean()) as unknown as { _id: string; name: string }[]).map((u) => [String(u._id), u.name]),
+  );
+  const inReview = items.filter((p) => p.publishStatus === "review");
   const editing = panel === "edit" && id ? items.find((p) => String(p._id) === id) : undefined;
 
   const PILL: Record<string, string> = { planned: "planned", ongoing: "pending", completed: "approved" };
@@ -69,6 +78,32 @@ export default async function AdminProjectsPage({
         </div>
       </div>
 
+      {inReview.length > 0 && (
+        <section className="admin2-panel" style={{ marginBottom: 20 }}>
+          <div className="admin2-panel-toolbar">
+            <h2 style={{ margin: 0, fontSize: 16, fontWeight: 700 }}>Waiting for review ({inReview.length})</h2>
+            <span style={{ fontSize: 13, color: "#5b6664" }}>Submitted by lecturers. Open one to edit, or publish it as is.</span>
+          </div>
+          {inReview.map((p) => (
+            <div key={String(p._id)} className="admin2-table-row" style={{ gridTemplateColumns: "minmax(0, 1fr) auto auto" }}>
+              <span style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+                <span style={{ fontSize: 15, fontWeight: 700 }}>{p.title}</span>
+                <span style={{ fontSize: 13, color: "#6b7573" }}>by {owners.get(String(p.owner)) ?? "a lecturer"} · {new Date(p.updatedAt).toLocaleDateString("en-GB")}</span>
+              </span>
+              <Link href={panelHref(`panel=edit&id=${p._id}`)} className="admin2-btn outline" style={{ height: 36, fontSize: 13 }}>
+                Review &amp; edit
+              </Link>
+              <form action={publishProjectAction}>
+                <input type="hidden" name="id" value={String(p._id)} />
+                <button type="submit" className="admin2-btn" style={{ height: 36, fontSize: 13 }}>
+                  Publish
+                </button>
+              </form>
+            </div>
+          ))}
+        </section>
+      )}
+
       {isTable ? (
         <section className="admin2-panel">
           <div className="admin2-table-head" style={{ gridTemplateColumns: "minmax(0, 1fr) 140px 150px 96px" }}>
@@ -87,7 +122,18 @@ export default async function AdminProjectsPage({
                 ) : (
                   <div className="admin2-thumb" />
                 )}
-                <span style={{ fontSize: 15, fontWeight: 700 }}>{item.title}</span>
+                <span style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+                  <span style={{ fontSize: 15, fontWeight: 700 }}>{item.title}</span>
+                  {item.publishStatus === "review" && (
+                    <span style={{ display: "flex", gap: 6, alignItems: "center" }}>
+                      <span className="admin2-pill review" style={{ fontSize: 11 }}>
+                        <span className="dot" />
+                        Awaiting review
+                      </span>
+                      {item.owner && <span style={{ fontSize: 12.5, color: "#6b7573" }}>by {owners.get(String(item.owner)) ?? "a lecturer"}</span>}
+                    </span>
+                  )}
+                </span>
               </div>
               <span className={`admin2-pill ${PILL[item.status]}`}>
                 <span className="dot" />

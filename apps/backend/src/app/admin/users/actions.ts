@@ -6,11 +6,12 @@ import { redirect } from "next/navigation";
 
 import { getSession } from "@/lib/auth";
 import { FlashError, withFlash } from "@/lib/flash";
+import { ensureTeamProfile } from "@/lib/dosenAccount";
 import { connectToDatabase } from "@/lib/mongodb";
 import { Member } from "@/models/Member";
 import { User } from "@/models/User";
 
-const STAFF_ROLES = ["admin", "staff_lab", "super_admin"];
+const STAFF_ROLES = ["admin", "staff_lab", "super_admin", "dosen"];
 
 async function requireSuperAdmin() {
   const session = await getSession();
@@ -56,6 +57,7 @@ export async function createUserAction(formData: FormData) {
           existing.photo = existing.photo || member.photo;
           existing.member = member._id;
           existing.isActive = true;
+          if (role === "dosen") existing.team = (await ensureTeamProfile(member))._id;
           if (password) existing.passwordHash = await bcrypt.hash(password, 12);
           await existing.save();
           return;
@@ -66,6 +68,7 @@ export async function createUserAction(formData: FormData) {
           role,
           photo: member.photo,
           member: member._id,
+          team: role === "dosen" ? (await ensureTeamProfile(member))._id : undefined,
           passwordHash: await bcrypt.hash(password, 12),
         });
         return;
@@ -75,11 +78,13 @@ export async function createUserAction(formData: FormData) {
       const email = String(formData.get("email") ?? "").toLowerCase().trim();
       if (!name || !email) throw new FlashError(`Please fill in the ${[!name && "name", !email && "email"].filter(Boolean).join(" and ")}.`);
       if (await User.exists({ email })) throw new FlashError("An account with this email already exists. Edit that user instead.");
+      const photo = String(formData.get("photo") ?? "") || undefined;
       await User.create({
         name,
         email,
         role,
-        photo: String(formData.get("photo") ?? "") || undefined,
+        photo,
+        team: role === "dosen" ? (await ensureTeamProfile({ name, email, photo }))._id : undefined,
         passwordHash: await bcrypt.hash(readPassword(formData, true), 12),
       });
     },
@@ -103,15 +108,18 @@ export async function updateUserAction(formData: FormData) {
       const clash = await User.findOne({ email, _id: { $ne: id } }).lean();
       if (clash) throw new FlashError("Another account already uses this email.");
 
+      const role = isSelf ? session.role : readRole(formData);
+      const photo = String(formData.get("photo") ?? "") || undefined;
       const update: Record<string, unknown> = {
         name,
         email,
-        photo: String(formData.get("photo") ?? "") || undefined,
-        role: isSelf ? session.role : readRole(formData),
+        photo,
+        role,
         isActive: isSelf ? true : formData.get("isActive") === "on",
       };
       const password = readPassword(formData, false);
       if (password) update.passwordHash = await bcrypt.hash(password, 12);
+      if (role === "dosen") update.team = (await ensureTeamProfile({ name, email, photo }))._id;
 
       await User.findByIdAndUpdate(id, update);
     },
