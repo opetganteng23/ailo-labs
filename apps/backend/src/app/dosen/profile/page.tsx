@@ -38,7 +38,7 @@ export default async function DosenProfilePage() {
           </div>
         </div>
         <section className="admin2-section pad-sm" style={{ maxWidth: 640 }}>
-          <p style={{ margin: 0, fontSize: 15, lineHeight: 1.6 }}>Your account isn&apos;t linked to a team profile yet. Ask an AILO admin to link it from Admin → Users.</p>
+          <p style={{ margin: 0, fontSize: 15, lineHeight: 1.6 }}>Your account isn&apos;t linked to a team profile yet. Ask an AILO admin to link it from the Users page in the admin console.</p>
         </section>
       </div>
     );

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 
+import { sendMail } from "@/lib/mailer";
 import { connectToDatabase } from "@/lib/mongodb";
 import { ContactMessage } from "@/models/ContactMessage";
 
@@ -44,6 +45,29 @@ export async function POST(request: NextRequest) {
   try {
     await connectToDatabase();
     const contactMessage = await ContactMessage.create(data);
+
+    // Receipt for the sender and a heads-up for the team; failures don't block the message.
+    await sendMail({
+      to: data.email,
+      subject: "Pesan Anda sudah kami terima - AILO",
+      text: `Halo ${data.name},
+
+Terima kasih sudah menghubungi AILO. Pesan Anda dengan subjek "${data.subject}" sudah kami terima. Tim kami akan membalas ke email ini.
+
+Salam,
+Tim AILO`,
+    });
+    if (process.env.APP_EMAIL) {
+      await sendMail({
+        to: process.env.APP_EMAIL,
+        subject: `Pesan baru dari ${data.name}: ${data.subject}`,
+        text: `${data.name} <${data.email}> mengirim pesan lewat form kontak:
+
+${data.message}
+
+Balas di /admin/messages.`,
+      });
+    }
 
     return NextResponse.json(
       { success: true, data: { id: contactMessage.id } },

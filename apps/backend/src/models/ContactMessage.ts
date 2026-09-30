@@ -9,6 +9,15 @@ const contactMessageSchema = new Schema(
     isRead: { type: Boolean, default: false, index: true },
     archived: { type: Boolean, default: false, index: true },
     repliedAt: Date,
+    // Every reply sent from the admin, shown as a timeline under the message.
+    replies: [
+      {
+        body: { type: String, required: true },
+        sentAt: { type: Date, required: true },
+        sentBy: String,
+        to: String,
+      },
+    ],
   },
   { timestamps: true },
 );

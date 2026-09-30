@@ -192,8 +192,9 @@ export default async function AdminMembersPage({
                       <span style={{ fontSize: 12, lineHeight: 1.4, color: "#6b7573" }}>&quot;Dosen&quot; also creates a lecturer dashboard account.</span>
                     </div>
                     <div className="admin2-field">
-                      <label htmlFor="validUntil">Valid until (leave empty for no expiry)</label>
-                      <input id="validUntil" name="validUntil" type="date" style={{ height: 42 }} />
+                      <label htmlFor="validUntil">Valid until</label>
+                      <input id="validUntil" name="validUntil" type="date" style={{ height: 42 }} title="Leave empty for a card that doesn't expire" />
+                      <span style={{ fontSize: 12, lineHeight: 1.4, color: "#6b7573" }}>Empty = no expiry</span>
                     </div>
                   </div>
                   <div className="admin2-field">

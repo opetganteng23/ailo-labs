@@ -5,7 +5,8 @@ import { connectToDatabase } from "@/lib/mongodb";
 import { ContactMessage } from "@/models/ContactMessage";
 import { SiteSettings } from "@/models/SiteSettings";
 
-import { archiveMessageAction, deleteMessageAction, markMessageReadAction, replyMessageAction } from "./actions";
+import { archiveMessageAction, deleteMessageAction, markMessageReadAction } from "./actions";
+import { ReplyForm } from "./ReplyForm";
 
 export const dynamic = "force-dynamic";
 
@@ -18,10 +19,16 @@ type Message = {
   isRead: boolean;
   archived: boolean;
   repliedAt?: string;
+  replies?: { body: string; sentAt: string; sentBy?: string; to?: string }[];
   createdAt: string;
 };
 
-const TABS = ["inbox", "unread", "archived"] as const;
+// Message lifecycle (§6): NEW -> OPENED -> REPLIED -> CLOSED.
+type MsgStatus = "new" | "opened" | "replied" | "closed";
+const statusOf = (m: Message): MsgStatus => (m.archived ? "closed" : m.repliedAt ? "replied" : m.isRead ? "opened" : "new");
+const STATUS_LABEL: Record<MsgStatus, string> = { new: "New", opened: "Opened", replied: "Replied", closed: "Closed" };
+
+const TABS = ["all", "new", "opened", "replied", "closed"] as const;
 
 export default async function AdminMessagesPage({
   searchParams,
@@ -29,7 +36,7 @@ export default async function AdminMessagesPage({
   searchParams: Promise<{ tab?: string; q?: string; id?: string }>;
 }) {
   const { tab, q, id } = await searchParams;
-  const currentTab = TABS.includes(tab as (typeof TABS)[number]) ? (tab as (typeof TABS)[number]) : "inbox";
+  const currentTab = TABS.includes(tab as (typeof TABS)[number]) ? (tab as (typeof TABS)[number]) : "all";
 
   await connectToDatabase();
   const [all, settings] = await Promise.all([
@@ -42,12 +49,15 @@ export default async function AdminMessagesPage({
 
   const query = (q ?? "").toLowerCase().trim();
   const filtered = all
-    .filter((m) => (currentTab === "inbox" ? !m.archived : currentTab === "unread" ? !m.isRead && !m.archived : m.archived))
+    .filter((m) => currentTab === "all" || statusOf(m) === currentTab)
     .filter((m) => !query || `${m.name} ${m.email} ${m.subject}`.toLowerCase().includes(query));
 
-  const counts = {
-    inbox: all.filter((m) => !m.archived).length,
-    unread: all.filter((m) => !m.isRead && !m.archived).length,
+  const counts: Record<(typeof TABS)[number], number> = {
+    all: all.length,
+    new: all.filter((m) => statusOf(m) === "new").length,
+    opened: all.filter((m) => statusOf(m) === "opened").length,
+    replied: all.filter((m) => statusOf(m) === "replied").length,
+    closed: all.filter((m) => statusOf(m) === "closed").length,
   };
 
   const selected = id ? all.find((m) => String(m._id) === id) : filtered[0];
@@ -66,7 +76,7 @@ export default async function AdminMessagesPage({
           <a href="/contact" target="_blank" rel="noopener noreferrer" style={{ color: "#00809d", fontWeight: 600 }}>
             Contact form
           </a>{" "}
-          on the public site (&quot;Contact us&quot; / &quot;Get in touch&quot;). New messages stay <strong>Unread</strong> until you open them; replies are sent by email.
+          on the public site (&quot;Contact us&quot; / &quot;Get in touch&quot;). Each message moves from <strong>New</strong> to <strong>Opened</strong> (when you open it), <strong>Replied</strong> and finally <strong>Closed</strong>. Replies are sent by email.
         </p>
       </div>
 
@@ -76,7 +86,7 @@ export default async function AdminMessagesPage({
             <input type="hidden" name="tab" value={currentTab} />
             <input type="search" name="q" defaultValue={q} aria-label="Search messages" placeholder="Search name, email, subject…" style={{ height: 42 }} />
           </form>
-          <div style={{ display: "flex", gap: 4, padding: "0 16px 16px", borderBottom: "1px solid #eeece6" }}>
+          <div style={{ display: "flex", gap: 4, padding: "0 16px 16px", borderBottom: "1px solid #eeece6", flexWrap: "wrap" }}>
             {TABS.map((t) => (
               <Link
                 key={t}
@@ -93,7 +103,7 @@ export default async function AdminMessagesPage({
                   alignItems: "center",
                 }}
               >
-                {t.charAt(0).toUpperCase() + t.slice(1)} {t !== "archived" && counts[t]}
+                {t === "all" ? "All" : STATUS_LABEL[t]} {counts[t]}
               </Link>
             ))}
           </div>
@@ -124,7 +134,7 @@ export default async function AdminMessagesPage({
                 <span style={{ display: "block", fontSize: 13, fontWeight: m.isRead ? 500 : 700, color: "#3b4947", marginTop: 2 }}>{m.subject}</span>
                 <span style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 12, color: "#6b7573", marginTop: 4 }}>
                   {new Date(m.createdAt).toLocaleString("en-GB")}
-                  <span className={`msg-status ${m.repliedAt ? "replied" : m.isRead ? "read" : "unread"}`}>{m.repliedAt ? "Replied" : m.isRead ? "Read" : "Unread"}</span>
+                  <span className={`msg-status ${statusOf(m)}`}>{STATUS_LABEL[statusOf(m)]}</span>
                 </span>
               </a>
             ))}
@@ -158,9 +168,7 @@ export default async function AdminMessagesPage({
                   </p>
                   <p style={{ margin: "8px 0 0", display: "flex", gap: 8, alignItems: "center", fontSize: 12.5, color: "#5b6664" }}>
                     <span className="msg-source">Source: website contact form</span>
-                    <span className={`msg-status ${selected.repliedAt ? "replied" : selected.isRead ? "read" : "unread"}`}>
-                      {selected.repliedAt ? `Replied ${new Date(selected.repliedAt).toLocaleDateString("en-GB")}` : selected.isRead ? "Read" : "Unread"}
-                    </span>
+                    <span className={`msg-status ${statusOf(selected)}`}>{STATUS_LABEL[statusOf(selected)]}</span>
                   </p>
                 </div>
                 <form action={markMessageReadAction}>
@@ -174,7 +182,7 @@ export default async function AdminMessagesPage({
                   <input type="hidden" name="id" value={selected._id} />
                   <input type="hidden" name="archived" value={(!selected.archived).toString()} />
                   <button type="submit" className="admin2-btn outline" style={{ height: 38, fontSize: 13 }}>
-                    {selected.archived ? "Unarchive" : "Archive"}
+                    {selected.archived ? "Reopen" : "Close"}
                   </button>
                 </form>
                 <form action={deleteMessageAction}>
@@ -187,18 +195,27 @@ export default async function AdminMessagesPage({
 
               <div style={{ padding: 28, whiteSpace: "pre-wrap", fontSize: 15, lineHeight: 1.6, color: "#22302e", flexGrow: 1 }}>{selected.message}</div>
 
-              <form action={replyMessageAction} style={{ padding: 20, borderTop: "1px solid #eeece6", background: "#fff", display: "flex", flexDirection: "column", gap: 10 }}>
-                <input type="hidden" name="id" value={selected._id} />
-                <input type="hidden" name="to" value={selected.email} />
-                <input type="hidden" name="subject" value={selected.subject} />
-                <label htmlFor="reply-body" style={{ fontSize: 13, fontWeight: 600, color: "#5b6664" }}>
-                  Reply to {selected.email}
-                </label>
-                <textarea id="reply-body" name="body" rows={4} placeholder="Type your reply…" required />
-                <button type="submit" className="admin2-btn" style={{ alignSelf: "flex-end" }}>
-                  Send reply
-                </button>
-              </form>
+              {(selected.replies?.length ?? 0) > 0 && (
+                <div className="msg-timeline">
+                  <span className="msg-timeline-title">Replies</span>
+                  {selected.replies!.map((r, i) => (
+                    <div key={i} className="msg-timeline-item">
+                      <span className="msg-timeline-meta">
+                        <b>{r.sentBy ?? "Admin"}</b> to {r.to ?? selected.email} · {new Date(r.sentAt).toLocaleString("en-GB")} · <span className="msg-status replied">Sent</span>
+                      </span>
+                      <span className="msg-timeline-body">{r.body}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {selected.archived ? (
+                <p style={{ margin: 0, padding: 20, borderTop: "1px solid #eeece6", background: "#fff", fontSize: 14, color: "#5b6664" }}>
+                  This conversation is closed. Reopen it to reply.
+                </p>
+              ) : (
+                <ReplyForm key={String(selected._id)} id={String(selected._id)} to={selected.email} subject={selected.subject} />
+              )}
             </>
           )}
         </div>

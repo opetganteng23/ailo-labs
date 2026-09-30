@@ -63,7 +63,7 @@ export default async function BookingPassPage({ params }: { params: Promise<{ co
       <div className="pass-card">
         <div className="pass-brand">
           <span className="pass-mark">
-            <Image src="/logo-square.png" alt="AILO" width={26} height={26} />
+            <Image src="/logo-mark.png" alt="AILO" width={26} height={26} />
           </span>
           <span>
             <strong>AILO lab access</strong>

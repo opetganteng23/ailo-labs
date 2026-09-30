@@ -10,7 +10,7 @@ export function MinimalSiteHeader({ backHref = "/" }: { backHref?: string }) {
       <div className="wrap minimal-header-row">
         <Link href="/" className="minimal-header-brand">
           <span className="minimal-header-mark">
-            <Image src="/logo-square.png" alt="AILO" width={28} height={28} style={{ objectFit: "contain" }} />
+            <Image src="/logo-mark-light.png" alt="AILO" width={28} height={28} style={{ objectFit: "contain" }} />
           </span>
           <span>AILO</span>
         </Link>

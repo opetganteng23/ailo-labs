@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
 import { getSession, isAdminRole } from "@/lib/auth";
-import { FlashError, withFlash } from "@/lib/flash";
+import { withFlash } from "@/lib/flash";
 import { sendMail } from "@/lib/mailer";
 import { connectToDatabase } from "@/lib/mongodb";
 import { ContactMessage } from "@/models/ContactMessage";
@@ -52,22 +52,34 @@ export async function deleteMessageAction(formData: FormData) {
   revalidatePath("/admin/messages");
 }
 
-export async function replyMessageAction(formData: FormData) {
-  await requireAdmin();
-  await withFlash(
-    async () => {
-      const id = String(formData.get("id"));
-      const to = String(formData.get("to"));
-      const subject = String(formData.get("subject"));
-      const body = String(formData.get("body") ?? "").trim();
-      if (!body) throw new FlashError("Write a reply before sending.");
+export type ReplyState = { status: "idle" | "sent" | "error"; message?: string; to?: string; sentAt?: string };
 
-      const mail = await sendMail({ to, subject: `Re: ${subject}`, text: body });
-      if (!mail.sent) throw new FlashError("The reply could not be sent - check the mail settings.");
-      await connectToDatabase();
-      await ContactMessage.findByIdAndUpdate(id, { isRead: true, repliedAt: new Date() });
-    },
-    { success: "Reply sent.", error: "Couldn't send the reply. Please try again." },
-  );
-  revalidatePath("/admin/messages");
+/** Used with useActionState so the reply box can show sending / sent / failed (§5). */
+export async function replyMessageAction(_prev: ReplyState, formData: FormData): Promise<ReplyState> {
+  const session = await getSession();
+  if (!session || !isAdminRole(session.role)) return { status: "error", message: "Your session has expired. Sign in again." };
+
+  const id = String(formData.get("id"));
+  const to = String(formData.get("to"));
+  const subject = String(formData.get("subject"));
+  const body = String(formData.get("body") ?? "").trim();
+  if (!body) return { status: "error", message: "Tulis balasan terlebih dahulu." };
+
+  try {
+    const mail = await sendMail({ to, subject: `Re: ${subject}`, text: body });
+    if (!mail.sent) return { status: "error", message: "Reply gagal dikirim. Email tidak dapat dikirim - periksa pengaturan email, lalu coba kembali." };
+
+    const sentAt = new Date();
+    await connectToDatabase();
+    await ContactMessage.findByIdAndUpdate(id, {
+      isRead: true,
+      repliedAt: sentAt,
+      $push: { replies: { body, sentAt, sentBy: session.name, to } },
+    });
+    revalidatePath("/admin/messages");
+    return { status: "sent", to, sentAt: sentAt.toISOString() };
+  } catch (error) {
+    console.error("Failed to send reply", error);
+    return { status: "error", message: "Reply gagal dikirim. Silakan coba kembali." };
+  }
 }

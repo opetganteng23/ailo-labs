@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 
 import { sendMail } from "@/lib/mailer";
+import { duplicateMessage, findDuplicateMember } from "@/lib/memberDuplicate";
 import { connectToDatabase } from "@/lib/mongodb";
 import { MEMBER_CATEGORIES, Member } from "@/models/Member";
 
@@ -41,6 +42,12 @@ export async function POST(request: NextRequest) {
 
   try {
     await connectToDatabase();
+
+    // Never create a second record for someone who is already a member (§3).
+    const dup = await findDuplicateMember(parsed.data.name, parsed.data.email);
+    if (dup) {
+      return NextResponse.json({ success: false, duplicate: true, error: duplicateMessage(dup) }, { status: 409 });
+    }
 
     // Members don't get a login; their card and status arrive by email. A lecturer
     // (Dosen) gets a dosen account when an admin approves the application.

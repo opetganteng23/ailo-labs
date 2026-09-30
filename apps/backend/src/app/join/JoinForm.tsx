@@ -155,7 +155,8 @@ export function JoinForm() {
       });
       const json = await res.json();
       if (!res.ok || !json.success) {
-        setError(json.error ?? "Unable to submit application.");
+        if (json.duplicate) setDuplicate(json.error);
+        else setError(json.error ?? "Unable to submit application.");
         setSubmitting(false);
         return;
       }
@@ -166,12 +167,66 @@ export function JoinForm() {
     }
   }
 
-  function next() {
+  const [checking, setChecking] = useState(false);
+  const [duplicate, setDuplicate] = useState("");
+
+  async function next() {
     if (step === 4) {
       submit();
       return;
     }
+    if (step === 1) {
+      // Stop early if this person is already a member (checked again on submit).
+      setChecking(true);
+      setDuplicate("");
+      try {
+        const res = await fetch("/api/members/check", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ name: state.name, email: state.email }),
+        });
+        const json = await res.json();
+        if (!res.ok || !json.success) {
+          setChecking(false);
+          if (json.duplicate) setDuplicate(json.error);
+          else setError(json.error ?? "Terjadi kesalahan. Silakan coba kembali.");
+          return;
+        }
+      } catch {
+        setChecking(false);
+        setError("Network error, please try again.");
+        return;
+      }
+      setChecking(false);
+      setError("");
+    }
     setStep((s) => Math.min(4, s + 1));
+  }
+
+  if (duplicate) {
+    return (
+      <section className="join-panel" style={{ maxWidth: 680 }}>
+        <div role="alert" style={{ padding: "48px 40px", display: "flex", flexDirection: "column", alignItems: "center", gap: 16, textAlign: "center" }}>
+          <span style={{ width: 72, height: 72, borderRadius: 999, background: "#e3f1f1", color: "#00697f", display: "flex", alignItems: "center", justifyContent: "center" }}>
+            <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M4 5h16a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1zM9 13a2 2 0 1 0 0-4 2 2 0 0 0 0 4zM6 16.5a3 3 0 0 1 6 0M14 10h4M14 14h3" />
+            </svg>
+          </span>
+          <h2 style={{ margin: 0, fontSize: 26, fontWeight: 800 }}>{duplicate.startsWith("Anda sudah menjadi") ? "Anda sudah menjadi member" : "Pendaftaran sudah ada"}</h2>
+          <p style={{ margin: 0, maxWidth: 480, fontSize: 16, lineHeight: 1.6, color: "#4e5957" }}>
+            {duplicate} Nama atau email ini sudah terdaftar, jadi tidak perlu mendaftar lagi. Kartu member dan statusnya dikirim ke email Anda.
+          </p>
+          <div style={{ display: "flex", gap: 12, flexWrap: "wrap", justifyContent: "center", paddingTop: 8 }}>
+            <Link href="/" className="join-btn join-btn-dark">
+              Kembali ke Home
+            </Link>
+            <Link href="/contact" className="join-btn join-btn-outline">
+              Hubungi kami
+            </Link>
+          </div>
+        </div>
+      </section>
+    );
   }
 
   if (done) {
@@ -470,6 +525,7 @@ export function JoinForm() {
 
       <div style={{ padding: "18px 32px", display: "flex", alignItems: "center", gap: 12, borderTop: "1px solid #eeece6", background: "#fbfaf7" }}>
         <span style={{ fontSize: 14, color: "#6b7573" }}>Step {step} of 4</span>
+        {error && step !== 4 && <span className="error-text" style={{ margin: 0 }}>{error}</span>}
         {step > 1 && (
           <button type="button" className="join-btn join-btn-outline" style={{ marginLeft: "auto" }} onClick={() => setStep((s) => Math.max(1, s - 1))}>
             Back
@@ -480,9 +536,9 @@ export function JoinForm() {
           className={step === 4 ? "join-btn join-btn-orange" : "join-btn join-btn-dark"}
           style={step === 1 ? { marginLeft: "auto" } : undefined}
           onClick={next}
-          disabled={!canContinue() || submitting}
+          disabled={!canContinue() || submitting || checking}
         >
-          {step === 4 ? (submitting ? "Submitting…" : "Submit registration") : "Continue"}
+          {step === 4 ? (submitting ? "Submitting…" : "Submit registration") : checking ? "Checking…" : "Continue"}
         </button>
       </div>
     </section>

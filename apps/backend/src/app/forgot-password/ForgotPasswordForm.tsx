@@ -37,7 +37,7 @@ export function ForgotPasswordForm({ backHref }: { backHref: string }) {
       <div className="auth-card">
         <Link href="/" className="auth-brand">
           <span className="auth-brand-mark">
-            <Image src="/logo-square.png" alt="AILO" width={30} height={30} style={{ objectFit: "contain", width: "100%", height: "100%" }} />
+            <Image src="/logo-mark.png" alt="AILO" width={30} height={30} style={{ objectFit: "contain", width: "100%", height: "100%" }} />
           </span>
           <span className="auth-brand-name">AILO</span>
         </Link>

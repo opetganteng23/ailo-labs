@@ -10,11 +10,12 @@ Sumber: `AILO_Evaluasi_Menyeluruh_dan_Rencana_Perbaikan.md` (evaluasi 30 Sep 202
 - Kategori Team awal: Dosen, Peneliti, Peneliti Mahasiswa, Peneliti Alumni, Honorary Advisory Board (bisa dikelola admin).
 
 ## P0 - Critical
-- [~] §15 Label "Valid until" saja (keterangan jadi helper text kecil)
-- [~] §3 Join: tolak nama/email yang sudah terdaftar (backend) + pesan "Anda sudah menjadi member"
-- [~] §4 Contact Us sekali kirim: form hilang, pesan sukses + cek email, hanya tombol "Kembali ke Home"
-- [~] §5 Balas pesan admin: loading, sukses/gagal, penerima, status Sent, waktu kirim
-- [~] §9 Logo tanpa kotak/latar di semua tempat
+- [x] §15 Label "Valid until" saja (keterangan jadi helper text kecil) - verified: typecheck+lint+build pass; not yet re-checked on live
+- [x] §3 Join: tolak nama/email yang sudah terdaftar (backend, checked both on step 1 and on final submit) + pesan "Anda sudah menjadi member" - new `/api/members/check`, `lib/memberDuplicate.ts`; typecheck+lint+build pass; not yet re-checked on live
+- [x] §4 Contact Us sekali kirim: form hilang (sessionStorage-backed, survives reload in the same tab), confirmation + "cek email", tombol "Kembali ke Home"; also added confirmation email to sender + notice to admin - typecheck+lint+build pass; not yet re-checked on live
+- [x] §5 Balas pesan admin: loading (useActionState + useFormStatus spinner), sukses/gagal panel, penerima, status Sent, waktu kirim - new `ReplyForm.tsx`, `replyMessageAction` returns state - typecheck+lint+build pass; not yet re-checked on live
+- [x] §9 Logo tanpa kotak/latar di semua tempat - added transparent `logo-mark.png` / `logo-mark-light.png` (white variant for dark backgrounds), removed all white-box wrappers (admin sidebar, auth cards, minimal header, booking pass, homepage header/footer). Left as-is: favicon (needs a raster icon) and the member card's own white ID-badge slot (intentional card design, not a stray background) - typecheck+lint+build pass; not yet re-checked on live
+- [x] §6 (moved up, same code change) Message status NEW/OPENED/REPLIED/CLOSED + reply timeline on the message - `ContactMessage.replies[]`, `statusOf()` in the admin messages page - typecheck+lint+build pass; not yet re-checked on live
 - [ ] §12-14 Team Board dari Members: checkbox Include + kategori; hanya yang dicentang tampil publik; bisa dikeluarkan lagi
 - [ ] §7-8 Header & footer: satu komponen masing-masing (tinggi/logo/jarak seragam, homepage ikut)
 - [ ] §1 Editor lengkap: justify, H1-H4, font size/family, warna teks, highlight, code block, nested list
@@ -32,7 +33,6 @@ Sumber: `AILO_Evaluasi_Menyeluruh_dan_Rencana_Perbaikan.md` (evaluasi 30 Sep 202
 - [ ] §27 Toast Warning & Info (selain Success/Error)
 
 ## P2 - Enhancement
-- [ ] §6 Status pesan NEW/OPENED/REPLIED/CLOSED + timeline balasan
 - [ ] §13 Halaman kelola kategori Team
 - [ ] §25 Komponen empty state seragam dengan tombol aksi
 

@@ -1,9 +1,23 @@
 "use client";
 
+import Link from "next/link";
 import { useState } from "react";
 
+const SENT_KEY = "ailo_contact_sent";
+
+function readSent(): string {
+  try {
+    return sessionStorage.getItem(SENT_KEY) ?? "";
+  } catch {
+    return "";
+  }
+}
+
 export function ContactForm() {
-  const [state, setState] = useState<"idle" | "sending" | "sent">("idle");
+  // One-time message (§4): once sent, this browser tab keeps showing the confirmation,
+  // read lazily on mount instead of via an effect so there's no extra render.
+  const [sentTo, setSentTo] = useState(readSent);
+  const [state, setState] = useState<"idle" | "sending" | "sent">(() => (readSent() ? "sent" : "idle"));
   const [error, setError] = useState("");
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
@@ -29,6 +43,13 @@ export function ContactForm() {
         setState("idle");
         return;
       }
+      const email = String(form.get("email") ?? "");
+      setSentTo(email);
+      try {
+        sessionStorage.setItem(SENT_KEY, email);
+      } catch {
+        // ignore
+      }
       setState("sent");
     } catch {
       setError("Network error, please try again.");
@@ -44,11 +65,13 @@ export function ContactForm() {
             <path d="M5 12l5 5 9-10" />
           </svg>
         </span>
-        <h2>Message sent</h2>
-        <p>Thanks for reaching out. The AILO team reads every message and will reply to your email.</p>
-        <button type="button" className="btn-primary" onClick={() => setState("idle")}>
-          Send another message
-        </button>
+        <h2>Pesan berhasil terkirim</h2>
+        <p>
+          Pesan Anda sudah berhasil dikirim. Silakan cek email Anda{sentTo ? ` (${sentTo})` : ""} untuk melihat balasan dari tim kami.
+        </p>
+        <Link href="/" className="btn-primary">
+          Kembali ke Home
+        </Link>
       </div>
     );
   }

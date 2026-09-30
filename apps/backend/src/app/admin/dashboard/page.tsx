@@ -55,7 +55,7 @@ export default async function AdminDashboardPage() {
     { label: "News articles", value: newsCount, href: "/admin/news", accent: "news", icon: ICONS.news },
     { label: "Pending bookings", value: pendingBookings, href: "/admin/bookings?status=pending", accent: "bookings", icon: ICONS.bookings, warn: pendingBookings > 0 },
     { label: "Pending members", value: pendingMembers, href: "/admin/members?status=pending", accent: "members", icon: ICONS.members, warn: pendingMembers > 0 },
-    { label: "Unread messages", value: unreadMessages, href: "/admin/messages?tab=unread", accent: "messages", icon: ICONS.messages, warn: unreadMessages > 0 },
+    { label: "New messages", value: unreadMessages, href: "/admin/messages?tab=new", accent: "messages", icon: ICONS.messages, warn: unreadMessages > 0 },
     { label: "Projects", value: projectCount, href: "/admin/projects", accent: "projects", icon: ICONS.projects },
     { label: "Research areas", value: researchCount, href: "/admin/research", accent: "research", icon: ICONS.research },
     { label: "Team members", value: teamCount, href: "/admin/team", accent: "team", icon: ICONS.team },
