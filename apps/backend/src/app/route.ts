@@ -40,6 +40,42 @@ type HomepageSettings = {
 
 type CardResult = { html: string | null; count: number };
 
+const DEFAULT_CONTACT = {
+  email: "ailo@telkomuniversity.ac.id",
+  phone: "+62 22 756 4108",
+  address: "Gedung TULT, Telkom University, Bandung, Jawa Barat",
+};
+
+function buildFooterContact(contact: { email?: string; phone?: string; address?: string } | undefined): string {
+  const email = contact?.email || DEFAULT_CONTACT.email;
+  const phone = contact?.phone || DEFAULT_CONTACT.phone;
+  const address = contact?.address || DEFAULT_CONTACT.address;
+  const addressLines = address.split(",").map((line) => line.trim()).filter(Boolean);
+  return [
+    `<a href="mailto:${escapeHtml(email)}" style="color:#fff;">${escapeHtml(email)}</a>`,
+    `<span>${escapeHtml(phone)}</span>`,
+    ...(addressLines.length > 0 ? addressLines : [address]).map((line) => `<span>${escapeHtml(line)}</span>`),
+  ].join("\n");
+}
+
+const SOCIAL_LABELS: Record<"instagram" | "linkedin" | "youtube", string> = {
+  instagram: "Instagram",
+  linkedin: "LinkedIn",
+  youtube: "YouTube",
+};
+
+function buildFooterSocials(social: { instagram?: string; linkedin?: string; youtube?: string } | undefined): string {
+  return (Object.keys(SOCIAL_LABELS) as (keyof typeof SOCIAL_LABELS)[])
+    .map((key) => {
+      const href = social?.[key];
+      const label = SOCIAL_LABELS[key];
+      return href
+        ? `<a href="${escapeHtml(href)}" target="_blank" rel="noopener noreferrer">${label}</a>`
+        : `<span class="social-pending" title="Coming soon">${label}</span>`;
+    })
+    .join("\n");
+}
+
 function escapeHtml(value: string): string {
   return value
     .replace(/&/g, "&amp;")
@@ -275,7 +311,11 @@ export async function GET() {
     await connectToDatabase();
 
     const [settingsDoc, research, projects, team, news] = await Promise.all([
-      SiteSettings.findOne({ key: "global" }).lean<{ homepage?: HomepageSettings }>(),
+      SiteSettings.findOne({ key: "global" }).lean<{
+        homepage?: HomepageSettings;
+        contact?: { email?: string; phone?: string; address?: string };
+        socialMedia?: { instagram?: string; linkedin?: string; youtube?: string };
+      }>(),
       buildResearchCards(),
       buildProjectCards(),
       buildTeamCards(),
@@ -296,6 +336,8 @@ export async function GET() {
     html = replaceBlock(html, "PROJECT_CARDS", projects.html);
     html = replaceBlock(html, "TEAM_CARDS", team.html);
     html = replaceBlock(html, "NEWS_CARDS", news.html);
+    html = replaceBlock(html, "FOOTER_CONTACT", buildFooterContact(settingsDoc?.contact));
+    html = replaceBlock(html, "FOOTER_SOCIALS", buildFooterSocials(settingsDoc?.socialMedia));
   } catch (error) {
     console.error("Failed to load homepage dynamic content, serving defaults", error);
   }

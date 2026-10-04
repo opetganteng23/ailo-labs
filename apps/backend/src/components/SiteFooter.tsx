@@ -1,7 +1,34 @@
 import Image from "next/image";
 import Link from "next/link";
 
-export function SiteFooter() {
+import { connectToDatabase } from "@/lib/mongodb";
+import { SiteSettings } from "@/models/SiteSettings";
+
+const DEFAULT_CONTACT = {
+  email: "ailo@telkomuniversity.ac.id",
+  phone: "+62 22 756 4108",
+  address: "Gedung TULT, Telkom University, Bandung, Jawa Barat",
+};
+
+type SocialLink = { key: "instagram" | "linkedin" | "youtube"; label: string };
+const SOCIAL_LINKS: SocialLink[] = [
+  { key: "instagram", label: "Instagram" },
+  { key: "linkedin", label: "LinkedIn" },
+  { key: "youtube", label: "YouTube" },
+];
+
+export async function SiteFooter() {
+  await connectToDatabase();
+  const settings = await SiteSettings.findOne({ key: "global" }).lean<{
+    contact?: { email?: string; phone?: string; address?: string };
+    socialMedia?: { instagram?: string; linkedin?: string; youtube?: string };
+  }>();
+
+  const email = settings?.contact?.email || DEFAULT_CONTACT.email;
+  const phone = settings?.contact?.phone || DEFAULT_CONTACT.phone;
+  const address = settings?.contact?.address || DEFAULT_CONTACT.address;
+  const addressLines = address.split(",").map((line) => line.trim()).filter(Boolean);
+
   return (
     <footer className="site">
       <div className="wrap">
@@ -32,19 +59,23 @@ export function SiteFooter() {
             <h5>CONTACT</h5>
             <ul>
               <li><Link href="/contact">Contact form</Link></li>
-              <li><a href="mailto:ailo@telkomuniversity.ac.id">ailo@telkomuniversity.ac.id</a></li>
-              <li><span>+62 22 756 4108</span></li>
-              <li><span>Gedung TULT, Telkom University</span></li>
-              <li><span>Bandung, Jawa Barat</span></li>
+              <li><a href={`mailto:${email}`}>{email}</a></li>
+              <li><span>{phone}</span></li>
+              {addressLines.length > 0 ? addressLines.map((line) => <li key={line}><span>{line}</span></li>) : <li><span>{address}</span></li>}
             </ul>
           </div>
         </div>
         <div className="foot-bottom">
           <span>© 2026 AILO · Telkom University Center of Excellence</span>
           <div className="socials">
-            <span className="social-pending" title="Coming soon">Instagram</span>
-            <span className="social-pending" title="Coming soon">LinkedIn</span>
-            <span className="social-pending" title="Coming soon">YouTube</span>
+            {SOCIAL_LINKS.map(({ key, label }) => {
+              const href = settings?.socialMedia?.[key];
+              return href ? (
+                <a key={key} href={href} target="_blank" rel="noopener noreferrer">{label}</a>
+              ) : (
+                <span key={key} className="social-pending" title="Coming soon">{label}</span>
+              );
+            })}
             <Link href="/login" className="admin-link">Lecturer &amp; admin login</Link>
           </div>
         </div>
