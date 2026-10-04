@@ -10,8 +10,13 @@ export type Role = "super_admin" | "admin" | "staff_lab" | "dosen" | "borrower";
 
 const ADMIN_ROLES: Role[] = ["super_admin", "admin", "staff_lab"];
 
-/** Admin/staff sessions expire after this many idle seconds; renewed on every admin request while active. */
-export const ADMIN_IDLE_SECONDS = 5 * 60;
+/**
+ * Admin/staff sessions expire after this many idle seconds; renewed on every admin request while active.
+ * Used to be 5 minutes, which silently logged admins out mid-edit (typing in a rich text editor doesn't
+ * trigger a request, so the idle clock kept running) and lost whatever they'd written. Now matches the
+ * same 30-day window as other roles.
+ */
+export const ADMIN_IDLE_SECONDS = 60 * 60 * 24 * 30;
 
 function secretKey() {
   const secret = process.env.NEXTAUTH_SECRET;
