@@ -10,7 +10,7 @@ import { updateSettingsAction } from "./actions";
 export const dynamic = "force-dynamic";
 
 type Settings = {
-  contact?: { email?: string; phone?: string; address?: string };
+  contact?: { email?: string; phone?: string; address?: string; address2?: string };
   socialMedia?: { instagram?: string; linkedin?: string; youtube?: string };
   homepage?: {
     heroBackgroundImages?: string[];
@@ -104,10 +104,19 @@ export default async function AdminSettingsPage() {
                 <input id="cphone" name="phone" type="tel" defaultValue={settings?.contact?.phone ?? ""} />
               </div>
             </div>
-            <div className="admin2-field">
-              <label htmlFor="caddr">Address</label>
-              <input id="caddr" name="address" type="text" defaultValue={settings?.contact?.address ?? ""} />
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: 16 }}>
+              <div className="admin2-field">
+                <label htmlFor="caddr">Address</label>
+                <input id="caddr" name="address" type="text" defaultValue={settings?.contact?.address ?? ""} />
+              </div>
+              <div className="admin2-field">
+                <label htmlFor="caddr2">Second address (optional)</label>
+                <input id="caddr2" name="address2" type="text" placeholder="e.g. a second campus or office" defaultValue={settings?.contact?.address2 ?? ""} />
+              </div>
             </div>
+            <p style={{ margin: 0, fontSize: 12.5, color: "#6b7573" }}>
+              Each shows as its own block in the footer, side by side - don&apos;t combine two addresses into one field with commas, it makes the footer very tall.
+            </p>
           </section>
 
           <section id="social" className="admin2-section">

@@ -18,6 +18,8 @@ const siteSettingsSchema = new Schema(
       email: String,
       phone: String,
       address: String,
+      /** Optional second office/campus address, shown side by side with the first in the footer. */
+      address2: String,
       officeHours: String,
     },
     socialMedia: {

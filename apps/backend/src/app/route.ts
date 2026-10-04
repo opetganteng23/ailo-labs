@@ -44,17 +44,21 @@ const DEFAULT_CONTACT = {
   email: "ailo@telkomuniversity.ac.id",
   phone: "+62 22 756 4108",
   address: "Gedung TULT, Telkom University, Bandung, Jawa Barat",
+  address2: "",
 };
 
-function buildFooterContact(contact: { email?: string; phone?: string; address?: string } | undefined): string {
+function buildFooterContact(contact: { email?: string; phone?: string; address?: string; address2?: string } | undefined): string {
   const email = contact?.email || DEFAULT_CONTACT.email;
   const phone = contact?.phone || DEFAULT_CONTACT.phone;
   const address = contact?.address || DEFAULT_CONTACT.address;
-  const addressLines = address.split(",").map((line) => line.trim()).filter(Boolean);
+  const address2 = contact?.address2 || DEFAULT_CONTACT.address2;
   return [
     `<a href="mailto:${escapeHtml(email)}" style="color:#fff;">${escapeHtml(email)}</a>`,
     `<span>${escapeHtml(phone)}</span>`,
-    ...(addressLines.length > 0 ? addressLines : [address]).map((line) => `<span>${escapeHtml(line)}</span>`),
+    `<div class="foot-addresses">`,
+    `<span class="foot-address">${escapeHtml(address)}</span>`,
+    ...(address2 ? [`<span class="foot-address">${escapeHtml(address2)}</span>`] : []),
+    `</div>`,
   ].join("\n");
 }
 

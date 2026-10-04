@@ -29,6 +29,7 @@ export async function updateSettingsAction(formData: FormData) {
             "contact.email": formData.get("email"),
             "contact.phone": formData.get("phone"),
             "contact.address": formData.get("address"),
+            "contact.address2": formData.get("address2"),
             "socialMedia.instagram": formData.get("instagram"),
             "socialMedia.linkedin": formData.get("linkedin"),
             "socialMedia.youtube": formData.get("youtube"),

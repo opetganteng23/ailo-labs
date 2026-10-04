@@ -8,6 +8,7 @@ const DEFAULT_CONTACT = {
   email: "ailo@telkomuniversity.ac.id",
   phone: "+62 22 756 4108",
   address: "Gedung TULT, Telkom University, Bandung, Jawa Barat",
+  address2: "",
 };
 
 type SocialLink = { key: "instagram" | "linkedin" | "youtube"; label: string };
@@ -20,14 +21,14 @@ const SOCIAL_LINKS: SocialLink[] = [
 export async function SiteFooter() {
   await connectToDatabase();
   const settings = await SiteSettings.findOne({ key: "global" }).lean<{
-    contact?: { email?: string; phone?: string; address?: string };
+    contact?: { email?: string; phone?: string; address?: string; address2?: string };
     socialMedia?: { instagram?: string; linkedin?: string; youtube?: string };
   }>();
 
   const email = settings?.contact?.email || DEFAULT_CONTACT.email;
   const phone = settings?.contact?.phone || DEFAULT_CONTACT.phone;
   const address = settings?.contact?.address || DEFAULT_CONTACT.address;
-  const addressLines = address.split(",").map((line) => line.trim()).filter(Boolean);
+  const address2 = settings?.contact?.address2 || DEFAULT_CONTACT.address2;
 
   return (
     <footer className="site">
@@ -61,8 +62,11 @@ export async function SiteFooter() {
               <li><Link href="/contact">Contact form</Link></li>
               <li><a href={`mailto:${email}`}>{email}</a></li>
               <li><span>{phone}</span></li>
-              {addressLines.length > 0 ? addressLines.map((line) => <li key={line}><span>{line}</span></li>) : <li><span>{address}</span></li>}
             </ul>
+            <div className="foot-addresses">
+              <span className="foot-address">{address}</span>
+              {address2 && <span className="foot-address">{address2}</span>}
+            </div>
           </div>
         </div>
         <div className="foot-bottom">
