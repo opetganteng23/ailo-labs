@@ -57,6 +57,8 @@ const siteSettingsSchema = new Schema(
       stat3Value: String,
       stat3Label: String,
       visibleSections: [String],
+      /** The scrolling strip under the hero ("Optimization · Reinforcement Learning · ..."). Each item is either text (bold + text) or an uploaded image. */
+      marqueeItems: [{ bold: String, text: String, image: String }],
     },
     seo: {
       defaultMetaTitle: String,

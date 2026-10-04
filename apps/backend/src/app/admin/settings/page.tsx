@@ -4,6 +4,7 @@ import { connectToDatabase } from "@/lib/mongodb";
 import { SiteSettings } from "@/models/SiteSettings";
 
 import { HeroSection } from "./HeroSection";
+import { MarqueeEditor } from "./MarqueeEditor";
 import { SectionBackgroundRow } from "./SectionBackgroundRow";
 import { updateSettingsAction } from "./actions";
 
@@ -36,6 +37,7 @@ type Settings = {
     stat2Label?: string;
     stat3Value?: string;
     stat3Label?: string;
+    marqueeItems?: { bold?: string; text?: string; image?: string }[];
   };
 };
 
@@ -43,6 +45,7 @@ const NAV = [
   { href: "#general", label: "General" },
   { href: "#social", label: "Social links" },
   { href: "#hero", label: "Homepage hero" },
+  { href: "#marquee", label: "Scrolling strip" },
   { href: "#backgrounds", label: "Section backgrounds" },
 ];
 
@@ -154,6 +157,18 @@ export default async function AdminSettingsPage() {
             stat3Value={homepage.stat3Value}
             stat3Label={homepage.stat3Label}
           />
+
+          <section id="marquee" className="admin2-panel">
+            <div style={{ padding: "20px 24px", borderBottom: "1px solid #eeece6" }}>
+              <h2 style={{ margin: 0, fontSize: 17, fontWeight: 700 }}>Scrolling strip</h2>
+              <p style={{ margin: 0, fontSize: 14, color: "#5b6664" }}>
+                The running text under the hero (&quot;Optimization · Reinforcement Learning · ...&quot;). Scrolls automatically; each item is text or an image.
+              </p>
+            </div>
+            <div style={{ padding: "20px 24px" }}>
+              <MarqueeEditor items={homepage.marqueeItems} />
+            </div>
+          </section>
 
           <section id="backgrounds" className="admin2-panel">
             <div style={{ padding: "20px 24px", borderBottom: "1px solid #eeece6" }}>

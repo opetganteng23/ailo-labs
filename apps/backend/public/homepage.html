@@ -99,12 +99,12 @@
   .hero-dots span.on{width:28px; background:var(--orange);}
 
   /* ===== Marquee strip ===== */
-  .strip{background:#0E6B73; color:#fff; height:64px; overflow-x:auto; scrollbar-width:none;}
-  .strip::-webkit-scrollbar{display:none;}
-  .strip-inner{display:flex; align-items:center; justify-content:space-between; gap:32px; height:100%; min-width:max-content; padding:0 max(32px, calc((100% - 1200px) / 2)); box-sizing:border-box; white-space:nowrap; font-size:15px; font-weight:500;}
-  @media (min-width:1100px){ .strip-inner{min-width:0;} }
+  .strip{background:#0E6B73; color:#fff; height:64px; overflow:hidden;}
+  .strip-inner{display:flex; align-items:center; gap:32px; height:100%; width:max-content; padding:0 16px; box-sizing:border-box; white-space:nowrap; font-size:15px; font-weight:500; animation:scroll 32s linear infinite;}
+  .strip:hover .strip-inner{animation-play-state:paused;}
   .strip-inner b{color:#FFC48F; font-weight:700;}
   .strip-inner .sep{width:6px; height:6px; border-radius:999px; background:var(--orange); flex-shrink:0;}
+  .strip-inner img{height:28px; width:auto; flex-shrink:0;}
   @keyframes scroll{from{transform:translateX(0)} to{transform:translateX(-50%)}}
 
   /* ===== Section shell ===== */
@@ -419,6 +419,7 @@
 
 <div class="strip">
   <div class="strip-inner" id="marquee">
+<!--MARQUEE_ITEMS_START-->
     <span><b>Optimization</b> · Reinforcement Learning</span>
     <span class="sep"></span>
     <span><b>NLP</b> · Retrieval-Augmented Generation</span>
@@ -426,6 +427,15 @@
     <span><b>Computer Vision</b> · Edge Deployment</span>
     <span class="sep"></span>
     <span><b>Applied ML</b> · Smart Campus Systems</span>
+    <span class="sep"></span>
+    <span><b>Optimization</b> · Reinforcement Learning</span>
+    <span class="sep"></span>
+    <span><b>NLP</b> · Retrieval-Augmented Generation</span>
+    <span class="sep"></span>
+    <span><b>Computer Vision</b> · Edge Deployment</span>
+    <span class="sep"></span>
+    <span><b>Applied ML</b> · Smart Campus Systems</span>
+<!--MARQUEE_ITEMS_END-->
   </div>
 </div>
 
@@ -938,6 +948,15 @@
       track._syncTimer = window.setTimeout(syncDots, 80);
     });
     syncDots();
+  })();
+
+  (function () {
+    var marquee = document.getElementById('marquee');
+    if (!marquee) return;
+    var SPEED_PX_PER_SEC = 60;
+    // The track holds the item list twice back to back, so half its width is one full loop.
+    var duration = (marquee.scrollWidth / 2) / SPEED_PX_PER_SEC;
+    marquee.style.animationDuration = Math.max(duration, 8) + 's';
   })();
 </script>
 

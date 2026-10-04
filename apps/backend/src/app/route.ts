@@ -36,6 +36,7 @@ type HomepageSettings = {
   stat2Label?: string;
   stat3Value?: string;
   stat3Label?: string;
+  marqueeItems?: { bold?: string; text?: string; image?: string }[];
 };
 
 type CardResult = { html: string | null; count: number };
@@ -63,6 +64,25 @@ function buildFooterAddresses(contact: { address?: string; address2?: string } |
     `<span class="foot-address">${escapeHtml(address)}</span>`,
     ...(address2 ? [`<span class="foot-address">${escapeHtml(address2)}</span>`] : []),
   ].join("\n");
+}
+
+const DEFAULT_MARQUEE_ITEMS: { bold: string; text: string }[] = [
+  { bold: "Optimization", text: "Reinforcement Learning" },
+  { bold: "NLP", text: "Retrieval-Augmented Generation" },
+  { bold: "Computer Vision", text: "Edge Deployment" },
+  { bold: "Applied ML", text: "Smart Campus Systems" },
+];
+
+/** Builds the running strip's content twice back to back so a CSS translateX(-50%) loop is seamless. */
+function buildMarqueeItems(items: { bold?: string; text?: string; image?: string }[] | undefined): string {
+  const list = items && items.length > 0 ? items : DEFAULT_MARQUEE_ITEMS;
+  const renderItem = (item: { bold?: string; text?: string; image?: string }) =>
+    item.image
+      ? `<img src="${escapeHtml(item.image)}" alt="${escapeHtml(item.bold || item.text || "")}">`
+      : `<span>${item.bold ? `<b>${escapeHtml(item.bold)}</b>` : ""}${item.bold && item.text ? " · " : ""}${escapeHtml(item.text || "")}</span>`;
+  const sep = `<span class="sep"></span>`;
+  const oneSet = list.map(renderItem).join(`\n${sep}\n`);
+  return [oneSet, oneSet].join(`\n${sep}\n`);
 }
 
 const SOCIAL_LABELS: Record<"instagram" | "linkedin" | "youtube", string> = {
@@ -346,6 +366,7 @@ export async function GET() {
     html = replaceBlock(html, "FOOTER_CONTACT", buildFooterContact(settingsDoc?.contact));
     html = replaceBlock(html, "FOOTER_ADDRESSES", buildFooterAddresses(settingsDoc?.contact));
     html = replaceBlock(html, "FOOTER_SOCIALS", buildFooterSocials(settingsDoc?.socialMedia));
+    html = replaceBlock(html, "MARQUEE_ITEMS", buildMarqueeItems(homepage?.marqueeItems));
   } catch (error) {
     console.error("Failed to load homepage dynamic content, serving defaults", error);
   }

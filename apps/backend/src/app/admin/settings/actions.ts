@@ -19,6 +19,13 @@ export async function updateSettingsAction(formData: FormData) {
     backgroundFields[`homepage.${zone}OverlayOpacity`] = Number(formData.get(`${zone}OverlayOpacity`) ?? 88);
   }
 
+  const marqueeBold = formData.getAll("marqueeBold").map(String);
+  const marqueeText = formData.getAll("marqueeText").map(String);
+  const marqueeImage = formData.getAll("marqueeImage").map(String);
+  const marqueeItems = marqueeBold
+    .map((bold, i) => ({ bold, text: marqueeText[i] ?? "", image: marqueeImage[i] ?? "" }))
+    .filter((item) => item.bold || item.text || item.image);
+
   await withFlash(
     async () => {
       await connectToDatabase();
@@ -46,6 +53,7 @@ export async function updateSettingsAction(formData: FormData) {
             "homepage.stat2Label": formData.get("stat2Label"),
             "homepage.stat3Value": formData.get("stat3Value"),
             "homepage.stat3Label": formData.get("stat3Label"),
+            "homepage.marqueeItems": marqueeItems,
             ...backgroundFields,
             updatedBy: session.sub,
           },
