@@ -63,11 +63,11 @@ export async function SiteFooter() {
               <li><a href={`mailto:${email}`}>{email}</a></li>
               <li><span>{phone}</span></li>
             </ul>
-            <div className="foot-addresses">
-              <span className="foot-address">{address}</span>
-              {address2 && <span className="foot-address">{address2}</span>}
-            </div>
           </div>
+        </div>
+        <div className="foot-addresses">
+          <span className="foot-address">{address}</span>
+          {address2 && <span className="foot-address">{address2}</span>}
         </div>
         <div className="foot-bottom">
           <span>© 2026 AILO · Telkom University Center of Excellence</span>

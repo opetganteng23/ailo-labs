@@ -47,18 +47,21 @@ const DEFAULT_CONTACT = {
   address2: "",
 };
 
-function buildFooterContact(contact: { email?: string; phone?: string; address?: string; address2?: string } | undefined): string {
+function buildFooterContact(contact: { email?: string; phone?: string } | undefined): string {
   const email = contact?.email || DEFAULT_CONTACT.email;
   const phone = contact?.phone || DEFAULT_CONTACT.phone;
-  const address = contact?.address || DEFAULT_CONTACT.address;
-  const address2 = contact?.address2 || DEFAULT_CONTACT.address2;
   return [
     `<a href="mailto:${escapeHtml(email)}" style="color:#fff;">${escapeHtml(email)}</a>`,
     `<span>${escapeHtml(phone)}</span>`,
-    `<div class="foot-addresses">`,
+  ].join("\n");
+}
+
+function buildFooterAddresses(contact: { address?: string; address2?: string } | undefined): string {
+  const address = contact?.address || DEFAULT_CONTACT.address;
+  const address2 = contact?.address2 || DEFAULT_CONTACT.address2;
+  return [
     `<span class="foot-address">${escapeHtml(address)}</span>`,
     ...(address2 ? [`<span class="foot-address">${escapeHtml(address2)}</span>`] : []),
-    `</div>`,
   ].join("\n");
 }
 
@@ -341,6 +344,7 @@ export async function GET() {
     html = replaceBlock(html, "TEAM_CARDS", team.html);
     html = replaceBlock(html, "NEWS_CARDS", news.html);
     html = replaceBlock(html, "FOOTER_CONTACT", buildFooterContact(settingsDoc?.contact));
+    html = replaceBlock(html, "FOOTER_ADDRESSES", buildFooterAddresses(settingsDoc?.contact));
     html = replaceBlock(html, "FOOTER_SOCIALS", buildFooterSocials(settingsDoc?.socialMedia));
   } catch (error) {
     console.error("Failed to load homepage dynamic content, serving defaults", error);
