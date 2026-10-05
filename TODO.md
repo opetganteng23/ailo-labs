@@ -65,8 +65,8 @@ Sumber: `AILO_Evaluasi_Menyeluruh_dan_Rencana_Perbaikan.md` (evaluasi 30 Sep 202
 - [x] §27 Toast Warning & Info (selain Success/Error) - DONE & VERIFIED on live (c6bd04a): tipe `warning` (oranye) dan `info` (biru) di `toast()`, `flash()`, dan Toaster; `FlashError` punya level, pesan "Please fill in ..." dari server sekarang tampil sebagai warning, begitu juga ringkasan required-field di client. Warna toast diukur di live (rgb(217,138,11) dan rgb(47,127,166)). Info belum dipakai di alur nyata, hanya tersedia.
 
 ## P2 - Enhancement
-- [ ] §13 Halaman kelola kategori Team
-- [ ] §25 Komponen empty state seragam dengan tombol aksi
+- [x] §13 Halaman kelola kategori Team - DONE & VERIFIED on live (408a894): model `TeamCategory` (diisi awal dari 5 kategori lama + yang sudah terpakai), halaman /admin/team/categories (tambah, rename yang ikut mengubah profil Team & Member, hapus yang diblokir selama masih dipakai), tombol "Manage categories" di Admin > Team. Filter admin, form Team, halaman publik /team, dan pilihan kategori Team Board di Members semua membaca daftar ini; enum tetap di `Team.category`/`Member.teamCategory` dihapus. Diuji di live: daftar awal 5 kategori, tambah muncul di form Team & filter publik, rename, hapus; hapus "Dosen" ditolak dengan toast warning "still used by 1 team profile and 1 member". Catatan: tipe keanggotaan di form Join (`MEMBER_CATEGORIES`) sengaja tetap daftar tetap - itu jenis pendaftar, bukan kategori tampilan Team.
+- [x] §25 Komponen empty state seragam dengan tombol aksi - DONE & VERIFIED on live (408a894): `components/EmptyState.tsx` (ikon, judul, pesan, tombol aksi; varian admin & public) menggantikan baris "No ... yet" di 8 list admin/dosen (news, research, projects, services/books/partners, devices, users, draft/riset/proyek dosen) dan 7 halaman publik (news, research, projects, services, books, labs, team). Tombol aksi mengarah ke halaman tambah yang relevan. Diuji: /books publik dan /admin/books menampilkan empty state dengan tombol "Add book".
 
 ## Selesai sebelumnya (ringkas)
 - [x] 20 temuan QA (Laporan Evaluasi Website AILO Official.pdf) - commit 8b51506 dst, dites Playwright di live
