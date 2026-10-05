@@ -13,6 +13,8 @@ export type CatalogConfig = {
   year: boolean;
   link: string | null;
   content: boolean;
+  /** Whether entries can carry an uploaded PDF (books). */
+  file: boolean;
   publicPath: string | null;
 };
 
@@ -27,6 +29,7 @@ export const CATALOG: Record<CatalogKind, CatalogConfig> = {
     year: false,
     link: null,
     content: true,
+    file: false,
     publicPath: "/services",
   },
   books: {
@@ -39,6 +42,7 @@ export const CATALOG: Record<CatalogKind, CatalogConfig> = {
     year: true,
     link: "Link (where to read or get it)",
     content: false,
+    file: true,
     publicPath: "/books",
   },
   partners: {
@@ -51,6 +55,7 @@ export const CATALOG: Record<CatalogKind, CatalogConfig> = {
     year: false,
     link: "Website",
     content: false,
+    file: false,
     publicPath: null,
   },
 };

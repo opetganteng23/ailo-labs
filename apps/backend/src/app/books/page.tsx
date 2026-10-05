@@ -1,14 +1,16 @@
+import Link from "next/link";
+
+import { EmptyState } from "@/components/EmptyState";
 import { SiteFooter } from "@/components/SiteFooter";
 import { SiteHeader } from "@/components/SiteHeader";
 import { connectToDatabase } from "@/lib/mongodb";
 import { Book } from "@/models/catalog";
-import { EmptyState } from "@/components/EmptyState";
 
 export const dynamic = "force-dynamic";
 
 export const metadata = { title: "Books · AILO" };
 
-type BookItem = { _id: string; title: string; description?: string; image?: string; link?: string; author?: string; year?: string };
+type BookItem = { _id: string; title: string; slug: string; description?: string; image?: string; link?: string; file?: string; author?: string; year?: string };
 
 export default async function BooksPage() {
   await connectToDatabase();
@@ -24,7 +26,7 @@ export default async function BooksPage() {
             <h1>Books &amp; publications</h1>
           </div>
           <div className="sec-desc">
-            <p>Books written and published by the AILO team.</p>
+            <p>Books written and published by the AILO team. Pick one to read it right here.</p>
           </div>
         </div>
 
@@ -43,11 +45,11 @@ export default async function BooksPage() {
                 <h3>{item.title}</h3>
                 {(item.author || item.year) && <span className="rcard-date">{[item.author, item.year].filter(Boolean).join(" · ")}</span>}
                 {item.description && <p>{item.description}</p>}
-                {item.link && (
-                  <a href={item.link} target="_blank" rel="noopener noreferrer" className="explore" style={{ fontWeight: 700, color: "var(--teal-dark)" }}>
-                    Read or get this book
-                  </a>
-                )}
+                {item.file || item.link ? (
+                  <Link href={`/books/${item.slug}`} className="explore" style={{ fontWeight: 700, color: "var(--teal-dark)" }}>
+                    {item.file ? "Read this book" : "View this book"}
+                  </Link>
+                ) : null}
               </div>
             </div>
           ))}

@@ -15,6 +15,7 @@ export type CatalogInitial = {
   content?: string;
   image?: string;
   link?: string;
+  file?: string;
   author?: string;
   year?: string;
   order?: number;
@@ -98,6 +99,12 @@ export function CatalogForm({ config, initial }: { config: CatalogConfig; initia
           <section className="admin2-section pad-sm">
             <h2>{config.kind === "partners" ? "Logo" : "Image"}</h2>
             <ImageUploadField name="image" label="" defaultValue={initial?.image} hint={config.kind === "partners" ? "Logo with transparent or white background" : "PNG, JPG or WEBP"} />
+            {config.file && (
+              <div style={{ marginTop: 14 }}>
+                <h3 style={{ margin: "0 0 8px", fontSize: 14, fontWeight: 700 }}>Book file (PDF)</h3>
+                <ImageUploadField name="file" label="" defaultValue={initial?.file} endpoint="/api/upload-pdf" accept="application/pdf" hint="Readable on the site. PDF, up to 50 MB" />
+              </div>
+            )}
             {config.kind === "partners" && (
               <label style={{ flexDirection: "row", alignItems: "flex-start", gap: 10, marginTop: 14, fontWeight: 500 }}>
                 <input type="checkbox" name="logoDark" defaultChecked={Boolean(initial?.logoDark)} style={{ marginTop: 3 }} />

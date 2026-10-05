@@ -37,6 +37,7 @@ function readEntry(kind: CatalogKind, formData: FormData) {
     // Empty strings (not undefined) so clearing a field actually clears it - Mongoose ignores undefined on update.
     image: text("image"),
     link: cfg.link ? text("link") : "",
+    file: cfg.file ? text("file") : "",
     author: cfg.author ? text("author") : "",
     year: cfg.year ? text("year") : "",
     logoDark: kindIsPartner(cfg.kind) ? formData.get("logoDark") === "on" : false,

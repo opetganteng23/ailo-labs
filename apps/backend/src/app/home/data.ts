@@ -1,6 +1,6 @@
 import { connectToDatabase } from "@/lib/mongodb";
 import { listTeamCategories } from "@/lib/teamCategoriesDb";
-import { Partner } from "@/models/catalog";
+import { Book, Partner } from "@/models/catalog";
 import { Lab } from "@/models/Lab";
 import { News } from "@/models/News";
 import { Project } from "@/models/Project";
@@ -48,6 +48,7 @@ export type TeamCard = {
   documentCount?: number;
   badges: string[];
 };
+export type BookCard = { title: string; slug: string; author?: string; year?: string; description?: string; image?: string; file?: string; link?: string };
 export type LabRow = { name: string; meta: string; status: "open" | "busy" };
 export type StripItem = { bold?: string; text?: string; image?: string; dark?: boolean };
 
@@ -62,16 +63,17 @@ export type HomeData = {
   team: TeamCard[];
   teamCategories: string[];
   labs: LabRow[];
+  books: BookCard[];
   /** null = nothing to show (hide the strip); undefined = fall back to the built-in sample items */
   strip: StripItem[] | null | undefined;
 };
 
 /** Loads everything the homepage shows. Any failure degrades to "no data", and the sections fall back to their samples. */
 export async function getHomeData(): Promise<HomeData> {
-  const empty: HomeData = { research: [], projects: [], news: [], team: [], teamCategories: [], labs: [], strip: undefined };
+  const empty: HomeData = { research: [], projects: [], news: [], team: [], teamCategories: [], labs: [], books: [], strip: undefined };
   try {
     await connectToDatabase();
-    const [settings, research, projects, team, news, labs, partners, teamCategories] = await Promise.all([
+    const [settings, research, projects, team, news, labs, partners, teamCategories, books] = await Promise.all([
       SiteSettings.findOne({ key: "global" }).lean<{
         homepage?: HomepageSettings;
         about?: HomeData["about"];
@@ -107,6 +109,7 @@ export async function getHomeData(): Promise<HomeData> {
       Lab.find({ isActive: true }).sort({ name: 1 }).limit(4).select("name location capacity facilities").lean<{ name: string; location?: string; capacity?: number; facilities?: string }[]>(),
       Partner.find({ status: "published" }).sort({ order: 1, title: 1 }).select("title image logoDark").lean<{ title: string; image?: string; logoDark?: boolean }[]>(),
       listTeamCategories(),
+      Book.find({ status: "published" }).sort({ order: 1, title: 1 }).limit(24).select("title slug author year description image file link").lean<BookCard[]>(),
     ]);
 
     // Published partners feed the strip, but only as logos (never as text); with no logo uploaded yet the strip stays hidden.
@@ -133,6 +136,7 @@ export async function getHomeData(): Promise<HomeData> {
         badges: [t.profiles?.scopus ? "Scopus" : null, t.profiles?.googleScholar ? "Scholar" : null, t.profiles?.sinta ? "SINTA" : null].filter(Boolean) as string[],
       })),
       teamCategories,
+      books: books.map((b) => ({ title: b.title, slug: b.slug, author: b.author, year: b.year, description: b.description, image: b.image, file: b.file, link: b.link })),
       labs: labs.map((l) => ({
         name: l.name,
         meta: [l.location, l.capacity ? `${l.capacity} people` : null, l.facilities].filter(Boolean).join(" · "),

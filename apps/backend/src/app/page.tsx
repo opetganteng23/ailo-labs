@@ -4,6 +4,7 @@ import Link from "next/link";
 import { SiteFooter } from "@/components/SiteFooter";
 
 import { BackgroundLayer } from "./home/BackgroundLayer";
+import { BooksWidget } from "./home/BooksWidget";
 import { ChatWidget } from "./home/ChatWidget";
 import { getHomeData, type HomeData, type LabRow, type ProjectCard, type ResearchCard } from "./home/data";
 import { HomeHeader } from "./home/HomeHeader";
@@ -489,6 +490,7 @@ export default async function HomePage() {
       </section>
 
       <SiteFooter />
+      <BooksWidget books={data.books} />
       <ChatWidget />
     </div>
   );
