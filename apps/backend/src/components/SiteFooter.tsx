@@ -19,11 +19,17 @@ const SOCIAL_LINKS: SocialLink[] = [
 ];
 
 export async function SiteFooter() {
-  await connectToDatabase();
-  const settings = await SiteSettings.findOne({ key: "global" }).lean<{
+  type FooterSettings = {
     contact?: { email?: string; phone?: string; address?: string; address2?: string };
     socialMedia?: { instagram?: string; linkedin?: string; youtube?: string };
-  }>();
+  };
+  let settings: FooterSettings | null = null;
+  try {
+    await connectToDatabase();
+    settings = await SiteSettings.findOne({ key: "global" }).lean<FooterSettings>();
+  } catch {
+    // A database hiccup shouldn't take the whole page down; fall back to the built-in contact details.
+  }
 
   const email = settings?.contact?.email || DEFAULT_CONTACT.email;
   const phone = settings?.contact?.phone || DEFAULT_CONTACT.phone;
