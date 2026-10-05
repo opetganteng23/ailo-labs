@@ -60,15 +60,15 @@
   .hero > .hero-scrim{position:absolute; z-index:1;}
   .hero > .section-bg-layer{position:absolute; z-index:0;}
   .hero > .section-bg-overlay{position:absolute; z-index:1;}
-  .hero{--gutter:max(32px, calc((100% - 1200px) / 2)); display:flex; flex-direction:column; min-height:780px; padding:84px 0 0;}
+  .hero{--gutter:max(32px, calc((100% - 1200px) / 2)); display:flex; flex-direction:column; min-height:780px; padding:84px 0 64px;}
 
   header.site-nav{
     position:fixed; top:0; left:0; right:0; z-index:100;
     display:flex; align-items:center; gap:40px;
     height:84px; padding:0 var(--gutter); width:100%; box-sizing:border-box;
     border-bottom:1px solid rgba(255,255,255,0.12);
-    background:rgba(0,73,90,0.8);
-    -webkit-backdrop-filter:blur(14px) saturate(140%); backdrop-filter:blur(14px) saturate(140%);
+    background:rgba(8,24,30,0.5);
+    -webkit-backdrop-filter:blur(18px) saturate(150%); backdrop-filter:blur(18px) saturate(150%);
   }
   .brand{display:flex; align-items:center; gap:10px; color:#fff;}
   .brand .name{font-size:24px; font-weight:800; letter-spacing:.06em; color:#fff;}
@@ -101,7 +101,7 @@
   .hero-dots span.on{width:28px; background:var(--orange);}
 
   /* ===== Marquee strip ===== */
-  .strip{background:#0E6B73; color:#fff; height:64px; overflow:hidden;}
+  .strip{position:relative; z-index:5; margin-top:-64px; background:rgba(8,24,30,0.4); -webkit-backdrop-filter:blur(16px) saturate(150%); backdrop-filter:blur(16px) saturate(150%); border-top:1px solid rgba(255,255,255,0.16); color:#fff; height:64px; overflow:hidden;}
   .strip-inner{display:flex; align-items:center; gap:32px; height:100%; width:max-content; padding:0 16px; box-sizing:border-box; white-space:nowrap; font-size:15px; font-weight:500; animation:scroll 32s linear infinite;}
   .strip:hover .strip-inner{animation-play-state:paused;}
   .strip-inner b{color:#FFC48F; font-weight:700;}
