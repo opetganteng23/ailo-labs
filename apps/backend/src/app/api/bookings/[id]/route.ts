@@ -21,7 +21,7 @@ export async function PATCH(request: NextRequest, ctx: { params: Promise<{ id: s
   const parsed = patchSchema.safeParse(await request.json());
   if (!parsed.success) {
     return NextResponse.json(
-      { success: false, error: "Invalid payload.", details: parsed.error.flatten() },
+      { success: false, error: "Some of the information isn't valid. Please check it and try again." },
       { status: 400 },
     );
   }

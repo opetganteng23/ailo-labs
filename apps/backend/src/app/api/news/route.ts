@@ -58,7 +58,7 @@ export async function POST(request: NextRequest) {
 
   if (!parsed.success) {
     return NextResponse.json(
-      { success: false, error: "Invalid news payload.", details: parsed.error.flatten() },
+      { success: false, error: "Some of the information isn't valid. Please check it and try again." },
       { status: 400 },
     );
   }

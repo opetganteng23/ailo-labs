@@ -35,7 +35,7 @@ export async function POST(request: NextRequest) {
   const parsed = registerSchema.safeParse(await request.json());
   if (!parsed.success) {
     return NextResponse.json(
-      { success: false, error: "Please fill in every field, including photo and proof document.", details: parsed.error.flatten() },
+      { success: false, error: "Please fill in every field, including photo and proof document." },
       { status: 400 },
     );
   }

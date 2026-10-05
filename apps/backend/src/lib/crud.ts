@@ -31,7 +31,7 @@ export function createHandler(Model: AnyModel, schema: AnySchema) {
     const parsed = schema.safeParse(await request.json());
     if (!parsed.success) {
       return NextResponse.json(
-        { success: false, error: "Invalid payload.", details: parsed.error.flatten() },
+        { success: false, error: "Some of the information isn't valid. Please check it and try again." },
         { status: 400 },
       );
     }
@@ -74,7 +74,7 @@ export function updateBySlugHandler(Model: AnyModel, schema: AnySchema) {
     const parsed = schema.partial().safeParse(await request.json());
     if (!parsed.success) {
       return NextResponse.json(
-        { success: false, error: "Invalid payload.", details: parsed.error.flatten() },
+        { success: false, error: "Some of the information isn't valid. Please check it and try again." },
         { status: 400 },
       );
     }

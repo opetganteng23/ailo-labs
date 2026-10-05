@@ -61,7 +61,7 @@ export async function POST(request: NextRequest) {
   if (!parsed.success) {
     const first = parsed.error.issues[0];
     return NextResponse.json(
-      { success: false, error: first?.message && !first.message.startsWith("Invalid") ? first.message : "Please fill in every required field.", details: parsed.error.flatten() },
+      { success: false, error: first?.message && !first.message.startsWith("Invalid") ? first.message : "Please fill in every required field." },
       { status: 400 },
     );
   }

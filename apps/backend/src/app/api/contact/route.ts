@@ -28,7 +28,7 @@ export async function POST(request: NextRequest) {
 
   if (!parsed.success) {
     return NextResponse.json(
-      { success: false, error: "Please fill in every field (message at least 10 characters).", details: parsed.error.flatten() },
+      { success: false, error: "Please fill in every field (message at least 10 characters)." },
       { status: 400 },
     );
   }
