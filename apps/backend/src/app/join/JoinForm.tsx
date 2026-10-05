@@ -449,7 +449,7 @@ export function JoinForm() {
               </label>
               <label htmlFor="jproof" className="join-proof-pick">
                 <span style={{ fontSize: 15, fontWeight: 700 }}>
-                  {uploading === "proofDocument" ? "Uploading…" : proofName || "Upload KTM, surat tugas, or ijazah"}
+                  {uploading === "proofDocument" ? "Uploading…" : proofName || "Upload KTM, ID Pegawai, surat tugas, or ijazah"}
                 </span>
                 <span style={{ fontSize: 13, color: "#6b7573" }}>{proofName ? "Uploaded · click to replace" : "PDF, JPG or PNG · max 5 MB"}</span>
                 <input id="jproof" type="file" accept="image/png,image/jpeg,application/pdf" style={{ display: "none" }} onChange={(e) => upload("proofDocument", e.target.files?.[0])} />
