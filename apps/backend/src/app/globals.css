@@ -843,7 +843,8 @@ footer.site .foot-brand img { height: 36px; margin-bottom: 14px; }
 footer.site .foot-brand p { font-size: 13.5px; line-height: 1.7; color: #c9dcdc; max-width: 32ch; }
 footer.site .foot-col h5 { color: #fff; font-size: 13px; font-weight: 700; margin-bottom: 16px; letter-spacing: 0.02em; }
 footer.site .foot-col ul { list-style: none; display: flex; flex-direction: column; gap: 10px; margin: 0; padding: 0; }
-footer.site .foot-col a { font-size: 13.5px; }
+footer.site .foot-col { min-width: 0; }
+footer.site .foot-col a, footer.site .foot-col span { font-size: 13.5px; overflow-wrap: anywhere; }
 footer.site .foot-addresses {
   display: flex;
   flex-wrap: wrap;
