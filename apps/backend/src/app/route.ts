@@ -367,15 +367,19 @@ export async function GET() {
     html = replaceBlock(html, "FOOTER_CONTACT", buildFooterContact(settingsDoc?.contact));
     html = replaceBlock(html, "FOOTER_ADDRESSES", buildFooterAddresses(settingsDoc?.contact));
     html = replaceBlock(html, "FOOTER_SOCIALS", buildFooterSocials(settingsDoc?.socialMedia));
-    // Partners (name + optional logo) feed the strip when any are published; otherwise the Settings strip items are used.
+    // Published partners feed the strip, but only as logos (never as text); with no logo uploaded yet the strip stays hidden.
+    // With no partners at all, the Settings strip items are used.
     const partners = (await Partner.find({ status: "published" }).sort({ order: 1, title: 1 }).select("title image").lean()) as unknown as { title: string; image?: string }[];
-    const stripItems = partners.length > 0 ? partners.map((p) => ({ text: p.title, image: p.image })) : homepage?.marqueeItems;
-    html = replaceBlock(html, "MARQUEE_ITEMS", buildMarqueeItems(stripItems));
+    const partnerLogos = partners.filter((p) => p.image).map((p) => ({ text: p.title, image: p.image }));
+    const hideStrip = partners.length > 0 && partnerLogos.length === 0;
+    const stripItems = partners.length > 0 ? partnerLogos : homepage?.marqueeItems;
+    html = replaceBlock(html, "MARQUEE_ITEMS", hideStrip ? "" : buildMarqueeItems(stripItems));
+    if (hideStrip) html = html.replace('<div class="strip">', '<div class="strip" hidden>');
   } catch (error) {
     console.error("Failed to load homepage dynamic content, serving defaults", error);
   }
 
   return new Response(html, {
-    headers: { "content-type": "text/html; charset=utf-8" },
+    headers: { "content-type": "text/html; charset=utf-8", "cache-control": "no-store, must-revalidate" },
   });
 }

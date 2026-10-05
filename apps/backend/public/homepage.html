@@ -102,11 +102,12 @@
 
   /* ===== Marquee strip ===== */
   .strip{position:relative; z-index:5; margin-top:-64px; background:rgba(8,24,30,0.4); -webkit-backdrop-filter:blur(16px) saturate(150%); backdrop-filter:blur(16px) saturate(150%); border-top:1px solid rgba(255,255,255,0.16); color:#fff; height:64px; overflow:hidden;}
-  .strip-inner{display:flex; align-items:center; gap:32px; height:100%; width:max-content; padding:0 16px; box-sizing:border-box; white-space:nowrap; font-size:15px; font-weight:500; animation:scroll 32s linear infinite;}
+  .strip-inner{display:flex; align-items:center; gap:28px; height:100%; width:max-content; padding:0 16px; box-sizing:border-box; white-space:nowrap; font-size:15px; font-weight:500; animation:scroll 32s linear infinite;}
   .strip:hover .strip-inner{animation-play-state:paused;}
   .strip-inner b{color:#FFC48F; font-weight:700;}
   .strip-inner .sep{width:6px; height:6px; border-radius:999px; background:var(--orange); flex-shrink:0;}
-  .strip-inner img{height:28px; width:auto; flex-shrink:0;}
+  .strip[hidden]{display:none;}
+  .strip-inner img{height:40px; width:auto; max-width:160px; object-fit:contain; flex-shrink:0; background:#fff; padding:6px 14px; border-radius:10px; box-sizing:border-box;}
   @keyframes scroll{from{transform:translateX(0)} to{transform:translateX(-50%)}}
 
   /* ===== Section shell ===== */
