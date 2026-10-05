@@ -1365,3 +1365,13 @@ footer.site .foot-bottom .socials .admin-link { color: #7fa9ab; }
 @media (max-width: 640px) { .status-board { grid-template-columns: 1fr; } }
 .row-action { font-size: var(--fs-sm); font-weight: 600; color: #00809d; background: none; border: 0; padding: 0; cursor: pointer; }
 .row-action:hover { text-decoration: underline; }
+
+/* Partners page: logo grid */
+.partner-grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(220px,1fr)); gap:var(--space-4,20px); margin-top:var(--space-6,32px);}
+.partner-card{display:flex; flex-direction:column; gap:12px; align-items:center; text-align:center; padding:18px; background:#fff; border:1px solid #e3e1da; border-radius:var(--radius-lg,16px); color:inherit; transition:border-color .2s ease, box-shadow .2s ease, transform .2s ease;}
+a.partner-card:hover{border-color:var(--teal); box-shadow:0 14px 28px -18px rgba(18,24,27,.4); transform:translateY(-2px);}
+.partner-card b{font-size:14px; font-weight:600; line-height:1.35;}
+.partner-logo{width:100%; height:110px; display:flex; align-items:center; justify-content:center; border-radius:12px; padding:14px;}
+.partner-logo.dark{background:#0b4a58;}
+.partner-logo img{max-width:100%; max-height:100%; object-fit:contain;}
+.partner-logo span{font-weight:700; color:var(--teal-dark);}
