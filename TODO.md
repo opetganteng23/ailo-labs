@@ -58,7 +58,7 @@ Sumber: `AILO_Evaluasi_Menyeluruh_dan_Rencana_Perbaikan.md` (evaluasi 30 Sep 202
 ## P1 - High
 - [ ] Follow-up dari §7-8: migrasi `public/homepage.html` + `src/app/route.ts` (template string + marker replace) jadi Next.js page.tsx biasa, supaya header/footer homepage benar-benar 1 komponen React yang sama dengan halaman lain, bukan HTML statis yang disalin manual. Pekerjaan besar & berisiko tinggi (836 baris HTML + 304 baris logic template), sengaja tidak dikerjakan di sesi evaluasi ini - hanya kontennya yang disamakan.
 - [ ] §10-11 CMS seragam News/Research/Projects: List + Board, status Draft/Review/Published/Archived, search/filter/sort, preview
-- [ ] §19 Admin & dosen mobile: header + tombol menu, sidebar jadi drawer
+- [x] §19 Admin & dosen mobile: header + tombol menu, sidebar jadi drawer - DONE & VERIFIED on live (8315cfa): komponen `AdminShell` dipakai layout admin & dosen; di bawah 860px muncul top bar dengan tombol menu, sidebar jadi drawer geser-masuk dengan backdrop, menutup otomatis saat pindah halaman / tap backdrop / Escape. Diuji di 390px (admin & dosen): tertutup di awal (left -280px), terbuka, menutup setelah navigasi dan tap backdrop, tanpa overflow horizontal; desktop tidak berubah (top bar tersembunyi, sidebar tetap di kiri).
 - [ ] §24 Loading state di semua tombol aksi (pending state)
 - [ ] §21-23 Design system: skala tipografi & spacing sebagai variabel, rapikan nilai acak
 - [ ] §26 Cek sisa API yang mengembalikan pesan teknis
