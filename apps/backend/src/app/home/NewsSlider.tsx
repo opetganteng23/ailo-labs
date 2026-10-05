@@ -73,7 +73,8 @@ export function NewsSlider({ items }: { items: NewsCard[] }) {
         </button>
         <div className={hm("news-grid")} id="news-grid" ref={track}>
           {list.map((item, i) => (
-            <a key={`${item.slug}-${i}`} className={hm("ncard")} href={item.slug ? `/news/${item.slug}` : "/news"}>
+            <div key={`${item.slug}-${i}`} className={hm("news-slide")}>
+            <a className={hm("ncard")} href={item.slug ? `/news/${item.slug}` : "/news"}>
               <div className={hm("nthumb")} style={item.image ? { backgroundImage: `url('${item.image}')`, backgroundSize: "cover", backgroundPosition: "center" } : undefined}>
                 <span className={hm("tag")}>{item.category}</span>
               </div>
@@ -84,6 +85,7 @@ export function NewsSlider({ items }: { items: NewsCard[] }) {
                 <span className={hm("read")}>Read article</span>
               </div>
             </a>
+            </div>
           ))}
         </div>
         <button type="button" className={hm("news-nav next")} aria-label="Next article" onClick={() => go(Math.min(list.length - 1, currentIndex() + 1))}>
