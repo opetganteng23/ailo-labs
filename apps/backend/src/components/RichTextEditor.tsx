@@ -14,7 +14,7 @@ import { toast } from "@/lib/toast";
 import { clampEmbedHeight, EMBED_DEFAULT_HEIGHT, EMBED_MAX_HEIGHT, EMBED_MAX_HTML, EMBED_MIN_HEIGHT } from "@/lib/htmlEmbed";
 
 import { Figure } from "./richtext/Figure";
-import { HtmlEmbed } from "./richtext/HtmlEmbed";
+import { EMBED_EDIT_EVENT, HtmlEmbed } from "./richtext/HtmlEmbed";
 
 type RichTextEditorProps = {
   name: string;
@@ -302,6 +302,7 @@ export function RichTextEditor({ name, defaultValue = "", placeholder, minHeight
   const fileRef = useRef<HTMLInputElement>(null);
   const validatorRef = useRef<HTMLTextAreaElement>(null);
   const editorRef = useRef<Editor | null>(null);
+  const wrapperRef = useRef<HTMLDivElement>(null);
   // pos === null inserts a new block; otherwise edits the embed at that position.
   const [embed, setEmbed] = useState<{ pos: number | null; html: string; height: number } | null>(null);
 
@@ -328,7 +329,7 @@ export function RichTextEditor({ name, defaultValue = "", placeholder, minHeight
       FontSize,
       Highlight.configure({ multicolor: true }),
       Figure,
-      ...(allowHtml ? [HtmlEmbed.configure({ onEdit: (pos: number) => openEmbedEditor(pos) })] : []),
+      ...(allowHtml ? [HtmlEmbed] : []),
       Table.configure({ resizable: false }),
       TableRow,
       TableHeader,
@@ -351,10 +352,17 @@ export function RichTextEditor({ name, defaultValue = "", placeholder, minHeight
     editorRef.current = editor;
   }, [editor]);
 
-  function openEmbedEditor(pos: number) {
-    const node = editorRef.current?.state.doc.nodeAt(pos);
-    if (node?.type.name === "htmlEmbed") setEmbed({ pos, html: String(node.attrs.html), height: Number(node.attrs.height) });
-  }
+  useEffect(() => {
+    const root = wrapperRef.current;
+    if (!root) return;
+    const onEdit = (e: Event) => {
+      const pos = (e as CustomEvent<{ pos: number }>).detail.pos;
+      const node = editorRef.current?.state.doc.nodeAt(pos);
+      if (node?.type.name === "htmlEmbed") setEmbed({ pos, html: String(node.attrs.html), height: Number(node.attrs.height) });
+    };
+    root.addEventListener(EMBED_EDIT_EVENT, onEdit);
+    return () => root.removeEventListener(EMBED_EDIT_EVENT, onEdit);
+  }, []);
 
   function saveEmbed() {
     if (!editor || !embed) return;
@@ -395,7 +403,7 @@ export function RichTextEditor({ name, defaultValue = "", placeholder, minHeight
   }
 
   return (
-    <div className={`rte${invalid ? " field-invalid" : ""}`}>
+    <div ref={wrapperRef} className={`rte${invalid ? " field-invalid" : ""}`}>
       <input type="hidden" name={name} value={html} />
       {editor && (
         <Toolbar

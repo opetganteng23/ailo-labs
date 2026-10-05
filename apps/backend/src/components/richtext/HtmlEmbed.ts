@@ -2,10 +2,8 @@ import { mergeAttributes, Node } from "@tiptap/core";
 
 import { buildEmbedDoc, clampEmbedHeight, EMBED_DEFAULT_HEIGHT, EMBED_SANDBOX } from "@/lib/htmlEmbed";
 
-export interface HtmlEmbedOptions {
-  /** Called with the node position when the author clicks "Edit HTML" on an existing block. */
-  onEdit: (pos: number) => void;
-}
+/** Fired (bubbling) from a block's "Edit HTML" button; `detail.pos` is the node position. The editor component listens for it. */
+export const EMBED_EDIT_EVENT = "rte-embed-edit";
 
 declare module "@tiptap/core" {
   interface Commands<ReturnType> {
@@ -17,16 +15,12 @@ declare module "@tiptap/core" {
 }
 
 /** A block holding author-supplied HTML (video embeds, maps, widgets, custom layouts). Stored as `<div data-type="html-embed" data-html="...">`. */
-export const HtmlEmbed = Node.create<HtmlEmbedOptions>({
+export const HtmlEmbed = Node.create({
   name: "htmlEmbed",
   group: "block",
   atom: true,
   draggable: true,
   selectable: true,
-
-  addOptions() {
-    return { onEdit: () => undefined };
-  },
 
   addAttributes() {
     return {
@@ -75,7 +69,7 @@ export const HtmlEmbed = Node.create<HtmlEmbedOptions>({
       edit.textContent = "Edit HTML";
       edit.addEventListener("click", () => {
         const pos = getPos();
-        if (typeof pos === "number") this.options.onEdit(pos);
+        if (typeof pos === "number") dom.dispatchEvent(new CustomEvent(EMBED_EDIT_EVENT, { bubbles: true, detail: { pos } }));
       });
       bar.append(label, edit);
 
