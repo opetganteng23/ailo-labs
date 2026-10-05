@@ -35,11 +35,12 @@ export function TeamGrid({ items, categories }: { items: TeamCard[]; categories:
       </div>
       <div className={hm("team-grid")} id="team-grid">
         {list.map((t, i) => {
-          const match = !filter || t.category === filter;
+          const cats = t.categories?.length ? t.categories : t.category ? [t.category] : [];
+          const match = !filter || cats.includes(filter);
           const metrics =
             t.hIndex !== undefined ? `h-index ${t.hIndex}${t.documentCount ? ` · ${t.documentCount} publications` : ""}` : t.documentCount ? `${t.documentCount} publications` : "";
           return (
-            <a key={`${t.slug}-${i}`} className={hm(match ? "tcard" : "tcard hidden")} href={t.slug ? `/team/${t.slug}` : "/team"} data-category={t.category ?? ""}>
+            <a key={`${t.slug}-${i}`} className={hm(match ? "tcard" : "tcard hidden")} href={t.slug ? `/team/${t.slug}` : "/team"} data-category={cats.join("|")}>
               <div className={hm("tphoto")} style={t.photo ? { backgroundImage: `url('${t.photo}')`, backgroundSize: "cover", backgroundPosition: "center" } : undefined} />
               <h4>{t.name}</h4>
               <div className={hm("role")}>{t.position}</div>

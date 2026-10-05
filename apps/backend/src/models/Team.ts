@@ -11,6 +11,8 @@ const teamSchema = new Schema(
     photo: String,
     position: { type: String, required: true },
     category: { type: String, default: "Peneliti" },
+    // All categories this person belongs to; `category` mirrors the first one.
+    categories: { type: [String], default: [], index: true },
     jenjang: String,
     studyProgram: String,
     displayOrder: { type: Number, default: 0 },

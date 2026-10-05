@@ -63,6 +63,8 @@ export async function renameTeamCategoryAction(formData: FormData) {
       current.name = name;
       await current.save();
       await Team.updateMany({ category: oldName }, { category: name });
+      await Team.updateMany({ categories: oldName }, { $set: { "categories.$": name } });
+      await Member.updateMany({ teamCategories: oldName }, { $set: { "teamCategories.$": name } });
       await Member.updateMany({ teamCategory: oldName }, { teamCategory: name });
     },
     { success: "Category renamed.", error: "Couldn't rename the category. Please try again." },
@@ -78,8 +80,8 @@ export async function deleteTeamCategoryAction(formData: FormData) {
       const id = String(formData.get("id"));
       const category = await TeamCategory.findById(id).lean<{ name: string }>();
       if (!category) return;
-      const inTeam = await Team.countDocuments({ category: category.name });
-      const inMembers = await Member.countDocuments({ teamCategory: category.name });
+      const inTeam = await Team.countDocuments({ $or: [{ category: category.name }, { categories: category.name }] });
+      const inMembers = await Member.countDocuments({ $or: [{ teamCategory: category.name }, { teamCategories: category.name }] });
       if (inTeam + inMembers > 0) {
         throw new FlashError(`"${category.name}" is still used by ${inTeam} team profile${inTeam === 1 ? "" : "s"}${inMembers ? ` and ${inMembers} member${inMembers === 1 ? "" : "s"}` : ""}. Move them to another category first.`, "warning");
       }

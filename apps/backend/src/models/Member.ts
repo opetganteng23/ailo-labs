@@ -47,6 +47,7 @@ const memberSchema = new Schema(
     // an admin decides who actually appears, and can take someone off again.
     includeInTeamBoard: { type: Boolean, default: false, index: true },
     teamCategory: String,
+    teamCategories: { type: [String], default: [] },
   },
   { timestamps: true },
 );

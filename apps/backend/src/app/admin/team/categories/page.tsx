@@ -1,3 +1,4 @@
+import { categoriesOf } from "@/lib/teamCats";
 import Link from "next/link";
 
 import { ConfirmSubmit } from "@/components/ConfirmSubmit";
@@ -14,7 +15,8 @@ export const dynamic = "force-dynamic";
 export default async function TeamCategoriesPage() {
   await listTeamCategories(); // seeds the defaults on first visit
   const categories = (await TeamCategory.find().sort({ order: 1, name: 1 }).lean()) as unknown as { _id: string; name: string }[];
-  const teamUsage = (await Team.aggregate([{ $group: { _id: "$category", n: { $sum: 1 } } }])) as { _id: string; n: number }[];
+  const teamRows = (await Team.find().select("category categories").lean()) as unknown as { category?: string; categories?: string[] }[];
+  const teamUsage = Object.entries(teamRows.flatMap((t) => categoriesOf(t)).reduce<Record<string, number>>((acc, c) => ({ ...acc, [c]: (acc[c] ?? 0) + 1 }), {})).map(([_id, n]) => ({ _id, n }));
   const memberUsage = (await Member.aggregate([{ $match: { teamCategory: { $exists: true } } }, { $group: { _id: "$teamCategory", n: { $sum: 1 } } }])) as { _id: string; n: number }[];
   const countOf = (name: string) => (teamUsage.find((u) => u._id === name)?.n ?? 0) + (memberUsage.find((u) => u._id === name)?.n ?? 0);
 

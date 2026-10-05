@@ -1,3 +1,4 @@
+import { categoriesOf } from "@/lib/teamCats";
 import Link from "next/link";
 
 import { ConfirmSubmit } from "@/components/ConfirmSubmit";
@@ -14,6 +15,7 @@ type TeamItem = {
   name: string;
   position: string;
   category?: string;
+  categories?: string[];
   photo?: string;
   profiles?: Record<string, string | undefined>;
   isActive?: boolean;
@@ -26,11 +28,11 @@ export default async function AdminTeamPage({ searchParams }: { searchParams: Pr
   await connectToDatabase();
   const categories = await listTeamCategories();
   const allItems = (await Team.find().sort({ category: 1, displayOrder: 1, name: 1 }).lean()) as unknown as TeamItem[];
-  const items = category ? allItems.filter((i) => i.category === category) : allItems;
+  const items = category ? allItems.filter((i) => categoriesOf(i).includes(category)) : allItems;
 
   const counts: Record<string, number> = { All: allItems.length };
   for (const cat of categories) {
-    counts[cat] = allItems.filter((i) => i.category === cat).length;
+    counts[cat] = allItems.filter((i) => categoriesOf(i).includes(cat)).length;
   }
 
   return (
@@ -118,9 +120,9 @@ export default async function AdminTeamPage({ searchParams }: { searchParams: Pr
                 </div>
               </div>
               <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
-                {item.category && (
-                  <span style={{ fontSize: 12, fontWeight: 700, color: "#0b454c", background: "#e3f1f1", borderRadius: 999, padding: "4px 10px" }}>{item.category}</span>
-                )}
+                {categoriesOf(item).map((cat) => (
+                  <span key={cat} style={{ fontSize: 12, fontWeight: 700, color: "#0b454c", background: "#e3f1f1", borderRadius: 999, padding: "4px 10px" }}>{cat}</span>
+                ))}
                 {item.pendingSince && (
                   <span className="admin2-pill review" style={{ fontSize: 12 }}>
                     <span className="dot" />

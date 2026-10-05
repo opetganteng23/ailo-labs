@@ -1,3 +1,4 @@
+import { categoriesOf } from "@/lib/teamCats";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
@@ -23,6 +24,7 @@ export default async function TeamDetailPage({ params }: { params: Promise<{ slu
     name: string;
     position: string;
     category?: string;
+    categories?: string[];
     jenjang?: string;
     studyProgram?: string;
     bio?: string;
@@ -51,10 +53,14 @@ export default async function TeamDetailPage({ params }: { params: Promise<{ slu
             )}
           </div>
           <div style={{ flex: "1 1 300px" }}>
-            {item.category && (
-              <span style={{ display: "inline-block", marginBottom: 8, fontSize: 12, fontWeight: 700, color: "var(--teal-dark)", background: "var(--paper-dim)", borderRadius: 999, padding: "4px 10px" }}>
-                {item.category}
-              </span>
+            {categoriesOf(item).length > 0 && (
+              <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 8 }}>
+                {categoriesOf(item).map((cat) => (
+                  <span key={cat} style={{ fontSize: 12, fontWeight: 700, color: "var(--teal-dark)", background: "var(--paper-dim)", borderRadius: 999, padding: "4px 10px" }}>
+                    {cat}
+                  </span>
+                ))}
+              </div>
             )}
             <h1 style={{ margin: 0 }}>{item.name}</h1>
             <p style={{ color: "var(--teal-dark)", fontWeight: 600, marginTop: 4 }}>{item.position}</p>

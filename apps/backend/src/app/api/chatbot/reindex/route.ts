@@ -105,7 +105,7 @@ export async function POST(request: NextRequest) {
       }
     }
     for (const t of team) {
-      for (const chunk of chunkText(`${t.name} - ${t.position}\n${t.bio ?? ""}`)) {
+      for (const chunk of chunkText(`${t.name} - ${t.position}\n${(t.categories?.length ? t.categories : [t.category]).filter(Boolean).join(", ")}\n${t.bio ?? ""}`)) {
         docs.push({ sourceType: "team", sourceId: t._id, chunkText: chunk, embedding: placeholderVector(chunk) });
       }
     }

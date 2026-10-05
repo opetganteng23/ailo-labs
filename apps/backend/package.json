@@ -11,6 +11,7 @@
     "seed:admin": "tsx --env-file=.env scripts/seed-admin.ts",
     "seed:sample": "tsx --env-file=.env scripts/seed-sample-data.ts",
     "import:knowledge": "tsx --env-file=.env scripts/import-knowledge.ts",
+    "migrate:team-categories": "tsx --env-file=.env scripts/migrate-team-categories.ts",
     "clean:sample": "tsx --env-file=.env scripts/clean-sample-data.ts",
     "admin:add": "tsx --env-file=.env scripts/add-admin.ts"
   },

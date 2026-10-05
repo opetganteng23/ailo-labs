@@ -41,6 +41,7 @@ export default async function AdminTeamEditPage({ params }: { params: Promise<{ 
     name: string;
     position: string;
     category?: string;
+    categories?: string[];
     jenjang?: string;
     studyProgram?: string;
     displayOrder?: number;
@@ -117,6 +118,7 @@ export default async function AdminTeamEditPage({ params }: { params: Promise<{ 
           name: item.name,
           position: item.position,
           category: item.category,
+          categories: item.categories,
           jenjang: item.jenjang,
           studyProgram: item.studyProgram,
           displayOrder: item.displayOrder,

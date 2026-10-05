@@ -14,8 +14,9 @@ export async function listTeamCategories(): Promise<string[]> {
   let docs = (await TeamCategory.find().sort({ order: 1, name: 1 }).lean()) as unknown as { name: string }[];
   if (docs.length === 0) {
     const usedTeam = (await Team.distinct("category")) as string[];
+    const usedMulti = (await Team.distinct("categories")) as string[];
     const usedMembers = (await Member.distinct("teamCategory")) as string[];
-    const names = Array.from(new Set([...TEAM_CATEGORIES, ...usedTeam, ...usedMembers].filter(Boolean)));
+    const names = Array.from(new Set([...TEAM_CATEGORIES, ...usedTeam, ...usedMulti, ...usedMembers].filter(Boolean)));
     await TeamCategory.insertMany(
       names.map((name, order) => ({ name, order })),
       { ordered: false },

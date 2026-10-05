@@ -16,6 +16,7 @@ type TeamFormProps = {
     name: string;
     position: string;
     category?: string;
+    categories?: string[];
     jenjang?: string;
     studyProgram?: string;
     displayOrder?: number;
@@ -31,7 +32,8 @@ type TeamFormProps = {
 export function TeamForm({ mode = "create", initial, categories, interestSuggestions = [] }: TeamFormProps) {
   const profiles = initial?.profiles ?? {};
   // Keep a profile's current category selectable even if it was removed from the managed list.
-  const categoryOptions = initial?.category && !categories.includes(initial.category) ? [...categories, initial.category] : categories;
+  const selectedCategories = initial?.categories?.length ? initial.categories : [initial?.category ?? "Peneliti"];
+  const categoryOptions = [...categories, ...selectedCategories.filter((c) => !categories.includes(c))];
 
   return (
     <form action={mode === "edit" ? updateTeamAction : createTeamAction}>
@@ -111,14 +113,16 @@ export function TeamForm({ mode = "create", initial, categories, interestSuggest
 
         <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
           <section className="admin2-section pad-sm">
-            <h2>Category</h2>
-            <select name="category" defaultValue={initial?.category ?? "Peneliti"}>
+            <h2>Categories</h2>
+            <p style={{ margin: "0 0 10px", fontSize: 13, color: "#5b6664" }}>Tick every category this person belongs to, for example Dosen and Peneliti.</p>
+            <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
               {categoryOptions.map((cat) => (
-                <option key={cat} value={cat}>
+                <label key={cat} style={{ display: "flex", gap: 10, alignItems: "center", fontSize: 14, fontWeight: 500 }}>
+                  <input type="checkbox" name="categories" value={cat} defaultChecked={selectedCategories.includes(cat)} style={{ width: 18, height: 18 }} />
                   {cat}
-                </option>
+                </label>
               ))}
-            </select>
+            </div>
           </section>
 
           <section className="admin2-section pad-sm">

@@ -8,6 +8,7 @@ import { FlashError, withFlash } from "@/lib/flash";
 import { connectToDatabase } from "@/lib/mongodb";
 import { Member } from "@/models/Member";
 import { Team } from "@/models/Team";
+import { readCategories } from "@/lib/teamCats";
 
 function slugify(input: string) {
   return input.toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
@@ -32,10 +33,13 @@ function readMember(formData: FormData) {
   const name = String(formData.get("name") ?? "").trim();
   const position = String(formData.get("position") ?? "").trim();
   if (!name || !position) throw new FlashError(`Please fill in the ${[!name && "name", !position && "position"].filter(Boolean).join(" and ")}.`, "warning");
+  const categories = readCategories(formData);
+  if (categories.length === 0) throw new FlashError("Choose at least one category.", "warning");
   return {
     name,
     position,
-    category: String(formData.get("category") ?? "Peneliti"),
+    category: categories[0],
+    categories,
     jenjang: String(formData.get("jenjang") ?? "") || undefined,
     studyProgram: String(formData.get("studyProgram") ?? "") || undefined,
     displayOrder: Number(formData.get("displayOrder") ?? 0) || 0,

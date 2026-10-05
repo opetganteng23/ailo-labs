@@ -1,3 +1,4 @@
+import { categoriesOf } from "@/lib/teamCats";
 import { connectToDatabase } from "@/lib/mongodb";
 import { listTeamCategories } from "@/lib/teamCategoriesDb";
 import { Book, Partner } from "@/models/catalog";
@@ -44,6 +45,7 @@ export type TeamCard = {
   slug: string;
   photo?: string;
   category?: string;
+  categories?: string[];
   hIndex?: number;
   documentCount?: number;
   badges: string[];
@@ -89,7 +91,7 @@ export async function getHomeData(): Promise<HomeData> {
       Team.find({ isActive: true })
         .sort({ name: 1 })
         .limit(8)
-        .select("name position slug photo category profiles scopusData")
+        .select("name position slug photo category categories profiles scopusData")
         .lean<
           {
             name: string;
@@ -97,6 +99,7 @@ export async function getHomeData(): Promise<HomeData> {
             slug: string;
             photo?: string;
             category?: string;
+            categories?: string[];
             profiles?: { scopus?: string; googleScholar?: string; sinta?: string };
             scopusData?: { hIndex?: number; documentCount?: number };
           }[]
@@ -131,6 +134,7 @@ export async function getHomeData(): Promise<HomeData> {
         slug: t.slug,
         photo: t.photo,
         category: t.category,
+        categories: categoriesOf(t),
         hIndex: t.scopusData?.hIndex,
         documentCount: t.scopusData?.documentCount,
         badges: [t.profiles?.scopus ? "Scopus" : null, t.profiles?.googleScholar ? "Scholar" : null, t.profiles?.sinta ? "SINTA" : null].filter(Boolean) as string[],

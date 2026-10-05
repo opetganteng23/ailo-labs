@@ -1,3 +1,4 @@
+import { categoriesOf } from "@/lib/teamCats";
 import Link from "next/link";
 
 import { SiteFooter } from "@/components/SiteFooter";
@@ -15,6 +16,7 @@ type TeamItem = {
   slug: string;
   position: string;
   category?: string;
+  categories?: string[];
   researchInterests?: string[];
   photo?: string;
   scopusData?: { hIndex?: number; documentCount?: number };
@@ -30,7 +32,7 @@ export default async function TeamListPage({ searchParams }: { searchParams: Pro
     .lean()) as unknown as TeamItem[];
   const interests = Array.from(new Set(all.flatMap((i) => i.researchInterests ?? []))).sort((a, b) => a.localeCompare(b));
   const items = all
-    .filter((i) => !category || i.category === category)
+    .filter((i) => !category || categoriesOf(i).includes(category))
     .filter((i) => !interest || (i.researchInterests ?? []).includes(interest));
   const hrefWith = (params: { category?: string; interest?: string }) => {
     const q = new URLSearchParams();

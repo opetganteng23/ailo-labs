@@ -14,6 +14,7 @@ import { generateCardId } from "@/lib/memberCard";
 import { connectToDatabase } from "@/lib/mongodb";
 import { Member } from "@/models/Member";
 import { Team } from "@/models/Team";
+import { readCategories } from "@/lib/teamCats";
 
 async function requireAdmin() {
   const session = await getSession();
@@ -137,7 +138,7 @@ export async function setMemberTeamBoardAction(formData: FormData) {
   await requireAdmin();
   const id = String(formData.get("id"));
   const include = formData.get("include") === "on";
-  const category = String(formData.get("teamCategory") ?? "");
+  const categories = readCategories(formData, "teamCategories");
 
   await withFlash(
     async () => {
@@ -145,12 +146,16 @@ export async function setMemberTeamBoardAction(formData: FormData) {
       const member = await Member.findById(id);
       if (!member) throw new FlashError("This member no longer exists.");
       if (member.status !== "approved") throw new FlashError("Only approved members can be added to the Team Board.");
-      if (include && !(await listTeamCategories()).includes(category)) {
-        throw new FlashError("Choose a category for the Team Board.");
+      const allowed = await listTeamCategories();
+      if (include && (categories.length === 0 || categories.some((c) => !allowed.includes(c)))) {
+        throw new FlashError("Choose at least one category for the Team Board.");
       }
 
       member.includeInTeamBoard = include;
-      if (include) member.teamCategory = category;
+      if (include) {
+        member.teamCategory = categories[0];
+        member.teamCategories = categories;
+      }
       await member.save();
 
       let team = await Team.findOne({ member: member._id }).catch(() => null);
@@ -166,7 +171,8 @@ export async function setMemberTeamBoardAction(formData: FormData) {
       }
 
       if (team) {
-        team.category = category;
+        team.category = categories[0];
+        team.categories = categories;
         team.isActive = true;
         team.member = member._id;
         if (!team.photo && member.photo) team.photo = member.photo;
@@ -178,7 +184,8 @@ export async function setMemberTeamBoardAction(formData: FormData) {
           name: member.name,
           slug,
           position: member.approvedAs ?? member.requestedAs,
-          category,
+          category: categories[0],
+          categories,
           email: member.email.toLowerCase(),
           photo: member.photo,
           member: member._id,

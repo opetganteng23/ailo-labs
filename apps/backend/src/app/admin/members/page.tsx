@@ -27,6 +27,7 @@ type MemberItem = {
   createdAt: string;
   includeInTeamBoard?: boolean;
   teamCategory?: string;
+  teamCategories?: string[];
 };
 
 const STATUSES = ["pending", "approved", "rejected", "expired"] as const;
@@ -271,16 +272,18 @@ export default async function AdminMembersPage({
                       Show this member on the public Team page
                     </label>
                     <div className="admin2-field" style={{ paddingLeft: 28 }}>
-                      <label htmlFor="teamCategory">
-                        Category <span style={{ fontWeight: 500, color: "#6b7573" }}>(used only when shown above)</span>
+                      <label>
+                        Categories <span style={{ fontWeight: 500, color: "#6b7573" }}>(tick all that apply; used only when shown above)</span>
                       </label>
-                      <select id="teamCategory" name="teamCategory" defaultValue={selected.teamCategory ?? selected.approvedAs} style={{ height: 40 }}>
-                        {teamCategories.map((cat) => (
-                          <option key={cat} value={cat}>
+                      {teamCategories.map((cat) => {
+                        const chosen = selected.teamCategories?.length ? selected.teamCategories : [selected.teamCategory ?? selected.approvedAs];
+                        return (
+                          <label key={cat} style={{ display: "flex", gap: 10, alignItems: "center", fontSize: 14, fontWeight: 400 }}>
+                            <input type="checkbox" name="teamCategories" value={cat} defaultChecked={chosen.includes(cat)} style={{ width: 18, height: 18 }} />
                             {cat}
-                          </option>
-                        ))}
-                      </select>
+                          </label>
+                        );
+                      })}
                     </div>
                     <button type="submit" className="admin2-btn outline" style={{ height: 40, alignSelf: "flex-start" }}>
                       Save
