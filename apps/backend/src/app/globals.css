@@ -1302,7 +1302,7 @@ footer.site .foot-bottom .socials .admin-link { color: #7fa9ab; }
   /* Page chrome takes no space, otherwise its height spills the sheet onto a second page. */
   header, footer { display: none !important; }
   .ms-print-root, .ms-print-root * { visibility: visible; }
-  .ms-print-root { position: absolute; top: 0; left: 0; width: 210mm; margin: 0; }
+  .ms-print-root { position: absolute; top: 0; left: 0; width: 210mm; margin: 0 !important; }
   .ms-fit { height: 296mm !important; max-width: none; }
   .ms-scale { transform: none !important; width: 210mm !important; height: 296mm !important; }
   .ms-sheet { height: 296mm !important; }
