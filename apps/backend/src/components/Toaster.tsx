@@ -9,9 +9,9 @@ type ToastType = "success" | "error" | "warning" | "info";
 const TOAST_TYPES: ToastType[] = ["success", "error", "warning", "info"];
 type Toast = { id: number; type: ToastType; message: string };
 
-/** Forms submitted through a React server action (their action attribute is a javascript: placeholder). */
+/** Forms submitted through a React server action carry a hidden $ACTION_* input. */
 function isActionForm(form: HTMLFormElement) {
-  return (form.getAttribute("action") ?? "").startsWith("javascript:");
+  return Array.from(form.elements).some((el) => (el as HTMLInputElement).name?.startsWith("$ACTION"));
 }
 
 function clearPending() {
