@@ -22,7 +22,7 @@
   }
   @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap');
   *{box-sizing:border-box; margin:0; padding:0;}
-  html{scroll-behavior:smooth;}
+  html{scroll-behavior:smooth; scroll-padding-top:84px;}
   body{
     font-family:var(--sans);
     background:var(--paper);
@@ -60,13 +60,15 @@
   .hero > .hero-scrim{position:absolute; z-index:1;}
   .hero > .section-bg-layer{position:absolute; z-index:0;}
   .hero > .section-bg-overlay{position:absolute; z-index:1;}
-  .hero{--gutter:max(32px, calc((100% - 1200px) / 2)); display:flex; flex-direction:column; min-height:780px; padding:0;}
+  .hero{--gutter:max(32px, calc((100% - 1200px) / 2)); display:flex; flex-direction:column; min-height:780px; padding:84px 0 0;}
 
   header.site-nav{
-    position:relative;
+    position:fixed; top:0; left:0; right:0; z-index:100;
     display:flex; align-items:center; gap:40px;
     height:84px; padding:0 var(--gutter); width:100%; box-sizing:border-box;
     border-bottom:1px solid rgba(255,255,255,0.12);
+    background:rgba(0,73,90,0.62);
+    -webkit-backdrop-filter:blur(14px) saturate(140%); backdrop-filter:blur(14px) saturate(140%);
   }
   .brand{display:flex; align-items:center; gap:10px; color:#fff;}
   .brand img.logo{height:44px; width:auto;}
