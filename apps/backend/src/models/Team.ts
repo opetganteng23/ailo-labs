@@ -10,7 +10,7 @@ const teamSchema = new Schema(
     slug: { type: String, required: true, unique: true, trim: true },
     photo: String,
     position: { type: String, required: true },
-    category: { type: String, enum: TEAM_CATEGORIES, default: "Peneliti" },
+    category: { type: String, default: "Peneliti" },
     jenjang: String,
     studyProgram: String,
     displayOrder: { type: Number, default: 0 },

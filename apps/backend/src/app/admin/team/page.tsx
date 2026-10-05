@@ -2,7 +2,8 @@ import Link from "next/link";
 
 import { ConfirmSubmit } from "@/components/ConfirmSubmit";
 import { connectToDatabase } from "@/lib/mongodb";
-import { TEAM_CATEGORIES, Team } from "@/models/Team";
+import { listTeamCategories } from "@/lib/teamCategoriesDb";
+import { Team } from "@/models/Team";
 
 import { deleteTeamAction } from "./actions";
 
@@ -23,11 +24,12 @@ type TeamItem = {
 export default async function AdminTeamPage({ searchParams }: { searchParams: Promise<{ category?: string }> }) {
   const { category } = await searchParams;
   await connectToDatabase();
+  const categories = await listTeamCategories();
   const allItems = (await Team.find().sort({ category: 1, displayOrder: 1, name: 1 }).lean()) as unknown as TeamItem[];
   const items = category ? allItems.filter((i) => i.category === category) : allItems;
 
   const counts: Record<string, number> = { All: allItems.length };
-  for (const cat of TEAM_CATEGORIES) {
+  for (const cat of categories) {
     counts[cat] = allItems.filter((i) => i.category === cat).length;
   }
 
@@ -39,6 +41,9 @@ export default async function AdminTeamPage({ searchParams }: { searchParams: Pr
           <p>Lecturers, researchers, student researchers, alumni and advisors shown on the public site.</p>
         </div>
         <div className="admin2-actions">
+          <Link href="/admin/team/categories" className="admin2-btn outline">
+            Manage categories
+          </Link>
           <Link href="/admin/team/new" className="admin2-btn">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
               <path d="M12 5v14M5 12h14" />
@@ -66,7 +71,7 @@ export default async function AdminTeamPage({ searchParams }: { searchParams: Pr
         >
           All {counts.All}
         </Link>
-        {TEAM_CATEGORIES.map((cat) => (
+        {categories.map((cat) => (
           <Link
             key={cat}
             href={`/admin/team?category=${encodeURIComponent(cat)}`}

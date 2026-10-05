@@ -9,9 +9,10 @@ import { getSession, isAdminRole } from "@/lib/auth";
 import { flash, FlashError, withFlash } from "@/lib/flash";
 import { provisionDosenAccount } from "@/lib/dosenAccount";
 import { sendMail } from "@/lib/mailer";
+import { listTeamCategories } from "@/lib/teamCategoriesDb";
 import { generateCardId } from "@/lib/memberCard";
 import { connectToDatabase } from "@/lib/mongodb";
-import { MEMBER_CATEGORIES, Member } from "@/models/Member";
+import { Member } from "@/models/Member";
 import { Team } from "@/models/Team";
 
 async function requireAdmin() {
@@ -144,7 +145,7 @@ export async function setMemberTeamBoardAction(formData: FormData) {
       const member = await Member.findById(id);
       if (!member) throw new FlashError("This member no longer exists.");
       if (member.status !== "approved") throw new FlashError("Only approved members can be added to the Team Board.");
-      if (include && !MEMBER_CATEGORIES.includes(category as (typeof MEMBER_CATEGORIES)[number])) {
+      if (include && !(await listTeamCategories()).includes(category)) {
         throw new FlashError("Choose a category for the Team Board.");
       }
 
@@ -165,7 +166,7 @@ export async function setMemberTeamBoardAction(formData: FormData) {
       }
 
       if (team) {
-        team.category = category as (typeof MEMBER_CATEGORIES)[number];
+        team.category = category;
         team.isActive = true;
         team.member = member._id;
         if (!team.photo && member.photo) team.photo = member.photo;

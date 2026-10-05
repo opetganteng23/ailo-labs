@@ -7,6 +7,7 @@ import { connectToDatabase } from "@/lib/mongodb";
 
 import { deleteCatalogAction } from "./actions";
 import { CatalogForm, type CatalogInitial } from "./CatalogForm";
+import { EmptyState } from "@/components/EmptyState";
 
 const COLUMNS = "minmax(0, 1fr) 120px 80px 96px";
 
@@ -36,7 +37,7 @@ export async function CatalogAdminList({ kind }: { kind: CatalogKind }) {
           <span>ORDER</span>
           <span></span>
         </div>
-        {items.length === 0 && <p className="admin2-table-empty">Nothing here yet.</p>}
+        {items.length === 0 && <EmptyState title={`No ${config.label.toLowerCase()} yet`} message={`Add your first ${config.singular} to get started.`} actionHref={`/admin/${kind}/new`} actionLabel={`Add ${config.singular}`} />}
         {items.map((item) => (
           <div key={String(item._id)} className="admin2-table-row" style={{ gridTemplateColumns: COLUMNS }}>
             <div style={{ display: "flex", alignItems: "center", gap: 14 }}>

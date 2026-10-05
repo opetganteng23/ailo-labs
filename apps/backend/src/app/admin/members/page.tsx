@@ -3,6 +3,7 @@ import Link from "next/link";
 import { ConfirmSubmit } from "@/components/ConfirmSubmit";
 import { getBaseUrl } from "@/lib/baseUrl";
 import { connectToDatabase } from "@/lib/mongodb";
+import { listTeamCategories } from "@/lib/teamCategoriesDb";
 import { MEMBER_CATEGORIES, Member } from "@/models/Member";
 import { MemberCard } from "@/components/MemberCard";
 
@@ -39,6 +40,7 @@ export default async function AdminMembersPage({
   const current = STATUSES.includes(status as (typeof STATUSES)[number]) ? (status as (typeof STATUSES)[number]) : "pending";
 
   await connectToDatabase();
+  const teamCategories = await listTeamCategories();
   const all = (await Member.find().sort({ createdAt: -1 }).lean()) as unknown as MemberItem[];
 
   const counts: Record<string, number> = {};
@@ -273,7 +275,7 @@ export default async function AdminMembersPage({
                         Category <span style={{ fontWeight: 500, color: "#6b7573" }}>(used only when shown above)</span>
                       </label>
                       <select id="teamCategory" name="teamCategory" defaultValue={selected.teamCategory ?? selected.approvedAs} style={{ height: 40 }}>
-                        {MEMBER_CATEGORIES.map((cat) => (
+                        {teamCategories.map((cat) => (
                           <option key={cat} value={cat}>
                             {cat}
                           </option>

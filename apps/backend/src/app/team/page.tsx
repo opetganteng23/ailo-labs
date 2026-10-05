@@ -3,8 +3,9 @@ import Link from "next/link";
 import { SiteFooter } from "@/components/SiteFooter";
 import { SiteHeader } from "@/components/SiteHeader";
 import { connectToDatabase } from "@/lib/mongodb";
-import { TEAM_CATEGORIES } from "@/models/teamCategories";
+import { listTeamCategories } from "@/lib/teamCategoriesDb";
 import { Team } from "@/models/Team";
+import { EmptyState } from "@/components/EmptyState";
 
 export const dynamic = "force-dynamic";
 
@@ -23,6 +24,7 @@ type TeamItem = {
 export default async function TeamListPage({ searchParams }: { searchParams: Promise<{ category?: string; interest?: string }> }) {
   const { category, interest } = await searchParams;
   await connectToDatabase();
+  const categories = await listTeamCategories();
   const all = (await Team.find({ isActive: true })
     .sort({ category: 1, displayOrder: 1, name: 1 })
     .lean()) as unknown as TeamItem[];
@@ -56,7 +58,7 @@ export default async function TeamListPage({ searchParams }: { searchParams: Pro
           <Link href={hrefWith({ interest })} className={`team-filter${!category ? " active" : ""}`}>
             All
           </Link>
-          {TEAM_CATEGORIES.map((cat) => (
+          {categories.map((cat) => (
             <Link key={cat} href={hrefWith({ category: cat, interest })} className={`team-filter${category === cat ? " active" : ""}`}>
               {cat}
             </Link>
@@ -76,7 +78,7 @@ export default async function TeamListPage({ searchParams }: { searchParams: Pro
           </div>
         )}
 
-        {items.length === 0 && <p className="notice">No team members yet.</p>}
+        {items.length === 0 && <EmptyState variant="public" title="No team members yet" message="Our researchers and lecturers will appear here soon." actionHref="/" actionLabel="Back to homepage" />}
 
         <div className="team-grid">
           {items.map((item) => {

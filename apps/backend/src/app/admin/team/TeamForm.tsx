@@ -2,12 +2,13 @@
 
 import { ImageUploadField } from "@/components/ImageUploadField";
 import { TagInput } from "@/components/TagInput";
-import { TEAM_CATEGORIES } from "@/models/teamCategories";
 
 import { createTeamAction, updateTeamAction } from "./actions";
 
 type TeamFormProps = {
   mode?: "create" | "edit";
+  /** Managed team categories, in display order. */
+  categories: string[];
   /** Interests already used by other members, offered as suggestions. */
   interestSuggestions?: string[];
   initial?: {
@@ -27,8 +28,10 @@ type TeamFormProps = {
   };
 };
 
-export function TeamForm({ mode = "create", initial, interestSuggestions = [] }: TeamFormProps) {
+export function TeamForm({ mode = "create", initial, categories, interestSuggestions = [] }: TeamFormProps) {
   const profiles = initial?.profiles ?? {};
+  // Keep a profile's current category selectable even if it was removed from the managed list.
+  const categoryOptions = initial?.category && !categories.includes(initial.category) ? [...categories, initial.category] : categories;
 
   return (
     <form action={mode === "edit" ? updateTeamAction : createTeamAction}>
@@ -110,7 +113,7 @@ export function TeamForm({ mode = "create", initial, interestSuggestions = [] }:
           <section className="admin2-section pad-sm">
             <h2>Category</h2>
             <select name="category" defaultValue={initial?.category ?? "Peneliti"}>
-              {TEAM_CATEGORIES.map((cat) => (
+              {categoryOptions.map((cat) => (
                 <option key={cat} value={cat}>
                   {cat}
                 </option>

@@ -5,6 +5,7 @@ import { connectToDatabase } from "@/lib/mongodb";
 import { News } from "@/models/News";
 
 import { deleteNewsAction } from "./actions";
+import { EmptyState } from "@/components/EmptyState";
 
 export const dynamic = "force-dynamic";
 
@@ -103,7 +104,7 @@ export default async function AdminNewsPage({ searchParams }: { searchParams: Pr
           <span></span>
         </div>
 
-        {items.length === 0 && <p className="admin2-table-empty">No articles found.</p>}
+        {items.length === 0 && <EmptyState title="No articles found" message="Nothing matches this view yet. Try another filter, or write a new article." actionHref="/admin/news/new" actionLabel="New article" />}
 
         {items.map((item) => (
           <div key={item._id} className="admin2-table-row" style={{ gridTemplateColumns: "minmax(0, 1fr) 150px 130px 150px 56px" }}>

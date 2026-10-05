@@ -7,6 +7,7 @@ import { Project } from "@/models/Project";
 
 import { deleteDosenProjectAction } from "../actions";
 import { ReviewPill } from "../ReviewPill";
+import { EmptyState } from "@/components/EmptyState";
 
 export const dynamic = "force-dynamic";
 
@@ -53,7 +54,7 @@ export default async function DosenProjectsPage() {
           <span>UPDATED</span>
           <span></span>
         </div>
-        {items.length === 0 && <p className="admin2-table-empty">You haven&apos;t added any projects yet.</p>}
+        {items.length === 0 && <EmptyState title="No projects yet" message="Add a project and it goes to the admins for review." actionHref="/dosen/projects/new" actionLabel="Add a project" />}
         {items.map((item) => (
           <div key={String(item._id)} className="admin2-table-row" style={{ gridTemplateColumns: cols }}>
             <div style={{ display: "flex", flexDirection: "column", gap: 2, minWidth: 0 }}>

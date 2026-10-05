@@ -7,6 +7,7 @@ import { Device } from "@/models/Device";
 import { Lab } from "@/models/Lab";
 
 import { createDeviceAction, deleteDeviceAction } from "../actions";
+import { EmptyState } from "@/components/EmptyState";
 
 export const dynamic = "force-dynamic";
 
@@ -77,7 +78,7 @@ export default async function AdminDevicesPage() {
           <span>STATUS</span>
           <span></span>
         </div>
-        {devices.length === 0 && <p className="admin2-table-empty">No devices yet.</p>}
+        {devices.length === 0 && <EmptyState title="No devices yet" message="Devices are added from a lab's page, under its equipment list." actionHref="/admin/labs" actionLabel="Go to labs" />}
         {devices.map((d) => (
           <div key={d._id} className="admin2-table-row" style={{ gridTemplateColumns: "minmax(0, 1fr) 160px 130px 56px" }}>
             <div style={{ display: "flex", flexDirection: "column" }}>

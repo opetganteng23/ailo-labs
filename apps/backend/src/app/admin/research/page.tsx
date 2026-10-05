@@ -6,6 +6,7 @@ import { Research } from "@/models/Research";
 import { User } from "@/models/User";
 
 import { deleteResearchAction } from "./actions";
+import { EmptyState } from "@/components/EmptyState";
 
 export const dynamic = "force-dynamic";
 
@@ -95,7 +96,7 @@ export default async function AdminResearchPage({
           <span></span>
         </div>
 
-        {items.length === 0 && <p className="admin2-table-empty">No research found.</p>}
+        {items.length === 0 && <EmptyState title="No research found" message="Nothing matches this view yet. Try another filter, or add a research topic." actionHref="/admin/research/new" actionLabel="New research" />}
 
         {items.map((item) => (
           <div key={item._id} className="admin2-table-row" style={{ gridTemplateColumns: "minmax(0, 1fr) 140px 150px 96px" }}>

@@ -46,7 +46,7 @@ const memberSchema = new Schema(
     // Separate from `showProfilePublicly` (the member's own consent at registration) -
     // an admin decides who actually appears, and can take someone off again.
     includeInTeamBoard: { type: Boolean, default: false, index: true },
-    teamCategory: { type: String, enum: MEMBER_CATEGORIES },
+    teamCategory: String,
   },
   { timestamps: true },
 );

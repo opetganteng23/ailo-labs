@@ -6,6 +6,8 @@ import { listResearchInterests } from "@/lib/researchInterests";
 import { Team } from "@/models/Team";
 
 import { approveTeamChangesAction, rejectTeamChangesAction } from "../actions";
+import { listTeamCategories } from "@/lib/teamCategoriesDb";
+
 import { TeamForm } from "../TeamForm";
 
 const FIELD_LABELS: Record<string, string> = {
@@ -53,6 +55,7 @@ export default async function AdminTeamEditPage({ params }: { params: Promise<{ 
   }>();
   if (!item) notFound();
   const interestSuggestions = await listResearchInterests();
+  const categories = await listTeamCategories();
 
   return (
     <div>
@@ -107,6 +110,7 @@ export default async function AdminTeamEditPage({ params }: { params: Promise<{ 
       )}
       <TeamForm
         mode="edit"
+        categories={categories}
         interestSuggestions={interestSuggestions}
         initial={{
           _id: String(item._id),

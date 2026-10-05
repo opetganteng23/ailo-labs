@@ -4,6 +4,7 @@ import { SiteFooter } from "@/components/SiteFooter";
 import { SiteHeader } from "@/components/SiteHeader";
 import { connectToDatabase } from "@/lib/mongodb";
 import { Lab } from "@/models/Lab";
+import { EmptyState } from "@/components/EmptyState";
 
 export const dynamic = "force-dynamic";
 
@@ -27,7 +28,7 @@ export default async function LabsListPage() {
           </div>
         </div>
 
-        {items.length === 0 && <p className="notice">No labs published yet.</p>}
+        {items.length === 0 && <EmptyState variant="public" title="No labs yet" message="Labs and equipment will appear here soon." actionHref="/" actionLabel="Back to homepage" />}
 
         <div className="lab2-grid">
           {items.map((item) => (

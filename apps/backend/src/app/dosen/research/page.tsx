@@ -7,6 +7,7 @@ import { Research } from "@/models/Research";
 
 import { deleteDosenResearchAction } from "../actions";
 import { ReviewPill } from "../ReviewPill";
+import { EmptyState } from "@/components/EmptyState";
 
 export const dynamic = "force-dynamic";
 
@@ -42,7 +43,7 @@ export default async function DosenResearchPage() {
           <span>UPDATED</span>
           <span></span>
         </div>
-        {items.length === 0 && <p className="admin2-table-empty">You haven&apos;t added any research yet.</p>}
+        {items.length === 0 && <EmptyState title="No research yet" message="Add a research topic and it goes to the admins for review." actionHref="/dosen/research/new" actionLabel="Add research" />}
         {items.map((item) => (
           <div key={String(item._id)} className="admin2-table-row" style={{ gridTemplateColumns: cols }}>
             <div style={{ display: "flex", flexDirection: "column", gap: 2, minWidth: 0 }}>

@@ -4,6 +4,7 @@ import { SiteFooter } from "@/components/SiteFooter";
 import { SiteHeader } from "@/components/SiteHeader";
 import { connectToDatabase } from "@/lib/mongodb";
 import { Service } from "@/models/catalog";
+import { EmptyState } from "@/components/EmptyState";
 
 export const dynamic = "force-dynamic";
 
@@ -29,7 +30,7 @@ export default async function ServicesPage() {
           </div>
         </div>
 
-        {items.length === 0 && <p className="notice">No services published yet.</p>}
+        {items.length === 0 && <EmptyState variant="public" title="No services yet" message="Our services will appear here soon." actionHref="/" actionLabel="Back to homepage" />}
 
         <div className="research-grid">
           {items.map((item, i) => (

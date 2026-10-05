@@ -4,6 +4,7 @@ import { SiteFooter } from "@/components/SiteFooter";
 import { SiteHeader } from "@/components/SiteHeader";
 import { connectToDatabase } from "@/lib/mongodb";
 import { Project } from "@/models/Project";
+import { EmptyState } from "@/components/EmptyState";
 
 export const dynamic = "force-dynamic";
 
@@ -39,7 +40,7 @@ export default async function ProjectsListPage() {
           </div>
         </div>
 
-        {items.length === 0 && <p className="notice">No projects yet.</p>}
+        {items.length === 0 && <EmptyState variant="public" title="No projects yet" message="Projects will appear here once they are published." actionHref="/" actionLabel="Back to homepage" />}
 
         <div className="projects-grid">
           {items.map((item, i) => (

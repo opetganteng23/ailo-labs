@@ -4,6 +4,7 @@ import { SiteFooter } from "@/components/SiteFooter";
 import { SiteHeader } from "@/components/SiteHeader";
 import { connectToDatabase } from "@/lib/mongodb";
 import { Research } from "@/models/Research";
+import { EmptyState } from "@/components/EmptyState";
 
 export const dynamic = "force-dynamic";
 
@@ -27,7 +28,7 @@ export default async function ResearchListPage() {
           </div>
         </div>
 
-        {items.length === 0 && <p className="notice">No published research yet.</p>}
+        {items.length === 0 && <EmptyState variant="public" title="No research yet" message="Research topics will appear here once they are published." actionHref="/" actionLabel="Back to homepage" />}
 
         <div className="research-grid">
           {items.map((item, i) => (

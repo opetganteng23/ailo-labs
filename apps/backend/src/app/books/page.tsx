@@ -2,6 +2,7 @@ import { SiteFooter } from "@/components/SiteFooter";
 import { SiteHeader } from "@/components/SiteHeader";
 import { connectToDatabase } from "@/lib/mongodb";
 import { Book } from "@/models/catalog";
+import { EmptyState } from "@/components/EmptyState";
 
 export const dynamic = "force-dynamic";
 
@@ -27,7 +28,7 @@ export default async function BooksPage() {
           </div>
         </div>
 
-        {items.length === 0 && <p className="notice">No books published yet.</p>}
+        {items.length === 0 && <EmptyState variant="public" title="No books yet" message="Books and publications will appear here soon." actionHref="/" actionLabel="Back to homepage" />}
 
         <div className="projects-grid">
           {items.map((item) => (

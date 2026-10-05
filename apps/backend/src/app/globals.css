@@ -1333,3 +1333,13 @@ footer.site .foot-bottom .socials .admin-link { color: #7fa9ab; }
   .rte-figure-toolbar { opacity: 1; top: 6px; right: 6px; }
   .rte-figure-toolbar button { width: 30px; height: 30px; }
 }
+
+/* ===== Empty states ===== */
+.empty-state { display: flex; flex-direction: column; align-items: center; gap: 10px; text-align: center; padding: 48px 20px; }
+.empty-state-icon { width: 52px; height: 52px; border-radius: 16px; display: flex; align-items: center; justify-content: center; background: #eef3f2; color: #00809d; }
+.empty-state h3 { margin: 4px 0 0; font-size: 16px; font-weight: 700; color: #15201f; }
+.empty-state p { margin: 0; max-width: 380px; font-size: 14px; line-height: 1.55; color: #6b7573; }
+.empty-state .admin2-btn, .empty-state .btn { margin-top: 8px; }
+.empty-state-public { padding: 72px 20px; border: 1px dashed #d9d5c9; border-radius: 20px; background: #fff; }
+.empty-state-public h3 { font-size: 19px; }
+.empty-state-public p { font-size: 15px; }

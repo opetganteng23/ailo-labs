@@ -8,6 +8,7 @@ import { User } from "@/models/User";
 
 import { deleteProjectAction, publishProjectAction } from "./actions";
 import { ProjectsBoard } from "./ProjectsBoard";
+import { EmptyState } from "@/components/EmptyState";
 
 export const dynamic = "force-dynamic";
 
@@ -106,7 +107,7 @@ export default async function AdminProjectsPage({
             <span>UPDATED</span>
             <span></span>
           </div>
-          {items.length === 0 && <p className="admin2-table-empty">No projects yet.</p>}
+          {items.length === 0 && <EmptyState title="No projects yet" message="Projects you add will show up here and on the public site." actionHref="/admin/projects/new" actionLabel="New project" />}
           {items.map((item) => (
             <div key={item._id} className="admin2-table-row" style={{ gridTemplateColumns: "minmax(0, 1fr) 140px 150px 96px" }}>
               <div style={{ display: "flex", alignItems: "center", gap: 14 }}>

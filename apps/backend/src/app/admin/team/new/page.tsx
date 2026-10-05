@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import { listResearchInterests } from "@/lib/researchInterests";
+import { listTeamCategories } from "@/lib/teamCategoriesDb";
 
 import { TeamForm } from "../TeamForm";
 
@@ -8,6 +9,7 @@ export const dynamic = "force-dynamic";
 
 export default async function AdminTeamNewPage() {
   const interestSuggestions = await listResearchInterests();
+  const categories = await listTeamCategories();
   return (
     <div>
       <div style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 14, color: "#5b6664", marginBottom: 20 }}>
@@ -17,7 +19,7 @@ export default async function AdminTeamNewPage() {
         <span>/</span>
         <span style={{ color: "#15201f", fontWeight: 600 }}>Add member</span>
       </div>
-      <TeamForm mode="create" interestSuggestions={interestSuggestions} />
+      <TeamForm mode="create" categories={categories} interestSuggestions={interestSuggestions} />
     </div>
   );
 }

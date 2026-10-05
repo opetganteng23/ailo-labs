@@ -5,6 +5,7 @@ import { connectToDatabase } from "@/lib/mongodb";
 import { News } from "@/models/News";
 
 import { ReviewPill } from "../ReviewPill";
+import { EmptyState } from "@/components/EmptyState";
 
 export const dynamic = "force-dynamic";
 
@@ -41,7 +42,7 @@ export default async function DosenNewsPage() {
           <span>UPDATED</span>
           <span></span>
         </div>
-        {items.length === 0 && <p className="admin2-table-empty">No drafts yet.</p>}
+        {items.length === 0 && <EmptyState title="No drafts yet" message="Write an article and submit it for admin review." actionHref="/dosen/news/new" actionLabel="Write an article" />}
         {items.map((item) => (
           <div key={String(item._id)} className="admin2-table-row" style={{ gridTemplateColumns: cols }}>
             <div style={{ display: "flex", flexDirection: "column", gap: 2, minWidth: 0 }}>

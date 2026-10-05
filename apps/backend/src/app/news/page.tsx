@@ -4,6 +4,7 @@ import { SiteFooter } from "@/components/SiteFooter";
 import { SiteHeader } from "@/components/SiteHeader";
 import { connectToDatabase } from "@/lib/mongodb";
 import { News } from "@/models/News";
+import { EmptyState } from "@/components/EmptyState";
 
 export const dynamic = "force-dynamic";
 
@@ -30,7 +31,7 @@ export default async function NewsListPage() {
           </div>
         </div>
 
-        {items.length === 0 && <p className="notice">No published news yet.</p>}
+        {items.length === 0 && <EmptyState variant="public" title="No news yet" message="Fresh updates from the lab will appear here." actionHref="/" actionLabel="Back to homepage" />}
 
         <div className="news-grid">
           {items.map((item) => (

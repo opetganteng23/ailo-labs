@@ -7,6 +7,7 @@ import { connectToDatabase } from "@/lib/mongodb";
 import { User } from "@/models/User";
 
 import { deleteUserAction } from "./actions";
+import { EmptyState } from "@/components/EmptyState";
 
 export const dynamic = "force-dynamic";
 
@@ -89,7 +90,7 @@ export default async function AdminUsersPage({ searchParams }: { searchParams: P
             <span></span>
           </div>
 
-          {items.length === 0 && <p className="admin2-table-empty">No users found.</p>}
+          {items.length === 0 && <EmptyState title="No users found" message="Try a different search or filter." />}
 
           {items.map((u) => {
             const isSelf = session.sub === u._id;
