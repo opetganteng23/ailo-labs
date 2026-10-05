@@ -6,7 +6,7 @@ import { SiteHeader } from "@/components/SiteHeader";
 import { connectToDatabase } from "@/lib/mongodb";
 import { Project } from "@/models/Project";
 import { RichContent } from "@/components/RichContent";
-import { renderRichText } from "@/lib/sanitizeHtml";
+import { isHtmlDocument, renderRichText } from "@/lib/sanitizeHtml";
 
 export const dynamic = "force-dynamic";
 
@@ -45,7 +45,7 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
           </p>
         )}
         <p style={{ color: "#5b6469", fontSize: 17 }}>{item.description}</p>
-        {item.images?.[0] && (
+        {item.images?.[0] && !isHtmlDocument(item.content) && (
           // eslint-disable-next-line @next/next/no-img-element -- arbitrary uploaded image, no static optimization needed
           <img className="detail-thumb" src={item.images[0]} alt={item.title} style={{ borderRadius: 20 }} />
         )}

@@ -5,7 +5,7 @@ import { SiteFooter } from "@/components/SiteFooter";
 import { SiteHeader } from "@/components/SiteHeader";
 import { connectToDatabase } from "@/lib/mongodb";
 import { RichContent } from "@/components/RichContent";
-import { renderRichText } from "@/lib/sanitizeHtml";
+import { isHtmlDocument, renderRichText } from "@/lib/sanitizeHtml";
 import { Service } from "@/models/catalog";
 
 export const dynamic = "force-dynamic";
@@ -31,7 +31,7 @@ export default async function ServiceDetailPage({ params }: { params: Promise<{ 
         </Link>
         <h1 style={{ marginTop: 12 }}>{item.title}</h1>
         {item.description && <p style={{ color: "#5b6469", fontSize: 17 }}>{item.description}</p>}
-        {item.image && (
+        {item.image && !isHtmlDocument(item.content) && (
           // eslint-disable-next-line @next/next/no-img-element -- arbitrary uploaded image
           <img className="detail-thumb" src={item.image} alt={item.title} style={{ borderRadius: 20 }} />
         )}
