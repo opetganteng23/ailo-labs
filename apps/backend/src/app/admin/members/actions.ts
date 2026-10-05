@@ -15,6 +15,7 @@ import { connectToDatabase } from "@/lib/mongodb";
 import { Member } from "@/models/Member";
 import { Team } from "@/models/Team";
 import { readCategories } from "@/lib/teamCats";
+import { MEMBER_CATEGORIES } from "@/lib/memberCategories";
 
 async function requireAdmin() {
   const session = await getSession();
@@ -25,6 +26,16 @@ async function requireAdmin() {
 /** Adds a note to the success toast when the notification email could not be sent. */
 async function reportMail(sent: boolean, success: string) {
   if (!sent) await flash("error", `${success} But the email to the member could not be sent - check the mail settings.`);
+}
+
+/** The card's "valid until" date is mandatory: a card without an expiry is never issued. */
+function readValidUntil(raw: string, options: { mustBeFuture?: boolean } = {}): Date {
+  const value = raw.trim();
+  if (!value) throw new FlashError("Fill in the card's valid-until date first.", "warning");
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) throw new FlashError("The valid-until date is not a valid date.", "warning");
+  if (options.mustBeFuture && date.getTime() < Date.now() - 24 * 60 * 60 * 1000) throw new FlashError("The valid-until date must be today or later.", "warning");
+  return date;
 }
 
 export async function approveMemberAction(formData: FormData) {
@@ -42,11 +53,12 @@ export async function approveMemberAction(formData: FormData) {
       const member = await Member.findById(id);
       if (!member) throw new FlashError("This application no longer exists.");
 
+      const validUntil = readValidUntil(validUntilRaw, { mustBeFuture: true });
       const cardId = member.cardId || (await generateCardId());
 
       member.status = "approved";
       member.approvedAs = approvedAs || member.requestedAs;
-      member.validUntil = validUntilRaw ? new Date(validUntilRaw) : undefined;
+      member.validUntil = validUntil;
       member.cardId = cardId;
       member.reviewNote = reviewNote || undefined;
       member.verification = {
@@ -58,7 +70,7 @@ export async function approveMemberAction(formData: FormData) {
       member.reviewedAt = new Date();
       await member.save();
 
-      const validText = member.validUntil ? `berlaku sampai ${member.validUntil.toLocaleDateString("id-ID")}` : "tanpa batas waktu";
+      const validText = `berlaku sampai ${validUntil.toLocaleDateString("id-ID")}`;
       const mail = await sendMail({
         to: member.email,
         subject: "AILO Membership Approved - Your Digital Card is Ready",
@@ -222,4 +234,59 @@ export async function resendCardEmailAction(formData: FormData) {
     { success: "Card email sent.", error: "Couldn't send the card email. Please try again." },
   );
   revalidatePath("/admin/members");
+}
+
+/** Admin edit of an issued member: contact details, category, photo and the card's valid-until date. The card id never changes. */
+export async function updateMemberAction(formData: FormData) {
+  await requireAdmin();
+  const id = String(formData.get("id"));
+  await withFlash(
+    async () => {
+      await connectToDatabase();
+      const member = await Member.findById(id);
+      if (!member) throw new FlashError("This member no longer exists.");
+
+      const name = String(formData.get("name") ?? "").trim();
+      const affiliation = String(formData.get("affiliation") ?? "").trim();
+      const approvedAs = String(formData.get("approvedAs") ?? "");
+      if (!name || !affiliation) throw new FlashError(`Please fill in the ${[!name && "name", !affiliation && "affiliation"].filter(Boolean).join(" and ")}.`, "warning");
+      if (!(MEMBER_CATEGORIES as readonly string[]).includes(approvedAs)) throw new FlashError("Choose a valid member category.", "warning");
+      const validUntil = readValidUntil(String(formData.get("validUntil") ?? ""));
+
+      const photo = String(formData.get("photo") ?? "");
+      member.name = name;
+      member.affiliation = affiliation;
+      member.phone = String(formData.get("phone") ?? "").trim() || undefined;
+      member.approvedAs = approvedAs;
+      member.validUntil = validUntil;
+      member.photo = photo || undefined;
+      await member.save();
+
+      // Keep the linked Team Board profile in step with the member's name and photo.
+      await Team.updateMany({ member: member._id }, { name, photo: photo || undefined });
+    },
+    { success: "Member updated.", error: "Couldn't update the member. Please try again." },
+  );
+  revalidatePath("/admin/members");
+  revalidatePath("/admin/team");
+  revalidatePath("/team");
+}
+
+/** Permanently deletes a member record. Their Team Board profile is only hidden, and any lecturer login is left alone. */
+export async function deleteMemberAction(formData: FormData) {
+  await requireAdmin();
+  const id = String(formData.get("id"));
+  await withFlash(
+    async () => {
+      await connectToDatabase();
+      const member = await Member.findById(id);
+      if (!member) throw new FlashError("This member no longer exists.");
+      await Team.updateMany({ member: member._id }, { isActive: false, $unset: { member: "" } });
+      await Member.findByIdAndDelete(id);
+    },
+    { success: "Member deleted.", error: "Couldn't delete the member. Please try again." },
+  );
+  revalidatePath("/admin/members");
+  revalidatePath("/admin/team");
+  revalidatePath("/team");
 }

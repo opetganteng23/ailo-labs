@@ -7,7 +7,9 @@ import { listTeamCategories } from "@/lib/teamCategoriesDb";
 import { MEMBER_CATEGORIES, Member } from "@/models/Member";
 import { MemberCard } from "@/components/MemberCard";
 
-import { approveMemberAction, rejectMemberAction, resendCardEmailAction, revokeMemberAction, setMemberTeamBoardAction } from "./actions";
+import { ImageUploadField } from "@/components/ImageUploadField";
+
+import { approveMemberAction, deleteMemberAction, rejectMemberAction, resendCardEmailAction, revokeMemberAction, setMemberTeamBoardAction, updateMemberAction } from "./actions";
 
 export const dynamic = "force-dynamic";
 
@@ -198,8 +200,8 @@ export default async function AdminMembersPage({
                     </div>
                     <div className="admin2-field">
                       <label htmlFor="validUntil">Valid until</label>
-                      <input id="validUntil" name="validUntil" type="date" style={{ height: 42 }} title="Leave empty for a card that doesn't expire" />
-                      <span style={{ fontSize: 12, lineHeight: 1.4, color: "#6b7573" }}>Empty = no expiry</span>
+                      <input id="validUntil" name="validUntil" type="date" required min={new Date().toISOString().slice(0, 10)} style={{ height: 42 }} />
+                      <span style={{ fontSize: 12, lineHeight: 1.4, color: "#6b7573" }}>Required. The card expires on this date.</span>
                     </div>
                   </div>
                   <div className="admin2-field">
@@ -209,7 +211,7 @@ export default async function AdminMembersPage({
                     <textarea id="reviewNote" name="reviewNote" rows={2} maxLength={300} />
                   </div>
                   <div style={{ display: "flex", gap: 10 }}>
-                    <button type="submit" formAction={rejectMemberAction} className="admin2-btn danger" style={{ height: 46 }}>
+                    <button type="submit" formAction={rejectMemberAction} formNoValidate className="admin2-btn danger" style={{ height: 46 }}>
                       Reject
                     </button>
                     <button type="submit" className="admin2-btn" style={{ flexGrow: 1, height: 46, justifyContent: "center" }}>
@@ -297,6 +299,65 @@ export default async function AdminMembersPage({
                   This application is {selected.status}.
                 </div>
               )}
+
+              {(selected.status === "approved" || selected.status === "expired") && (
+                <details style={{ margin: "0 22px 16px", borderTop: "1px solid #ece9e1", paddingTop: 16 }}>
+                  <summary style={{ cursor: "pointer", fontSize: 14, fontWeight: 700 }}>Edit member details</summary>
+                  <form action={updateMemberAction} key={selected._id} style={{ display: "flex", flexDirection: "column", gap: 14, marginTop: 14 }}>
+                    <input type="hidden" name="id" value={selected._id} />
+                    <div className="admin2-field">
+                      <label htmlFor="edit-name">Full name</label>
+                      <input id="edit-name" name="name" type="text" required defaultValue={selected.name} style={{ height: 42 }} />
+                    </div>
+                    <div className="admin2-field">
+                      <label htmlFor="edit-affiliation">Affiliation</label>
+                      <input id="edit-affiliation" name="affiliation" type="text" required defaultValue={selected.affiliation} style={{ height: 42 }} />
+                    </div>
+                    <div className="admin2-field">
+                      <label htmlFor="edit-phone">Phone</label>
+                      <input id="edit-phone" name="phone" type="text" defaultValue={selected.phone ?? ""} style={{ height: 42 }} />
+                    </div>
+                    <div style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: 12 }}>
+                      <div className="admin2-field">
+                        <label htmlFor="edit-approvedAs">Member category</label>
+                        <select id="edit-approvedAs" name="approvedAs" defaultValue={selected.approvedAs ?? selected.requestedAs} style={{ height: 42 }}>
+                          {MEMBER_CATEGORIES.map((cat) => (
+                            <option key={cat} value={cat}>
+                              {cat}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                      <div className="admin2-field">
+                        <label htmlFor="edit-validUntil">Valid until</label>
+                        <input id="edit-validUntil" name="validUntil" type="date" required defaultValue={selected.validUntil ? new Date(selected.validUntil).toISOString().slice(0, 10) : ""} style={{ height: 42 }} />
+                      </div>
+                    </div>
+                    <ImageUploadField name="photo" label="Photo" defaultValue={selected.photo} hint="Shown on the member card" />
+                    <p style={{ margin: 0, fontSize: 12.5, color: "#6b7573" }}>The email and card ID stay the same. Name and photo are also updated on the member&apos;s Team Board profile.</p>
+                    <button type="submit" className="admin2-btn" style={{ height: 44, alignSelf: "flex-start" }}>
+                      Save changes
+                    </button>
+                  </form>
+                </details>
+              )}
+
+              <div style={{ margin: "0 22px 22px", paddingTop: 16, borderTop: "1px solid #ece9e1", display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
+                <span style={{ flex: 1, fontSize: 12.5, color: "#6b7573", minWidth: 200 }}>Deleting removes this record for good. Use Revoke instead if the card should only stop being valid.</span>
+                <form action={deleteMemberAction}>
+                  <input type="hidden" name="id" value={selected._id} />
+                  <ConfirmSubmit
+                    title={`Delete ${selected.name}?`}
+                    message="This permanently deletes the member record and card. Their Team Board profile is hidden, and any lecturer login stays as it is. This cannot be undone."
+                    confirmLabel="Delete member"
+                    ariaLabel="Delete member"
+                    className="admin2-btn danger"
+                    style={{ height: 42, fontSize: 13 }}
+                  >
+                    Delete member
+                  </ConfirmSubmit>
+                </form>
+              </div>
             </>
           )}
         </section>
