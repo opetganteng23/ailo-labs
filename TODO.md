@@ -48,6 +48,7 @@ Sumber: `AILO_Evaluasi_Menyeluruh_dan_Rencana_Perbaikan.md` (evaluasi 30 Sep 202
 - [ ] B8 Urutan menu: HOME, ABOUT, lalu sisanya (sekarang Home, Research, Projects, Team, Labs, News, About)
 - [ ] B9 Menu baru untuk Buku (Books): model + admin + halaman publik
 - [ ] B10 Chatbot: semua research, project, mitra, lab facility, service bisa ditanya. Sekarang sudah terindeks: news, research, project, team, lab. Belum: mitra, service, buku (modelnya belum ada) + cek apakah fasilitas/device lab ikut terindeks (`api/chatbot/reindex/route.ts`)
+- [ ] B11 Header sticky di semua halaman. Status sekarang: header halaman dalam (`header.site`, SiteHeader) SUDAH sticky; yang belum: header homepage (`header.site-nav`, `position:relative`, transparan di atas hero) dan header Join/Booking (`.minimal-header`, tidak sticky). Catatan desain: header homepage yang sticky perlu latar solid saat di-scroll, supaya menu tetap terbaca di atas section terang (terkait B1)
 
 ## P1 - High
 - [ ] Follow-up dari §7-8: migrasi `public/homepage.html` + `src/app/route.ts` (template string + marker replace) jadi Next.js page.tsx biasa, supaya header/footer homepage benar-benar 1 komponen React yang sama dengan halaman lain, bukan HTML statis yang disalin manual. Pekerjaan besar & berisiko tinggi (836 baris HTML + 304 baris logic template), sengaja tidak dikerjakan di sesi evaluasi ini - hanya kontennya yang disamakan.
