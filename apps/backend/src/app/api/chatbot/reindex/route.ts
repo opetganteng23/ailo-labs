@@ -20,7 +20,7 @@ export const dynamic = "force-dynamic";
 const CHUNK_SIZE = 800;
 
 function chunkText(text: string): string[] {
-  const clean = text.replace(/\s+/g, " ").trim();
+  const clean = text.replace(/<style[\s\S]*?<\/style>/gi, " ").replace(/\s+/g, " ").trim();
   const chunks: string[] = [];
   for (let i = 0; i < clean.length; i += CHUNK_SIZE) {
     chunks.push(clean.slice(i, i + CHUNK_SIZE));

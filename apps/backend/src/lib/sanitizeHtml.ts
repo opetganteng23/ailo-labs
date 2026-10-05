@@ -1,5 +1,7 @@
 import sanitize from "sanitize-html";
 
+import { joinDocument, scopeDocument, splitDocument } from "./scopedHtml";
+
 // The browser re-serializes colours as rgb()/rgba() when TipTap reads them back from the DOM, so hex alone would strip every colour on save.
 const HEX_OR_INHERIT = /^(#[0-9a-fA-F]{3,8}|inherit|rgba?\(\s*\d{1,3}\s*,\s*\d{1,3}\s*,\s*\d{1,3}\s*(,\s*(0|1|0?\.\d+)\s*)?\))$/;
 const FONT_FAMILY = /^[a-zA-Z0-9\s,'-]{1,120}$/;
@@ -99,14 +101,20 @@ const SAFE_ID = /^[A-Za-z][\w-]{0,60}$/;
  * forms, event handlers, position/z-index or url()-based styles.
  */
 export function sanitizeRichText(html: string, options: { trusted?: boolean } = {}): string {
-  const trusted = Boolean(options.trusted);
+  if (!options.trusted) return sanitizeBody(html, false);
+  // A pasted complete document brings its own <style>: it is cleaned and kept (scoped only when displayed); the shell, scripts and the rest are dropped.
+  const { body, css } = splitDocument(html ?? "");
+  return joinDocument(css, sanitizeBody(body, true));
+}
+
+function sanitizeBody(html: string, trusted: boolean): string {
   return sanitize(html ?? "", {
     allowedTags: [
       "p", "br", "h1", "h2", "h3", "h4", "strong", "b", "em", "i", "u", "s", "del", "a", "span", "mark",
       "ul", "ol", "li", "blockquote", "hr", "img", "figure", "figcaption", "pre", "code",
       "table", "thead", "tbody", "tr", "th", "td", "colgroup", "col",
       ...(trusted
-        ? ["div", "section", "article", "aside", "header", "footer", "h5", "h6", "small", "sub", "sup", "abbr", "cite", "kbd", "caption", "tfoot", "dl", "dt", "dd", "details", "summary", "video", "audio", "source", "iframe"]
+        ? ["div", "section", "article", "aside", "header", "footer", "h5", "h6", "small", "sub", "sup", "abbr", "cite", "kbd", "caption", "tfoot", "dl", "dt", "dd", "details", "summary", "video", "audio", "source", "iframe", "nav", "main", "address", "time"]
         : []),
     ],
     allowedAttributes: {
@@ -124,7 +132,7 @@ export function sanitizeRichText(html: string, options: { trusted?: boolean } = 
       h4: ["style"],
       ...(trusted
         ? {
-            "*": ["class", "id", "style", "title", "lang", "dir", "aria-label", "role"],
+            "*": ["class", "id", "style", "title", "lang", "dir", "role", "hidden", "aria-*"],
             video: ["src", "controls", "poster", "preload", "width", "height", "muted", "loop", "playsinline"],
             audio: ["src", "controls", "preload", "loop"],
             source: ["src", "type"],
@@ -158,6 +166,8 @@ export function sanitizeRichText(html: string, options: { trusted?: boolean } = 
             "*": (tagName: string, attribs: Record<string, string>) => {
               const next = { ...attribs };
               if (next.id !== undefined && !SAFE_ID.test(next.id)) delete next.id;
+              // sanitize-html drops an empty `hidden`; give it a value so hidden elements stay hidden.
+              if (next.hidden !== undefined && next.hidden !== "false") next.hidden = "hidden";
               return { tagName, attribs: next };
             },
             iframe: (tagName: string, attribs: Record<string, string>) => ({
@@ -179,7 +189,11 @@ export function sanitizeRichText(html: string, options: { trusted?: boolean } = 
   });
 }
 
-/** What visitors see: stored bodies are re-sanitized with the trusted profile, so admin-authored layout markup survives. */
+/**
+ * What visitors see: stored bodies are re-sanitized with the trusted profile, so admin-authored layout markup survives,
+ * and a document's own CSS is scoped to it so it renders as authored without touching the rest of the site.
+ */
 export function renderRichText(html: string): string {
-  return sanitizeRichText(html, { trusted: true });
+  const { body, css } = splitDocument(sanitizeRichText(html, { trusted: true }));
+  return scopeDocument(css, body);
 }
