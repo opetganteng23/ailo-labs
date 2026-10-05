@@ -24,7 +24,7 @@ async function requireAdminKind(formData: FormData): Promise<CatalogKind> {
 function readEntry(kind: CatalogKind, formData: FormData) {
   const cfg = CATALOG[kind];
   const title = String(formData.get("title") ?? "").trim();
-  if (!title) throw new FlashError(`Please fill in the ${cfg.titleLabel.toLowerCase()}.`);
+  if (!title) throw new FlashError(`Please fill in the ${cfg.titleLabel.toLowerCase()}.`, "warning");
   const text = (key: string) => String(formData.get(key) ?? "").trim();
   return {
     title,

@@ -46,7 +46,7 @@ async function ownEditable<T extends { owner?: unknown; status?: string; publish
 function readTitleSummary(formData: FormData) {
   const title = String(formData.get("title") ?? "").trim();
   const description = String(formData.get("description") ?? "").trim();
-  if (!title || !description) throw new FlashError(`Please fill in the ${[!title && "title", !description && "summary"].filter(Boolean).join(" and ")}.`);
+  if (!title || !description) throw new FlashError(`Please fill in the ${[!title && "title", !description && "summary"].filter(Boolean).join(" and ")}.`, "warning");
   return { title, description, content: sanitizeRichText(String(formData.get("content") ?? "")) };
 }
 
@@ -170,7 +170,7 @@ function readNews(formData: FormData) {
   const content = sanitizeRichText(String(formData.get("content") ?? "")).trim();
   const category = String(formData.get("category") ?? "").trim();
   const missing = [!title && "headline", !summary && "summary", !content && "article body", !category && "category"].filter(Boolean);
-  if (missing.length) throw new FlashError(`Please fill in the ${missing.join(", ")}.`);
+  if (missing.length) throw new FlashError(`Please fill in the ${missing.join(", ")}.`, "warning");
   const v = (k: string) => String(formData.get(k) ?? "").trim();
   return {
     title,

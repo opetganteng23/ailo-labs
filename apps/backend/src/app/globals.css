@@ -597,9 +597,16 @@ header.site.site-back .row { justify-content: space-between; }
 .toast { pointer-events: auto; display: flex; align-items: flex-start; gap: 12px; padding: 14px 14px 14px 16px; border-radius: 12px; background: #fff; border: 1px solid #e3e1da; border-left-width: 4px; box-shadow: 0 16px 36px -14px rgba(18, 24, 27, 0.35); font-size: 14px; line-height: 1.45; color: #15201f; animation: toast-in .2s ease-out; }
 .toast-success { border-left-color: #2e9e6a; }
 .toast-error { border-left-color: #c0392b; }
+.toast-warning { border-left-color: #d98a0b; }
+.toast-info { border-left-color: #2f7fa6; }
 .toast-icon { width: 24px; height: 24px; border-radius: 999px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; color: #fff; }
 .toast-success .toast-icon { background: #2e9e6a; }
 .toast-error .toast-icon { background: #c0392b; }
+.toast-warning .toast-icon { background: #d98a0b; }
+.toast-info .toast-icon { background: #2f7fa6; }
+.btn-pending { pointer-events: none; opacity: 0.8; }
+.btn-pending::before { content: ""; width: 14px; height: 14px; margin-right: 8px; flex-shrink: 0; border-radius: 50%; border: 2px solid currentColor; border-right-color: transparent; animation: btn-spin 0.7s linear infinite; }
+@keyframes btn-spin { to { transform: rotate(360deg); } }
 .toast-message { flex-grow: 1; padding-top: 2px; font-weight: 600; }
 .toast-close { width: 28px; height: 28px; border: 0; border-radius: 8px; background: transparent; color: #6b7573; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
 .toast-close:hover { background: var(--hover-bg); color: var(--hover-ink); }

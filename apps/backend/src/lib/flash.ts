@@ -3,7 +3,7 @@ import { unstable_rethrow } from "next/navigation";
 
 export const FLASH_COOKIE = "ailo_flash";
 
-export type FlashType = "success" | "error";
+export type FlashType = "success" | "error" | "warning" | "info";
 
 /**
  * Queues a one-shot notification for the admin UI. The <Toaster /> in the admin
@@ -30,7 +30,14 @@ export async function flash(type: FlashType, message: string) {
 }
 
 /** Thrown inside a withFlash() body to show its own message instead of the generic error. */
-export class FlashError extends Error {}
+export class FlashError extends Error {
+  constructor(
+    message: string,
+    readonly level: "error" | "warning" | "info" = "error",
+  ) {
+    super(message);
+  }
+}
 
 /**
  * Runs a server-action body and reports the outcome as a toast. Redirects and
@@ -45,7 +52,7 @@ export async function withFlash(run: () => Promise<void>, messages: { success: s
   } catch (error) {
     unstable_rethrow(error);
     if (error instanceof FlashError) {
-      await flash("error", error.message);
+      await flash(error.level, error.message);
       return false;
     }
     console.error(messages.error, error);

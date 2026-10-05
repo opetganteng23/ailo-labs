@@ -30,7 +30,7 @@ function readArticle(formData: FormData) {
   const content = sanitizeRichText(String(formData.get("content") ?? "")).trim();
   const category = String(formData.get("category") ?? "").trim();
   const missing = [!title && "headline", !summary && "summary", !content && "article body", !category && "category"].filter(Boolean);
-  if (missing.length) throw new FlashError(`Please fill in the ${missing.join(", ")}.`);
+  if (missing.length) throw new FlashError(`Please fill in the ${missing.join(", ")}.`, "warning");
   return { title, summary, content, category };
 }
 

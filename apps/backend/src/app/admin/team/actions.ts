@@ -31,7 +31,7 @@ function profilesFromForm(formData: FormData) {
 function readMember(formData: FormData) {
   const name = String(formData.get("name") ?? "").trim();
   const position = String(formData.get("position") ?? "").trim();
-  if (!name || !position) throw new FlashError(`Please fill in the ${[!name && "name", !position && "position"].filter(Boolean).join(" and ")}.`);
+  if (!name || !position) throw new FlashError(`Please fill in the ${[!name && "name", !position && "position"].filter(Boolean).join(" and ")}.`, "warning");
   return {
     name,
     position,

@@ -76,7 +76,7 @@ export async function createUserAction(formData: FormData) {
 
       const name = String(formData.get("name") ?? "").trim();
       const email = String(formData.get("email") ?? "").toLowerCase().trim();
-      if (!name || !email) throw new FlashError(`Please fill in the ${[!name && "name", !email && "email"].filter(Boolean).join(" and ")}.`);
+      if (!name || !email) throw new FlashError(`Please fill in the ${[!name && "name", !email && "email"].filter(Boolean).join(" and ")}.`, "warning");
       if (await User.exists({ email })) throw new FlashError("An account with this email already exists. Edit that user instead.");
       const photo = String(formData.get("photo") ?? "") || undefined;
       await User.create({
@@ -102,7 +102,7 @@ export async function updateUserAction(formData: FormData) {
       const isSelf = session.sub === id;
       const name = String(formData.get("name") ?? "").trim();
       const email = String(formData.get("email") ?? "").toLowerCase().trim();
-      if (!name || !email) throw new FlashError(`Please fill in the ${[!name && "name", !email && "email"].filter(Boolean).join(" and ")}.`);
+      if (!name || !email) throw new FlashError(`Please fill in the ${[!name && "name", !email && "email"].filter(Boolean).join(" and ")}.`, "warning");
 
       await connectToDatabase();
       const clash = await User.findOne({ email, _id: { $ne: id } }).lean();
