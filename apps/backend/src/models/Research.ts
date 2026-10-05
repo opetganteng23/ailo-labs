@@ -6,6 +6,7 @@ const researchSchema = new Schema(
     slug: { type: String, required: true, unique: true, trim: true },
     description: { type: String, required: true },
     content: { type: String, default: "" },
+    categories: { type: [String], default: [], index: true },
     image: String,
     relatedTeamMembers: [{ type: Schema.Types.ObjectId, ref: "Team" }],
     // "review" = submitted by a lecturer, waiting for an admin to publish.

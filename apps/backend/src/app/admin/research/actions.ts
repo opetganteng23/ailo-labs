@@ -7,6 +7,7 @@ import { getSession, isAdminRole } from "@/lib/auth";
 import { FlashError, withFlash } from "@/lib/flash";
 import { connectToDatabase } from "@/lib/mongodb";
 import { canWriteScripts } from "@/lib/htmlTrust";
+import { readCategoryList } from "@/lib/teamCats";
 import { sanitizeRichText } from "@/lib/sanitizeHtml";
 import { Research } from "@/models/Research";
 
@@ -30,6 +31,7 @@ async function readResearch(formData: FormData) {
     content: sanitizeRichText(String(formData.get("content") ?? ""), { trusted: true, scripts }),
     status: ["published", "review", "archived"].includes(String(formData.get("status"))) ? String(formData.get("status")) : "draft",
     image: String(formData.get("image") ?? ""),
+    categories: readCategoryList(formData),
   };
 }
 

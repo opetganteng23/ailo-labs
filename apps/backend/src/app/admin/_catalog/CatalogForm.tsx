@@ -4,6 +4,7 @@ import { useState } from "react";
 
 import { ImageUploadField } from "@/components/ImageUploadField";
 import { RichTextEditor } from "@/components/RichTextEditor";
+import { CategoryField } from "@/components/CategoryField";
 import type { CatalogConfig } from "@/lib/catalog";
 
 import { createCatalogAction, updateCatalogAction } from "./actions";
@@ -15,6 +16,7 @@ export type CatalogInitial = {
   content?: string;
   image?: string;
   link?: string;
+  categories?: string[];
   file?: string;
   author?: string;
   year?: string;
@@ -95,6 +97,13 @@ export function CatalogForm({ config, initial }: { config: CatalogConfig; initia
               <span style={{ fontSize: 12.5, color: "#6b7573" }}>Lower numbers appear first.</span>
             </div>
           </section>
+
+          {config.kind === "services" && (
+            <section className="admin2-section pad-sm">
+              <h2>Categories</h2>
+              <CategoryField kind="service" defaultValue={initial?.categories} />
+            </section>
+          )}
 
           <section className="admin2-section pad-sm">
             <h2>{config.kind === "partners" ? "Logo" : "Image"}</h2>

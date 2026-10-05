@@ -4,6 +4,7 @@ import { useState } from "react";
 
 import { ImageUploadField } from "@/components/ImageUploadField";
 import { RichTextEditor } from "@/components/RichTextEditor";
+import { CategoryField } from "@/components/CategoryField";
 
 import { createResearchAction, updateResearchAction } from "./actions";
 
@@ -24,6 +25,7 @@ type ResearchFormProps = {
     description: string;
     content: string;
     status: string;
+    categories?: string[];
     image?: string;
     publishedAt?: string;
     publishedAtManual?: boolean;
@@ -104,6 +106,10 @@ export function ResearchForm({
         </div>
 
         <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+          <section className="admin2-section pad-sm">
+            <h2>Categories</h2>
+            <CategoryField kind="research" defaultValue={initial?.categories} />
+          </section>
           {forReview ? (
             <section className="admin2-section pad-sm">
               <h2>Publishing</h2>

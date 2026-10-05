@@ -6,6 +6,7 @@ const projectSchema = new Schema(
     slug: { type: String, required: true, unique: true, trim: true },
     description: { type: String, required: true },
     content: { type: String, default: "" },
+    categories: { type: [String], default: [], index: true },
     images: { type: [String], default: [] },
     status: { type: String, enum: ["ongoing", "completed", "planned"], default: "planned" },
     teamMembers: [{ type: Schema.Types.ObjectId, ref: "Team" }],

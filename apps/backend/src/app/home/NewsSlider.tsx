@@ -80,7 +80,7 @@ export function NewsSlider({ items }: { items: NewsCard[] }) {
           {list.map((item, i) => (
             <a key={`${item.slug}-${i}`} className={hm("ncard")} href={item.slug ? `/news/${item.slug}` : "/news"}>
               <div className={hm("nthumb")} style={item.image ? { backgroundImage: `url('${item.image}')`, backgroundSize: "cover", backgroundPosition: "center" } : undefined}>
-                <span className={hm("tag")}>{item.category}</span>
+                <span className={hm("tag")}>{(item.categories?.length ? item.categories : [item.category]).join(" · ")}</span>
               </div>
               <div className={hm("nbody")}>
                 <div className={hm("date")}>{formatDate(item.publishedAt)}</div>

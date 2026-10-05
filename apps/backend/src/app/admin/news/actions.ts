@@ -8,6 +8,7 @@ import { FlashError, withFlash } from "@/lib/flash";
 import { connectToDatabase } from "@/lib/mongodb";
 import { formatDraftFromFiveW1H } from "@/lib/newsDraft";
 import { canWriteScripts } from "@/lib/htmlTrust";
+import { readCategoryList } from "@/lib/teamCats";
 import { sanitizeRichText } from "@/lib/sanitizeHtml";
 import { News } from "@/models/News";
 
@@ -30,10 +31,10 @@ async function readArticle(formData: FormData) {
   const title = String(formData.get("title") ?? "").trim();
   const summary = String(formData.get("summary") ?? "").trim();
   const content = sanitizeRichText(String(formData.get("content") ?? ""), { trusted: true, scripts }).trim();
-  const category = String(formData.get("category") ?? "").trim();
-  const missing = [!title && "headline", !summary && "summary", !content && "article body", !category && "category"].filter(Boolean);
+  const categories = readCategoryList(formData);
+  const missing = [!title && "headline", !summary && "summary", !content && "article body", categories.length === 0 && "category"].filter(Boolean);
   if (missing.length) throw new FlashError(`Please fill in the ${missing.join(", ")}.`, "warning");
-  return { title, summary, content, category };
+  return { title, summary, content, category: categories[0], categories };
 }
 
 function read5W1H(formData: FormData) {

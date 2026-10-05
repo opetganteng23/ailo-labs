@@ -8,6 +8,7 @@ import { catalogModel, CATALOG, isCatalogKind, type CatalogKind } from "@/lib/ca
 import { FlashError, withFlash } from "@/lib/flash";
 import { connectToDatabase } from "@/lib/mongodb";
 import { canWriteScripts } from "@/lib/htmlTrust";
+import { readCategoryList } from "@/lib/teamCats";
 import { sanitizeRichText } from "@/lib/sanitizeHtml";
 
 function slugify(input: string) {
@@ -35,6 +36,7 @@ async function readEntry(kind: CatalogKind, formData: FormData) {
   return {
     title,
     description: text("description"),
+    categories: kind === "services" ? readCategoryList(formData) : [],
     content: cfg.content ? sanitizeRichText(String(formData.get("content") ?? ""), { trusted: true, scripts }) : "",
     // Empty strings (not undefined) so clearing a field actually clears it - Mongoose ignores undefined on update.
     image: text("image"),

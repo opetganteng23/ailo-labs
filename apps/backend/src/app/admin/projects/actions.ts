@@ -7,6 +7,7 @@ import { getSession, isAdminRole } from "@/lib/auth";
 import { FlashError, flash, withFlash } from "@/lib/flash";
 import { connectToDatabase } from "@/lib/mongodb";
 import { canWriteScripts } from "@/lib/htmlTrust";
+import { readCategoryList } from "@/lib/teamCats";
 import { sanitizeRichText } from "@/lib/sanitizeHtml";
 import { Project } from "@/models/Project";
 
@@ -29,6 +30,7 @@ async function readProject(formData: FormData) {
     description,
     content: sanitizeRichText(String(formData.get("content") ?? ""), { trusted: true, scripts }),
     status: formData.get("status") ?? "planned",
+    categories: readCategoryList(formData),
     images: formData.get("image") ? [String(formData.get("image"))] : [],
   };
 }

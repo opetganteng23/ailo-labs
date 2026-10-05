@@ -22,6 +22,7 @@ export default async function DosenNewsEditPage({ params }: { params: Promise<{ 
     _id: string;
     title: string;
     category: string;
+    categories?: string[];
     summary: string;
     content: string;
     status: string;
@@ -50,6 +51,7 @@ export default async function DosenNewsEditPage({ params }: { params: Promise<{ 
           _id: String(item._id),
           title: item.title,
           category: item.category,
+          categories: item.categories,
           summary: item.summary,
           content: item.content,
           status: item.status,

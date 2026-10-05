@@ -1,3 +1,6 @@
+import { CategoryChips } from "@/components/CategoryChips";
+import { CategoryFilter } from "@/components/CategoryFilter";
+import { categoriesOf } from "@/lib/teamCats";
 import Link from "next/link";
 
 import { SiteFooter } from "@/components/SiteFooter";
@@ -10,6 +13,7 @@ export const dynamic = "force-dynamic";
 
 type ProjectItem = {
   _id: string;
+  categories?: string[];
   title: string;
   slug: string;
   description: string;
@@ -22,9 +26,13 @@ type ProjectItem = {
 const STATUS_LABEL: Record<string, string> = { planned: "Planned", ongoing: "Ongoing", completed: "Completed" };
 const STATUS_CLASS: Record<string, string> = { planned: "status-planned", ongoing: "status-ongoing", completed: "status-completed" };
 
-export default async function ProjectsListPage() {
+export default async function ProjectsListPage({ searchParams }: { searchParams: Promise<{ category?: string }> }) {
+  const { category } = await searchParams;
   await connectToDatabase();
   const items = (await Project.find({ publishStatus: { $nin: ["review", "archived"] } }).sort({ publishedAt: -1, createdAt: -1 }).lean()) as unknown as ProjectItem[];
+
+  const allCategories = Array.from(new Set(items.flatMap((i) => categoriesOf(i)))).sort((a, b) => a.localeCompare(b));
+  const shown = category ? items.filter((i) => categoriesOf(i).includes(category)) : items;
 
   return (
     <>
@@ -42,8 +50,10 @@ export default async function ProjectsListPage() {
 
         {items.length === 0 && <EmptyState variant="public" title="No projects yet" message="Projects will appear here once they are published." actionHref="/" actionLabel="Back to homepage" />}
 
+        <CategoryFilter basePath="/projects" categories={allCategories} active={category} />
+
         <div className="projects-grid">
-          {items.map((item, i) => (
+          {shown.map((item, i) => (
             <Link key={item._id} href={`/projects/${item.slug}`} className="pcard">
               {item.images?.[0] ? (
                 // eslint-disable-next-line @next/next/no-img-element -- arbitrary uploaded image, no static optimization needed
@@ -57,6 +67,7 @@ export default async function ProjectsListPage() {
                   <span className={`pstatus ${STATUS_CLASS[item.status]}`}>{STATUS_LABEL[item.status]}</span>
                 </div>
                 <h3>{item.title}</h3>
+                <CategoryChips categories={categoriesOf(item)} />
                 {(item.publishedAt ?? item.createdAt) && (
                   <span className="rcard-date">
                     {new Date(item.publishedAt ?? item.createdAt!).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" })}

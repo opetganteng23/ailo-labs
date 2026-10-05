@@ -7,6 +7,7 @@ import { getSession } from "@/lib/auth";
 import { FlashError, withFlash } from "@/lib/flash";
 import { connectToDatabase } from "@/lib/mongodb";
 import { isHtmlTrusted } from "@/lib/htmlTrust";
+import { readCategoryList } from "@/lib/teamCats";
 import { sanitizeRichText } from "@/lib/sanitizeHtml";
 import { News } from "@/models/News";
 import { Project } from "@/models/Project";
@@ -48,7 +49,7 @@ function readTitleSummary(formData: FormData, trusted: boolean) {
   const title = String(formData.get("title") ?? "").trim();
   const description = String(formData.get("description") ?? "").trim();
   if (!title || !description) throw new FlashError(`Please fill in the ${[!title && "title", !description && "summary"].filter(Boolean).join(" and ")}.`, "warning");
-  return { title, description, content: sanitizeRichText(String(formData.get("content") ?? ""), { trusted }) };
+  return { title, description, categories: readCategoryList(formData), content: sanitizeRichText(String(formData.get("content") ?? ""), { trusted }) };
 }
 
 // ---------- Research ----------
@@ -169,11 +170,13 @@ function readNews(formData: FormData, trusted: boolean) {
   const title = String(formData.get("title") ?? "").trim();
   const summary = String(formData.get("summary") ?? "").trim();
   const content = sanitizeRichText(String(formData.get("content") ?? ""), { trusted }).trim();
-  const category = String(formData.get("category") ?? "").trim();
-  const missing = [!title && "headline", !summary && "summary", !content && "article body", !category && "category"].filter(Boolean);
+  const categories = readCategoryList(formData);
+  const category = categories[0] ?? "";
+  const missing = [!title && "headline", !summary && "summary", !content && "article body", categories.length === 0 && "category"].filter(Boolean);
   if (missing.length) throw new FlashError(`Please fill in the ${missing.join(", ")}.`, "warning");
   const v = (k: string) => String(formData.get(k) ?? "").trim();
   return {
+    categories,
     title,
     summary,
     content,

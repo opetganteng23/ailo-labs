@@ -1,4 +1,7 @@
 import Link from "next/link";
+import { CategoryChips } from "@/components/CategoryChips";
+import { CategoryFilter } from "@/components/CategoryFilter";
+import { categoriesOf } from "@/lib/teamCats";
 
 import { SiteFooter } from "@/components/SiteFooter";
 import { SiteHeader } from "@/components/SiteHeader";
@@ -8,11 +11,15 @@ import { EmptyState } from "@/components/EmptyState";
 
 export const dynamic = "force-dynamic";
 
-type ResearchItem = { _id: string; title: string; slug: string; description: string; image?: string; publishedAt?: string; createdAt?: string };
+type ResearchItem = { _id: string; categories?: string[]; title: string; slug: string; description: string; image?: string; publishedAt?: string; createdAt?: string };
 
-export default async function ResearchListPage() {
+export default async function ResearchListPage({ searchParams }: { searchParams: Promise<{ category?: string }> }) {
+  const { category } = await searchParams;
   await connectToDatabase();
   const items = (await Research.find({ status: "published" }).sort({ publishedAt: -1, createdAt: -1 }).lean()) as unknown as ResearchItem[];
+
+  const allCategories = Array.from(new Set(items.flatMap((i) => categoriesOf(i)))).sort((a, b) => a.localeCompare(b));
+  const shown = category ? items.filter((i) => categoriesOf(i).includes(category)) : items;
 
   return (
     <>
@@ -30,13 +37,16 @@ export default async function ResearchListPage() {
 
         {items.length === 0 && <EmptyState variant="public" title="No research yet" message="Research topics will appear here once they are published." actionHref="/" actionLabel="Back to homepage" />}
 
+        <CategoryFilter basePath="/research" categories={allCategories} active={category} />
+
         <div className="research-grid">
-          {items.map((item, i) => (
+          {shown.map((item, i) => (
             <Link key={item._id} href={`/research/${item.slug}`} className="rcard">
               <div className="rcard-top">
                 <span className="num">{String(i + 1).padStart(2, "0")}</span>
               </div>
               <h3>{item.title}</h3>
+              <CategoryChips categories={categoriesOf(item)} />
               {(item.publishedAt ?? item.createdAt) && (
                 <span className="rcard-date">
                   {new Date(item.publishedAt ?? item.createdAt!).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" })}

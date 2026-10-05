@@ -1,4 +1,6 @@
 import Link from "next/link";
+import { CategoryChips } from "@/components/CategoryChips";
+import { categoriesOf } from "@/lib/teamCats";
 import { notFound } from "next/navigation";
 
 import { SiteFooter } from "@/components/SiteFooter";
@@ -18,6 +20,7 @@ export default async function NewsDetailPage({ params }: { params: Promise<{ slu
     summary: string;
     content: string;
     category: string;
+    categories?: string[];
     images?: string[];
   }>();
 
@@ -31,18 +34,7 @@ export default async function NewsDetailPage({ params }: { params: Promise<{ slu
           News
         </Link>
         <div style={{ marginTop: 12 }}>
-          <span
-            style={{
-              background: "var(--orange)",
-              color: "#1e1206",
-              fontSize: 12,
-              fontWeight: 700,
-              padding: "5px 12px",
-              borderRadius: 999,
-            }}
-          >
-            {item.category}
-          </span>
+          <CategoryChips categories={categoriesOf(item)} />
         </div>
         <h1 style={{ marginTop: 8 }}>{item.title}</h1>
         <p style={{ color: "#5b6469", fontSize: 17 }}>{item.summary}</p>

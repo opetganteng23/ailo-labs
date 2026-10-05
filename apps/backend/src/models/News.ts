@@ -9,6 +9,8 @@ const newsSchema = new Schema(
     reviewNote: String,
     images: { type: [String], default: [] },
     category: { type: String, required: true, trim: true },
+    // Every category the article belongs to; `category` stays the first one for older data and the API.
+    categories: { type: [String], default: [], index: true },
     tags: { type: [String], default: [] },
     status: {
       type: String,
@@ -33,5 +35,10 @@ const newsSchema = new Schema(
 );
 
 newsSchema.index({ status: 1, publishedAt: -1 });
+
+newsSchema.pre("validate", function () {
+  const doc = this as unknown as { category?: string; categories?: string[] };
+  if ((!doc.categories || doc.categories.length === 0) && doc.category) doc.categories = [doc.category];
+});
 
 export const News = models.News || model("News", newsSchema);

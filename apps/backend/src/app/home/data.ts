@@ -38,7 +38,7 @@ export type HomepageSettings = {
 
 export type ResearchCard = { title: string; description: string; slug: string };
 export type ProjectCard = { title: string; description: string; slug: string; status: string; image?: string };
-export type NewsCard = { title: string; summary: string; slug: string; category: string; publishedAt?: string; image?: string };
+export type NewsCard = { title: string; summary: string; slug: string; category: string; categories?: string[]; publishedAt?: string; image?: string };
 export type TeamCard = {
   name: string;
   position: string;
@@ -107,8 +107,8 @@ export async function getHomeData(): Promise<HomeData> {
       News.find({ status: "published" })
         .sort({ publishedAt: -1 })
         .limit(9)
-        .select("title summary slug category publishedAt images")
-        .lean<{ title: string; summary: string; slug: string; category: string; publishedAt?: Date; images?: string[] }[]>(),
+        .select("title summary slug category categories publishedAt images")
+        .lean<{ title: string; summary: string; slug: string; category: string; categories?: string[]; publishedAt?: Date; images?: string[] }[]>(),
       Lab.find({ isActive: true }).sort({ name: 1 }).limit(4).select("name location capacity facilities").lean<{ name: string; location?: string; capacity?: number; facilities?: string }[]>(),
       Partner.find({ status: "published" }).sort({ order: 1, title: 1 }).select("title image logoDark").lean<{ title: string; image?: string; logoDark?: boolean }[]>(),
       listTeamCategories(),
@@ -127,7 +127,7 @@ export async function getHomeData(): Promise<HomeData> {
       socialMedia: settings?.socialMedia,
       research,
       projects: projects.map((p) => ({ title: p.title, description: p.description, slug: p.slug, status: p.status, image: p.images?.[0] })),
-      news: news.map((n) => ({ title: n.title, summary: n.summary, slug: n.slug, category: n.category, publishedAt: n.publishedAt ? new Date(n.publishedAt).toISOString() : undefined, image: n.images?.[0] })),
+      news: news.map((n) => ({ title: n.title, summary: n.summary, slug: n.slug, category: n.category, categories: categoriesOf(n), publishedAt: n.publishedAt ? new Date(n.publishedAt).toISOString() : undefined, image: n.images?.[0] })),
       team: team.map((t) => ({
         name: t.name,
         position: t.position,

@@ -17,6 +17,7 @@ export default async function DosenProjectEditPage({ params }: { params: Promise
   const htmlAllowed = await isHtmlTrusted(session.sub);
   await connectToDatabase();
   const item = await Project.findOne({ _id: id, owner: session.sub }).lean<{
+    categories?: string[];
     _id: string;
     title: string;
     description: string;
@@ -45,6 +46,7 @@ export default async function DosenProjectEditPage({ params }: { params: Promise
         initial={{
           _id: String(item._id),
           title: item.title,
+          categories: item.categories,
           description: item.description,
           content: item.content,
           status: item.status,

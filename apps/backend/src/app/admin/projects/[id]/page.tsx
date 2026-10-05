@@ -12,6 +12,7 @@ export default async function AdminProjectEditPage({ params }: { params: Promise
   const { id } = await params;
   await connectToDatabase();
   const item = await Project.findById(id).lean<{
+    categories?: string[];
     _id: string;
     title: string;
     description: string;
@@ -37,6 +38,7 @@ export default async function AdminProjectEditPage({ params }: { params: Promise
         initial={{
           _id: String(item._id),
           title: item.title,
+          categories: item.categories,
           description: item.description,
           content: item.content,
           status: item.status,

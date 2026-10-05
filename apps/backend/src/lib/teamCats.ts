@@ -8,3 +8,9 @@ export function categoriesOf(item: { category?: string; categories?: string[] })
 export function readCategories(formData: FormData, field = "categories"): string[] {
   return Array.from(new Set(formData.getAll(field).map((v) => String(v).trim()).filter(Boolean)));
 }
+
+/** Reads categories from a form: repeated checkboxes and/or one comma-separated field, without duplicates (at most 8). */
+export function readCategoryList(formData: FormData, field = "categories"): string[] {
+  const raw = formData.getAll(field).flatMap((v) => String(v).split(","));
+  return Array.from(new Set(raw.map((v) => v.trim().replace(/\s+/g, " ").slice(0, 40)).filter(Boolean))).slice(0, 8);
+}

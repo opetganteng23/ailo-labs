@@ -1,3 +1,5 @@
+import { CategoryChips } from "@/components/CategoryChips";
+import { categoriesOf } from "@/lib/teamCats";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
@@ -14,6 +16,7 @@ export default async function ResearchDetailPage({ params }: { params: Promise<{
   const { slug } = await params;
   await connectToDatabase();
   const item = await Research.findOne({ slug, status: "published" }).lean<{
+    categories?: string[];
     title: string;
     description: string;
     content: string;
@@ -32,6 +35,7 @@ export default async function ResearchDetailPage({ params }: { params: Promise<{
           Research
         </Link>
         <h1 style={{ marginTop: 12 }}>{item.title}</h1>
+        <CategoryChips categories={categoriesOf(item)} style={{ marginTop: 10 }} />
         {(item.publishedAt ?? item.createdAt) && (
           <p style={{ color: "#6b7573", fontSize: 13.5, fontWeight: 600, margin: "8px 0 0" }}>
             {new Date(item.publishedAt ?? item.createdAt!).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" })}

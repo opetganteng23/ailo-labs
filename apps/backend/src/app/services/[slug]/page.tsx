@@ -1,3 +1,5 @@
+import { CategoryChips } from "@/components/CategoryChips";
+import { categoriesOf } from "@/lib/teamCats";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
@@ -14,6 +16,7 @@ export default async function ServiceDetailPage({ params }: { params: Promise<{ 
   const { slug } = await params;
   await connectToDatabase();
   const item = await Service.findOne({ slug, status: "published" }).lean<{
+    categories?: string[];
     title: string;
     description?: string;
     content?: string;
@@ -30,6 +33,7 @@ export default async function ServiceDetailPage({ params }: { params: Promise<{ 
           Services
         </Link>
         <h1 style={{ marginTop: 12 }}>{item.title}</h1>
+        <CategoryChips categories={categoriesOf(item)} style={{ marginTop: 10 }} />
         {item.description && <p style={{ color: "#5b6469", fontSize: 17 }}>{item.description}</p>}
         {item.image && !isHtmlDocument(item.content) && (
           // eslint-disable-next-line @next/next/no-img-element -- arbitrary uploaded image

@@ -4,6 +4,7 @@ import { useState } from "react";
 
 import { ImageUploadField } from "@/components/ImageUploadField";
 import { RichTextEditor } from "@/components/RichTextEditor";
+import { CategoryField } from "@/components/CategoryField";
 
 import { createProjectAction, updateProjectAction } from "./actions";
 
@@ -19,6 +20,7 @@ type ProjectFormProps = {
   htmlAllowed?: boolean;
   defaultStatus?: string;
   initial?: {
+    categories?: string[];
     _id: string;
     title: string;
     description: string;
@@ -105,6 +107,11 @@ export function ProjectForm({
         </div>
 
         <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+          <section className="admin2-section pad-sm">
+            <h2>Categories</h2>
+            <CategoryField kind="project" defaultValue={initial?.categories} />
+          </section>
+
           <section className="admin2-section pad-sm">
             <h2>Stage</h2>
             <div className="admin2-radio-group" role="radiogroup" aria-label="Status">

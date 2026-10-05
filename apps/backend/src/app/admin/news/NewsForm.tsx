@@ -24,6 +24,7 @@ type NewsFormProps = {
     _id: string;
     title: string;
     category: string;
+    categories?: string[];
     summary: string;
     content: string;
     status: string;
@@ -82,14 +83,14 @@ export function NewsForm({
   const [status, setStatus] = useState(forReview ? "review" : initial?.status ?? "draft");
   const [dateMode, setDateMode] = useState<"auto" | "manual">(initial?.publishedAtManual ? "manual" : "auto");
   const [manualDate, setManualDate] = useState(toDateInputValue(initial?.publishedAt));
-  const [category, setCategory] = useState(initial?.category ?? (categories.includes("General") ? "General" : categories[0] ?? ""));
+  const [selectedCats, setSelectedCats] = useState<string[]>(initial?.categories?.length ? initial.categories : initial?.category ? [initial.category] : categories.includes("General") ? ["General"] : categories[0] ? [categories[0]] : []);
   const [contentMode, setContentMode] = useState<"ai" | "manual">(
     initial && !Object.values(initial.source5W1H ?? {}).some((v) => v?.trim()) && initial.content ? "manual" : "ai",
   );
   const [extraCategories, setExtraCategories] = useState<string[]>([]);
   const categoryOptions = useMemo(() => {
     const set = new Set([...categories, ...extraCategories]);
-    if (initial?.category) set.add(initial.category);
+    for (const c of initial?.categories?.length ? initial.categories : initial?.category ? [initial.category] : []) set.add(c);
     return Array.from(set).sort((a, b) => a.localeCompare(b));
   }, [categories, extraCategories, initial]);
   const [addingCategory, setAddingCategory] = useState(false);
@@ -157,7 +158,7 @@ export function NewsForm({
         return;
       }
       setExtraCategories((list) => [...list, result.name]);
-      setCategory(result.name);
+      setSelectedCats((list) => (list.includes(result.name) ? list : [...list, result.name]));
       setNewCategory("");
       setCategoryError("");
       setAddingCategory(false);
@@ -384,9 +385,9 @@ export function NewsForm({
           <section className="admin2-section pad-sm">
             <h2>Organize</h2>
             <div className="admin2-field">
-              <label htmlFor="category" style={{ display: "flex", alignItems: "center" }}>
+              <label style={{ display: "flex", alignItems: "center" }}>
                 <span>
-                  Category<span className="req">*</span>
+                  Categories<span className="req">*</span>
                 </span>
                 {!forReview && (
                   <Link href="/admin/news/categories" style={{ marginLeft: "auto", fontSize: 12.5, fontWeight: 600, color: "#00809d" }}>
@@ -394,14 +395,22 @@ export function NewsForm({
                   </Link>
                 )}
               </label>
-              <select id="category" name="category" required value={category} onChange={(e) => setCategory(e.target.value)}>
-                {!categoryOptions.includes(category) && <option value="">Choose a category</option>}
+              <div className="admin2-checklist" role="group" aria-label="Categories">
                 {categoryOptions.map((c) => (
-                  <option key={c} value={c}>
+                  <label key={c} style={{ display: "flex", gap: 10, alignItems: "center", fontSize: 14, fontWeight: 500 }}>
+                    <input
+                      type="checkbox"
+                      name="categories"
+                      value={c}
+                      checked={selectedCats.includes(c)}
+                      onChange={(e) => setSelectedCats((list) => (e.target.checked ? [...list, c] : list.filter((x) => x !== c)))}
+                      style={{ width: 18, height: 18 }}
+                    />
                     {c}
-                  </option>
+                  </label>
                 ))}
-              </select>
+              </div>
+              <span style={{ fontSize: 12.5, color: "#6b7573" }}>Tick every category this article belongs to.</span>
               {forReview ? null : addingCategory ? (
                 <div className="admin2-inline-add">
                   <input
