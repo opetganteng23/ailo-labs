@@ -6,6 +6,7 @@ import { redirect } from "next/navigation";
 import { getSession } from "@/lib/auth";
 import { FlashError, withFlash } from "@/lib/flash";
 import { connectToDatabase } from "@/lib/mongodb";
+import { isHtmlTrusted } from "@/lib/htmlTrust";
 import { sanitizeRichText } from "@/lib/sanitizeHtml";
 import { News } from "@/models/News";
 import { Project } from "@/models/Project";
@@ -43,11 +44,11 @@ async function ownEditable<T extends { owner?: unknown; status?: string; publish
   }
 }
 
-function readTitleSummary(formData: FormData) {
+function readTitleSummary(formData: FormData, trusted: boolean) {
   const title = String(formData.get("title") ?? "").trim();
   const description = String(formData.get("description") ?? "").trim();
   if (!title || !description) throw new FlashError(`Please fill in the ${[!title && "title", !description && "summary"].filter(Boolean).join(" and ")}.`, "warning");
-  return { title, description, content: sanitizeRichText(String(formData.get("content") ?? "")) };
+  return { title, description, content: sanitizeRichText(String(formData.get("content") ?? ""), { trusted }) };
 }
 
 // ---------- Research ----------
@@ -56,7 +57,7 @@ export async function createDosenResearchAction(formData: FormData) {
   const session = await requireDosen();
   const ok = await withFlash(
     async () => {
-      const data = readTitleSummary(formData);
+      const data = readTitleSummary(formData, await isHtmlTrusted(session.sub));
       await connectToDatabase();
       await Research.create({
         ...data,
@@ -80,7 +81,7 @@ export async function updateDosenResearchAction(formData: FormData) {
       const id = String(formData.get("id"));
       await ownEditable(await Research.findById(id).lean<{ owner?: unknown; status?: string }>(), session.sub);
       await Research.findByIdAndUpdate(id, {
-        ...readTitleSummary(formData),
+        ...readTitleSummary(formData, await isHtmlTrusted(session.sub)),
         image: String(formData.get("image") ?? "") || undefined,
         status: "review",
       });
@@ -111,7 +112,7 @@ export async function createDosenProjectAction(formData: FormData) {
   const session = await requireDosen();
   const ok = await withFlash(
     async () => {
-      const data = readTitleSummary(formData);
+      const data = readTitleSummary(formData, await isHtmlTrusted(session.sub));
       await connectToDatabase();
       await Project.create({
         ...data,
@@ -136,7 +137,7 @@ export async function updateDosenProjectAction(formData: FormData) {
       const id = String(formData.get("id"));
       await ownEditable(await Project.findById(id).lean<{ owner?: unknown; publishStatus?: string }>(), session.sub);
       await Project.findByIdAndUpdate(id, {
-        ...readTitleSummary(formData),
+        ...readTitleSummary(formData, await isHtmlTrusted(session.sub)),
         status: formData.get("status") ?? "planned",
         images: formData.get("image") ? [String(formData.get("image"))] : [],
         publishStatus: "review",
@@ -164,10 +165,10 @@ export async function deleteDosenProjectAction(formData: FormData) {
 
 // ---------- News drafts ----------
 
-function readNews(formData: FormData) {
+function readNews(formData: FormData, trusted: boolean) {
   const title = String(formData.get("title") ?? "").trim();
   const summary = String(formData.get("summary") ?? "").trim();
-  const content = sanitizeRichText(String(formData.get("content") ?? "")).trim();
+  const content = sanitizeRichText(String(formData.get("content") ?? ""), { trusted }).trim();
   const category = String(formData.get("category") ?? "").trim();
   const missing = [!title && "headline", !summary && "summary", !content && "article body", !category && "category"].filter(Boolean);
   if (missing.length) throw new FlashError(`Please fill in the ${missing.join(", ")}.`, "warning");
@@ -187,7 +188,7 @@ export async function createDosenNewsAction(formData: FormData) {
   const session = await requireDosen();
   const ok = await withFlash(
     async () => {
-      const data = readNews(formData);
+      const data = readNews(formData, await isHtmlTrusted(session.sub));
       await connectToDatabase();
       await News.create({ ...data, slug: await uniqueSlug(News, data.title), status: "review", author: session.sub });
     },
@@ -204,7 +205,7 @@ export async function updateDosenNewsAction(formData: FormData) {
       await connectToDatabase();
       const id = String(formData.get("id"));
       await ownEditable(await News.findById(id).lean<{ author?: unknown; status?: string }>(), session.sub, "author");
-      await News.findByIdAndUpdate(id, { ...readNews(formData), status: "review" });
+      await News.findByIdAndUpdate(id, { ...readNews(formData, await isHtmlTrusted(session.sub)), status: "review" });
     },
     { success: "Draft updated and sent for review.", error: "Couldn't save the draft. Please try again." },
   );

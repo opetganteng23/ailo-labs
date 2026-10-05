@@ -26,6 +26,7 @@ export default async function AdminUserEditPage({ params }: { params: Promise<{ 
     role: string;
     photo?: string;
     isActive: boolean;
+    htmlTrusted?: boolean;
   }>();
   if (!user) notFound();
 
@@ -73,6 +74,15 @@ export default async function AdminUserEditPage({ params }: { params: Promise<{ 
           <label style={{ flexDirection: "row", alignItems: "center", gap: 8, display: "flex", fontWeight: 500 }}>
             <input type="checkbox" name="isActive" defaultChecked={user.isActive} disabled={isSelf} style={{ width: "auto" }} />
             Active
+          </label>
+          <label style={{ flexDirection: "column", alignItems: "flex-start", gap: 4, display: "flex", fontWeight: 500 }}>
+            <span style={{ display: "flex", alignItems: "center", gap: 8 }}>
+              <input type="checkbox" name="htmlTrusted" defaultChecked={Boolean(user.htmlTrusted)} style={{ width: "auto" }} />
+              Trusted for HTML editing
+            </span>
+            <span style={{ fontSize: 12.5, fontWeight: 400, color: "#6b7573" }}>
+              Dosen only. Adds the HTML mode to this lecturer&apos;s News, Research and Project editors. Their submissions still go through your review. Admins always have it.
+            </span>
           </label>
           {isSelf && <p style={{ fontSize: 13, color: "#6b7573", margin: 0 }}>You cannot change your own role or deactivate your own account.</p>}
           <button type="submit" className="admin2-btn" style={{ justifyContent: "center" }}>

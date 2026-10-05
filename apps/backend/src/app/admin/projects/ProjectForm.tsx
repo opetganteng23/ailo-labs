@@ -15,6 +15,8 @@ type ProjectFormProps = {
   updateAction?: FormAction;
   /** Lecturer mode: saving submits the project for admin review. */
   forReview?: boolean;
+  /** A lecturer an admin has trusted with the HTML mode. */
+  htmlAllowed?: boolean;
   defaultStatus?: string;
   initial?: {
     _id: string;
@@ -43,6 +45,7 @@ export function ProjectForm({
   createAction = createProjectAction,
   updateAction = updateProjectAction,
   forReview = false,
+  htmlAllowed = false,
 }: ProjectFormProps) {
   const [status, setStatus] = useState(initial?.status ?? defaultStatus ?? "planned");
   const [dateMode, setDateMode] = useState<"auto" | "manual">(initial?.publishedAtManual ? "manual" : "auto");
@@ -96,7 +99,7 @@ export function ProjectForm({
               <h2>Content</h2>
             </div>
             <div style={{ padding: "0 28px 28px" }}>
-              <RichTextEditor allowHtml={!forReview} name="content" defaultValue={initial?.content} placeholder="Goals, team, results, links…" minHeight={320} required />
+              <RichTextEditor allowHtml={!forReview || htmlAllowed} name="content" defaultValue={initial?.content} placeholder="Goals, team, results, links…" minHeight={320} required />
             </div>
           </section>
         </div>

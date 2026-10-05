@@ -116,6 +116,7 @@ export async function updateUserAction(formData: FormData) {
         photo,
         role,
         isActive: isSelf ? true : formData.get("isActive") === "on",
+        htmlTrusted: role === "dosen" && formData.get("htmlTrusted") === "on",
       };
       const password = readPassword(formData, false);
       if (password) update.passwordHash = await bcrypt.hash(password, 12);

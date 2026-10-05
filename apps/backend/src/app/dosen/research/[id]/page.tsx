@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import { getSession } from "@/lib/auth";
+import { isHtmlTrusted } from "@/lib/htmlTrust";
 import { connectToDatabase } from "@/lib/mongodb";
 import { Research } from "@/models/Research";
 
@@ -13,6 +14,7 @@ export const dynamic = "force-dynamic";
 export default async function DosenResearchEditPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const session = (await getSession())!;
+  const htmlAllowed = await isHtmlTrusted(session.sub);
   await connectToDatabase();
   const item = await Research.findOne({ _id: id, owner: session.sub }).lean<{
     _id: string;
@@ -38,7 +40,7 @@ export default async function DosenResearchEditPage({ params }: { params: Promis
         mode="edit"
         createAction={createDosenResearchAction}
         updateAction={updateDosenResearchAction}
-        forReview
+        forReview htmlAllowed={htmlAllowed}
         initial={{
           _id: String(item._id),
           title: item.title,

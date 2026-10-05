@@ -1,14 +1,18 @@
 import { NextRequest, NextResponse } from "next/server";
 
-import { requireAdmin } from "@/lib/auth";
+import { isAdminRole, requireSession } from "@/lib/auth";
+import { isHtmlTrusted } from "@/lib/htmlTrust";
 import { renderRichText } from "@/lib/sanitizeHtml";
 
 export const dynamic = "force-dynamic";
 
 /** Returns the HTML exactly as it would be saved and shown to visitors, for the editor's HTML-mode preview. */
 export async function POST(request: NextRequest) {
-  const auth = await requireAdmin(request);
+  const auth = await requireSession(request, ["super_admin", "admin", "staff_lab", "dosen"]);
   if (!auth.ok) return auth.response;
+  if (!isAdminRole(auth.session.role) && !(await isHtmlTrusted(auth.session.sub))) {
+    return NextResponse.json({ success: false, error: "Not allowed." }, { status: 403 });
+  }
 
   let body: { html?: unknown };
   try {

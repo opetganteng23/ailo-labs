@@ -13,6 +13,8 @@ const userSchema = new Schema(
     // A lecturer ("dosen") account edits this team profile from the dosen dashboard.
     team: { type: Schema.Types.ObjectId, ref: "Team" },
     isActive: { type: Boolean, default: true, index: true },
+    // Lecturers only: an admin has granted the HTML editing mode (like a trusted role in Moodle).
+    htmlTrusted: { type: Boolean, default: false },
   },
   { timestamps: true },
 );

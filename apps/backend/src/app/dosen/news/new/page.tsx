@@ -1,5 +1,8 @@
 import Link from "next/link";
 
+import { getSession } from "@/lib/auth";
+import { isHtmlTrusted } from "@/lib/htmlTrust";
+
 import { listNewsCategories } from "@/lib/newsCategories";
 
 import { NewsForm } from "../../../admin/news/NewsForm";
@@ -8,6 +11,7 @@ import { createDosenNewsAction, updateDosenNewsAction } from "../../actions";
 export const dynamic = "force-dynamic";
 
 export default async function DosenNewsNewPage() {
+  const htmlAllowed = await isHtmlTrusted((await getSession())?.sub);
   const categories = await listNewsCategories();
   return (
     <div>
@@ -18,7 +22,7 @@ export default async function DosenNewsNewPage() {
         <span>/</span>
         <span style={{ color: "#15201f", fontWeight: 600 }}>New draft</span>
       </div>
-      <NewsForm mode="create" categories={categories} createAction={createDosenNewsAction} updateAction={updateDosenNewsAction} forReview />
+      <NewsForm mode="create" categories={categories} createAction={createDosenNewsAction} updateAction={updateDosenNewsAction} forReview htmlAllowed={htmlAllowed} />
     </div>
   );
 }

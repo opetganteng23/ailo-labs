@@ -16,6 +16,8 @@ type ResearchFormProps = {
   updateAction?: FormAction;
   /** Lecturer mode: no status picker, saving submits the item for admin review. */
   forReview?: boolean;
+  /** A lecturer an admin has trusted with the HTML mode. */
+  htmlAllowed?: boolean;
   initial?: {
     _id: string;
     title: string;
@@ -42,6 +44,7 @@ export function ResearchForm({
   createAction = createResearchAction,
   updateAction = updateResearchAction,
   forReview = false,
+  htmlAllowed = false,
 }: ResearchFormProps) {
   const [status, setStatus] = useState(forReview ? "review" : initial?.status ?? "draft");
   const [dateMode, setDateMode] = useState<"auto" | "manual">(initial?.publishedAtManual ? "manual" : "auto");
@@ -95,7 +98,7 @@ export function ResearchForm({
               <h2>Content</h2>
             </div>
             <div style={{ padding: "0 28px 28px" }}>
-              <RichTextEditor allowHtml={!forReview} name="content" defaultValue={initial?.content} placeholder="Background, methods, publications…" minHeight={320} required />
+              <RichTextEditor allowHtml={!forReview || htmlAllowed} name="content" defaultValue={initial?.content} placeholder="Background, methods, publications…" minHeight={320} required />
             </div>
           </section>
         </div>

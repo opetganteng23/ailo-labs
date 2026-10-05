@@ -17,6 +17,8 @@ type NewsFormProps = {
   updateAction?: FormAction;
   /** Lecturer mode: status is fixed to "review" and categories can't be managed. */
   forReview?: boolean;
+  /** A lecturer an admin has trusted with the HTML mode. */
+  htmlAllowed?: boolean;
   categories?: string[];
   initial?: {
     _id: string;
@@ -71,6 +73,7 @@ export function NewsForm({
   createAction = createNewsAction,
   updateAction = updateNewsAction,
   forReview = false,
+  htmlAllowed = false,
 }: NewsFormProps) {
   const [title, setTitle] = useState(initial?.title ?? "");
   const [summary, setSummary] = useState(initial?.summary ?? "");
@@ -330,7 +333,7 @@ export function NewsForm({
               )}
             </div>
             <div style={{ padding: "20px 28px 36px" }}>
-              <RichTextEditor key={draftVersion} allowHtml={!forReview} name="content" defaultValue={draft} placeholder="Write the article body…" required />
+              <RichTextEditor key={draftVersion} allowHtml={!forReview || htmlAllowed} name="content" defaultValue={draft} placeholder="Write the article body…" required />
             </div>
           </section>
         </div>

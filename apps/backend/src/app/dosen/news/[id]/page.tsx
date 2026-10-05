@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import { getSession } from "@/lib/auth";
+import { isHtmlTrusted } from "@/lib/htmlTrust";
 import { connectToDatabase } from "@/lib/mongodb";
 import { listNewsCategories } from "@/lib/newsCategories";
 import { News } from "@/models/News";
@@ -14,6 +15,7 @@ export const dynamic = "force-dynamic";
 export default async function DosenNewsEditPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const session = (await getSession())!;
+  const htmlAllowed = await isHtmlTrusted(session.sub);
   await connectToDatabase();
   const categories = await listNewsCategories();
   const item = await News.findOne({ _id: id, author: session.sub }).lean<{
@@ -43,7 +45,7 @@ export default async function DosenNewsEditPage({ params }: { params: Promise<{ 
         categories={categories}
         createAction={createDosenNewsAction}
         updateAction={updateDosenNewsAction}
-        forReview
+        forReview htmlAllowed={htmlAllowed}
         initial={{
           _id: String(item._id),
           title: item.title,
