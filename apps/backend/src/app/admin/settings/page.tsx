@@ -183,7 +183,7 @@ export default async function AdminSettingsPage() {
               <ImageUploadField name="aboutImage" label="Photo (optional)" defaultValue={settings?.about?.image} hint="Shown next to the text. PNG, JPG or WEBP" />
               <div>
                 <h3 style={{ margin: "0 0 4px", fontSize: 15, fontWeight: 700 }}>Cards beside the text</h3>
-                <p style={{ margin: "0 0 12px", fontSize: 13, color: "#6b7573" }}>Shown when there is no photo. Leave a card&apos;s title and text empty to use the default, or fill all three to replace it.</p>
+                <p style={{ margin: "0 0 12px", fontSize: 13, color: "#6b7573" }}>Shown when there is no photo. Cards left empty are not shown. Leave all three empty to use the default cards.</p>
                 <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
                   {[0, 1, 2].map((i) => (
                     <div key={i} style={{ display: "grid", gridTemplateColumns: "1fr 1.6fr 1fr", gap: 10 }}>
