@@ -20,8 +20,7 @@ export const dynamic = "force-dynamic";
 const CHUNK_SIZE = 800;
 
 function chunkText(text: string): string[] {
-  // Raw HTML embeds are page furniture (videos, widgets), not knowledge: drop them before indexing.
-  const clean = text.replace(/<div[^>]*data-type="html-embed"[^>]*><\/div>/g, " ").replace(/\s+/g, " ").trim();
+  const clean = text.replace(/\s+/g, " ").trim();
   const chunks: string[] = [];
   for (let i = 0; i < clean.length; i += CHUNK_SIZE) {
     chunks.push(clean.slice(i, i + CHUNK_SIZE));

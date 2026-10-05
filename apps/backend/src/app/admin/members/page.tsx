@@ -71,7 +71,7 @@ export default async function AdminMembersPage({
         </div>
       </div>
 
-      <div style={{ display: "grid", gridTemplateColumns: "minmax(0, 1fr) 460px", gap: 24, alignItems: "start" }}>
+      <div className="admin2-split-460">
         <section className="admin2-panel">
           <div className="admin2-panel-toolbar" style={{ padding: "14px 16px" }}>
             <div className="admin2-tabs">

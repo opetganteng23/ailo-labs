@@ -25,7 +25,7 @@ function readProject(formData: FormData) {
   return {
     title,
     description,
-    content: sanitizeRichText(String(formData.get("content") ?? ""), { allowEmbed: true }),
+    content: sanitizeRichText(String(formData.get("content") ?? ""), { trusted: true }),
     status: formData.get("status") ?? "planned",
     images: formData.get("image") ? [String(formData.get("image"))] : [],
   };

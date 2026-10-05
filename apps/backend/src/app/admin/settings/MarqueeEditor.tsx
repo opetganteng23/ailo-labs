@@ -51,7 +51,7 @@ export function MarqueeEditor({ items }: { items?: { bold?: string; text?: strin
             </button>
           </div>
           {!row.image && (
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1.4fr", gap: 12 }}>
+            <div style={{ display: "grid", gridTemplateColumns: "minmax(0, 1fr) minmax(0, 1.4fr)", gap: 12 }}>
               <div className="admin2-field">
                 <label>Bold label</label>
                 <input type="text" value={row.bold} placeholder="e.g. Optimization" onChange={(e) => updateRow(i, { bold: e.target.value })} />

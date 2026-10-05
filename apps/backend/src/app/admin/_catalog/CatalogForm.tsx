@@ -44,7 +44,7 @@ export function CatalogForm({ config, initial }: { config: CatalogConfig; initia
               <input id="title" name="title" type="text" required maxLength={200} defaultValue={initial?.title ?? ""} />
             </div>
             {config.author && (
-              <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr", gap: 16 }}>
+              <div style={{ display: "grid", gridTemplateColumns: "minmax(0, 2fr) minmax(0, 1fr)", gap: 16 }}>
                 <div className="admin2-field">
                   <label htmlFor="author">Author</label>
                   <input id="author" name="author" type="text" defaultValue={initial?.author ?? ""} />

@@ -186,7 +186,7 @@ export default async function AdminSettingsPage() {
                 <p style={{ margin: "0 0 12px", fontSize: 13, color: "#6b7573" }}>Shown when there is no photo. Cards left empty are not shown. Leave all three empty to use the default cards.</p>
                 <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
                   {[0, 1, 2].map((i) => (
-                    <div key={i} style={{ display: "grid", gridTemplateColumns: "1fr 1.6fr 1fr", gap: 10 }}>
+                    <div key={i} className="admin2-triple">
                       <input name="aboutPillarTitle" type="text" maxLength={40} aria-label={`Card ${i + 1} title`} placeholder={`Card ${i + 1} title`} defaultValue={settings?.about?.pillars?.[i]?.title ?? ""} />
                       <input name="aboutPillarText" type="text" maxLength={120} aria-label={`Card ${i + 1} text`} placeholder="Short text" defaultValue={settings?.about?.pillars?.[i]?.text ?? ""} />
                       <input name="aboutPillarHref" type="text" aria-label={`Card ${i + 1} link`} placeholder="/research" defaultValue={settings?.about?.pillars?.[i]?.href ?? ""} />

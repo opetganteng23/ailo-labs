@@ -33,7 +33,7 @@ function readEntry(kind: CatalogKind, formData: FormData) {
   return {
     title,
     description: text("description"),
-    content: cfg.content ? sanitizeRichText(String(formData.get("content") ?? ""), { allowEmbed: true }) : "",
+    content: cfg.content ? sanitizeRichText(String(formData.get("content") ?? ""), { trusted: true }) : "",
     // Empty strings (not undefined) so clearing a field actually clears it - Mongoose ignores undefined on update.
     image: text("image"),
     link: cfg.link ? text("link") : "",

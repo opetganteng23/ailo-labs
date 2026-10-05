@@ -27,7 +27,7 @@ function readStatus(formData: FormData): "draft" | "review" | "published" | "arc
 function readArticle(formData: FormData) {
   const title = String(formData.get("title") ?? "").trim();
   const summary = String(formData.get("summary") ?? "").trim();
-  const content = sanitizeRichText(String(formData.get("content") ?? ""), { allowEmbed: true }).trim();
+  const content = sanitizeRichText(String(formData.get("content") ?? ""), { trusted: true }).trim();
   const category = String(formData.get("category") ?? "").trim();
   const missing = [!title && "headline", !summary && "summary", !content && "article body", !category && "category"].filter(Boolean);
   if (missing.length) throw new FlashError(`Please fill in the ${missing.join(", ")}.`, "warning");

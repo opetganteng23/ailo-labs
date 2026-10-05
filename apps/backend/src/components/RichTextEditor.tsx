@@ -11,10 +11,7 @@ import { useEffect, useRef, useState, type ReactNode } from "react";
 
 import { toast } from "@/lib/toast";
 
-import { clampEmbedHeight, EMBED_DEFAULT_HEIGHT, EMBED_MAX_HEIGHT, EMBED_MAX_HTML, EMBED_MIN_HEIGHT } from "@/lib/htmlEmbed";
-
 import { Figure } from "./richtext/Figure";
-import { EMBED_EDIT_EVENT, HtmlEmbed } from "./richtext/HtmlEmbed";
 
 type RichTextEditorProps = {
   name: string;
@@ -23,7 +20,7 @@ type RichTextEditorProps = {
   minHeight?: number;
   /** Blocks form submission while the body is empty, with the same red marking as other required fields. */
   required?: boolean;
-  /** Adds the HTML embed block (admin only; the server drops it from lecturer submissions). */
+  /** Adds the Visual / HTML switch (admin only; the server keeps raw layout HTML only from admin saves). */
   allowHtml?: boolean;
 };
 
@@ -91,12 +88,6 @@ const I = {
       <path d="M3 10h18M3 15h18M9 4v16M15 4v16" />
     </>
   ),
-  html: (
-    <>
-      <rect x="2.5" y="4" width="19" height="16" rx="3" />
-      <path d="M9.5 9.5L7 12l2.5 2.5M14.5 9.5L17 12l-2.5 2.5" />
-    </>
-  ),
   clear: <path d="M6 5h12M12 5l-3 14M4 20l16-16" />,
   reset: <path d="M6 6l12 12M18 6L6 18" />,
 };
@@ -120,7 +111,7 @@ function ToolButton({ label, active, disabled, onClick, children }: { label: str
   );
 }
 
-function Toolbar({ editor, onPickImage, uploading, onInsertHtml }: { editor: Editor; onPickImage: () => void; uploading: boolean; onInsertHtml?: () => void }) {
+function Toolbar({ editor, onPickImage, uploading }: { editor: Editor; onPickImage: () => void; uploading: boolean }) {
   const s = useEditorState({
     editor,
     selector: ({ editor: e }) => ({
@@ -272,7 +263,6 @@ function Toolbar({ editor, onPickImage, uploading, onInsertHtml }: { editor: Edi
       <ToolButton label="Remove link" disabled={!s.link} onClick={() => editor.chain().focus().unsetLink().run()}>{I.unlink}</ToolButton>
       <ToolButton label={uploading ? "Uploading image…" : "Insert image"} disabled={uploading} onClick={onPickImage}>{I.image}</ToolButton>
       <ToolButton label="Insert table" active={s.inTable} onClick={() => editor.chain().focus().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run()}>{I.table}</ToolButton>
-      {onInsertHtml && <ToolButton label="Insert HTML embed" onClick={onInsertHtml}>{I.html}</ToolButton>}
       <ToolButton label="Clear formatting" onClick={() => editor.chain().focus().unsetAllMarks().clearNodes().run()}>{I.clear}</ToolButton>
       {s.inTable && (
         <div className="rte-table-tools">
@@ -285,6 +275,27 @@ function Toolbar({ editor, onPickImage, uploading, onInsertHtml }: { editor: Edi
       )}
     </div>
   );
+}
+
+/** Tags and attributes the visual editor can hold. Anything else (layout divs, classes, iframes...) would be lost in visual mode. */
+const VISUAL_TAGS = new Set("p br h1 h2 h3 h4 strong b em i u s del a span mark ul ol li blockquote hr img figure figcaption pre code table thead tbody tr th td colgroup col".split(" "));
+const VISUAL_STYLE_PROPS = new Set(["text-align", "color", "background-color", "font-family", "font-size", "width"]);
+
+function needsRawMode(html: string): boolean {
+  if (!html || typeof DOMParser === "undefined") return false;
+  const doc = new DOMParser().parseFromString(html, "text/html");
+  for (const el of Array.from(doc.body.querySelectorAll("*"))) {
+    if (!VISUAL_TAGS.has(el.tagName.toLowerCase())) return true;
+    if (el.hasAttribute("id")) return true;
+    if (el.hasAttribute("class") && el.tagName !== "FIGURE") return true;
+    const style = el.getAttribute("style");
+    if (style && style.split(";").some((d) => d.trim() && !VISUAL_STYLE_PROPS.has(d.split(":")[0].trim().toLowerCase()))) return true;
+  }
+  return false;
+}
+
+function prettify(html: string): string {
+  return html.replace(/(<\/(?:p|h[1-4]|ul|ol|li|blockquote|figure|table|tr|pre)>)(?=<)/g, "$1\n");
 }
 
 /**
@@ -301,20 +312,21 @@ export function RichTextEditor({ name, defaultValue = "", placeholder, minHeight
   const [uploading, setUploading] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
   const validatorRef = useRef<HTMLTextAreaElement>(null);
-  const editorRef = useRef<Editor | null>(null);
-  const wrapperRef = useRef<HTMLDivElement>(null);
-  // pos === null inserts a new block; otherwise edits the embed at that position.
-  const [embed, setEmbed] = useState<{ pos: number | null; html: string; height: number } | null>(null);
+  // The HTML source mode edits the whole body as raw HTML; a body that already holds markup the visual editor cannot show opens there.
+  const [mode, setMode] = useState<"visual" | "html">(() => (allowHtml && needsRawMode(defaultValue) ? "html" : "visual"));
+  const [source, setSource] = useState(defaultValue);
+  const [preview, setPreview] = useState<string | null>(null);
+  const bodyText = mode === "html" ? source.replace(/<[^>]*>/g, " ").trim() || (/<(img|iframe|video|audio)\b/i.test(source) ? "media" : "") : text;
 
   // The shared Toaster marks the hidden validator and adds a message after it;
   // clear both as soon as the body has content again.
   useEffect(() => {
     const v = validatorRef.current;
-    if (!text || !v) return;
+    if (!bodyText || !v) return;
     v.classList.remove("field-invalid");
     const next = v.nextElementSibling;
     if (next instanceof HTMLElement && next.dataset.fieldError) next.remove();
-  }, [text]);
+  }, [bodyText]);
 
   const editor = useEditor({
     immediatelyRender: false,
@@ -329,7 +341,6 @@ export function RichTextEditor({ name, defaultValue = "", placeholder, minHeight
       FontSize,
       Highlight.configure({ multicolor: true }),
       Figure,
-      ...(allowHtml ? [HtmlEmbed] : []),
       Table.configure({ resizable: false }),
       TableRow,
       TableHeader,
@@ -348,41 +359,30 @@ export function RichTextEditor({ name, defaultValue = "", placeholder, minHeight
     },
   });
 
-  useEffect(() => {
-    editorRef.current = editor;
-  }, [editor]);
-
-  useEffect(() => {
-    const root = wrapperRef.current;
-    if (!root) return;
-    const onEdit = (e: Event) => {
-      const pos = (e as CustomEvent<{ pos: number }>).detail.pos;
-      const node = editorRef.current?.state.doc.nodeAt(pos);
-      if (node?.type.name === "htmlEmbed") setEmbed({ pos, html: String(node.attrs.html), height: Number(node.attrs.height) });
-    };
-    root.addEventListener(EMBED_EDIT_EVENT, onEdit);
-    return () => root.removeEventListener(EMBED_EDIT_EVENT, onEdit);
-  }, []);
-
-  function saveEmbed() {
-    if (!editor || !embed) return;
-    const html = embed.html.trim();
-    if (!html) return;
-    const height = clampEmbedHeight(embed.height);
-    if (embed.pos === null) {
-      editor.chain().focus().setHtmlEmbed({ html, height }).run();
-    } else {
-      const pos = embed.pos;
-      editor
-        .chain()
-        .focus()
-        .command(({ tr }) => {
-          tr.setNodeMarkup(pos, undefined, { html, height });
-          return true;
-        })
-        .run();
+  function switchMode(next: "visual" | "html") {
+    if (next === mode || !editor) return;
+    if (next === "html") {
+      setSource(editor.isEmpty ? "" : prettify(editor.getHTML()));
+      setPreview(null);
+      setMode("html");
+      return;
     }
-    setEmbed(null);
+    if (needsRawMode(source) && !window.confirm("The visual editor cannot show some of this HTML (layout blocks, classes, iframes). Switching removes it. Switch anyway?")) return;
+    editor.commands.setContent(source || "");
+    setHtml(editor.isEmpty ? "" : editor.getHTML());
+    setText(editor.getText().trim());
+    setMode("visual");
+  }
+
+  async function showPreview() {
+    try {
+      const res = await fetch("/api/admin/preview-html", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ html: source }) });
+      const json = await res.json();
+      if (!res.ok || !json.success) throw new Error(json.error);
+      setPreview(String(json.data.html));
+    } catch {
+      toast("error", "Couldn't build the preview. Please try again.");
+    }
   }
 
   async function uploadImage(file: File | undefined) {
@@ -403,53 +403,48 @@ export function RichTextEditor({ name, defaultValue = "", placeholder, minHeight
   }
 
   return (
-    <div ref={wrapperRef} className={`rte${invalid ? " field-invalid" : ""}`}>
-      <input type="hidden" name={name} value={html} />
-      {editor && (
-        <Toolbar
-          editor={editor}
-          uploading={uploading}
-          onPickImage={() => fileRef.current?.click()}
-          onInsertHtml={allowHtml ? () => setEmbed({ pos: null, html: "", height: EMBED_DEFAULT_HEIGHT }) : undefined}
-        />
+    <div className={`rte${invalid ? " field-invalid" : ""}`}>
+      <input type="hidden" name={name} value={mode === "html" ? source : html} />
+      {allowHtml && (
+        <div className="rte-modes" role="group" aria-label="Editor mode">
+          <button type="button" className={mode === "visual" ? "active" : undefined} aria-pressed={mode === "visual"} onClick={() => switchMode("visual")}>
+            Visual
+          </button>
+          <button type="button" className={mode === "html" ? "active" : undefined} aria-pressed={mode === "html"} onClick={() => switchMode("html")}>
+            HTML
+          </button>
+        </div>
       )}
-      <input ref={fileRef} type="file" accept="image/png,image/jpeg,image/webp,image/gif" hidden onChange={(e) => uploadImage(e.target.files?.[0])} />
-      <EditorContent editor={editor} />
-      {embed && (
-        <div className="rte-embed-overlay" role="presentation" onMouseDown={(e) => e.target === e.currentTarget && setEmbed(null)}>
-          <div className="rte-embed-dialog" role="dialog" aria-modal="true" aria-label="HTML embed" onKeyDown={(e) => e.key === "Escape" && setEmbed(null)}>
-            <h3>{embed.pos === null ? "Insert HTML embed" : "Edit HTML embed"}</h3>
-            <p>
-              Paste HTML, for example a YouTube or Google Maps embed code, a chart, or a custom layout. Visitors see it inside an isolated frame: scripts run there, but they cannot touch the rest of the site.
-            </p>
-            <textarea
-              autoFocus
-              spellCheck={false}
-              value={embed.html}
-              maxLength={EMBED_MAX_HTML}
-              placeholder='<iframe src="https://www.youtube.com/embed/..." width="100%" height="360" allowfullscreen></iframe>'
-              onChange={(e) => setEmbed({ ...embed, html: e.target.value })}
-            />
-            <label>
-              Height (px)
-              <input
-                type="number"
-                min={EMBED_MIN_HEIGHT}
-                max={EMBED_MAX_HEIGHT}
-                value={embed.height}
-                onChange={(e) => setEmbed({ ...embed, height: Number(e.target.value) })}
-                onKeyDown={(e) => e.key === "Enter" && e.preventDefault()}
-              />
-            </label>
-            <div className="rte-embed-actions">
-              <button type="button" onClick={() => setEmbed(null)}>
-                Cancel
+      <div hidden={mode !== "visual"}>
+        {editor && <Toolbar editor={editor} uploading={uploading} onPickImage={() => fileRef.current?.click()} />}
+        <input ref={fileRef} type="file" accept="image/png,image/jpeg,image/webp,image/gif" hidden onChange={(e) => uploadImage(e.target.files?.[0])} />
+        <EditorContent editor={editor} />
+      </div>
+      {mode === "html" && (
+        <div className="rte-source">
+          <textarea
+            value={source}
+            spellCheck={false}
+            aria-label="HTML source"
+            style={{ minHeight }}
+            placeholder={'<section class="my-block">\n  <h2>Heading</h2>\n  <p>Write or paste HTML here.</p>\n</section>'}
+            onChange={(e) => {
+              setSource(e.target.value);
+              setPreview(null);
+            }}
+          />
+          <div className="rte-source-actions">
+            <button type="button" onClick={showPreview}>
+              {preview === null ? "Preview" : "Refresh preview"}
+            </button>
+            {preview !== null && (
+              <button type="button" onClick={() => setPreview(null)}>
+                Hide preview
               </button>
-              <button type="button" className="primary" disabled={!embed.html.trim()} onClick={saveEmbed}>
-                {embed.pos === null ? "Insert" : "Save"}
-              </button>
-            </div>
+            )}
+            <span>Scripts, forms and event handlers are removed when you save. Iframes only work for YouTube, Vimeo, Google Maps/Docs/Drive, Canva, Spotify and Figma.</span>
           </div>
+          {preview !== null && <div className="rte-body rte-preview" dangerouslySetInnerHTML={{ __html: preview }} />}
         </div>
       )}
       {required && (
@@ -457,7 +452,7 @@ export function RichTextEditor({ name, defaultValue = "", placeholder, minHeight
           ref={validatorRef}
           className="rte-validator"
           required
-          value={text}
+          value={bodyText}
           onChange={() => undefined}
           tabIndex={-1}
           aria-hidden="true"
