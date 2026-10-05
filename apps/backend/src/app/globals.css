@@ -1299,7 +1299,10 @@ footer.site .foot-bottom .socials .admin-link { color: #7fa9ab; }
 @media print {
   body * { visibility: hidden; }
   .member-card-pair, .member-card-pair * { visibility: visible; }
-  .member-card-pair { position: absolute; top: 0; left: 0; }
+  /* Printed at real ID-1 card size (85.6 x 54 mm); a percentage width would collapse inside the absolutely positioned wrapper. */
+  .member-card-pair { position: absolute; top: 0; left: 0; width: 85.6mm; display: block; }
+  .member-card { width: 85.6mm; box-shadow: none; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  @page { margin: 12mm; }
 }
 
 /* Rich text editor on small screens (§20 of the eval doc): the toolbar scrolls
