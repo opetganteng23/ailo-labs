@@ -90,6 +90,59 @@ function SectionHead({ kicker, title, desc, linkHref, linkLabel }: { kicker: str
   );
 }
 
+const ABOUT_DEFAULT_TITLE = "A Telkom University Center of Excellence for applied AI.";
+const ABOUT_DEFAULT_BODY = `AILO (AI Learning For Optimization) is a Center of Excellence under Telkom University, Bandung. We design and apply AI-driven optimization methods across research, teaching labs, and campus infrastructure, turning open questions into working systems.
+
+Our researchers, lecturers and students work across four tracks: optimization and reinforcement learning, natural language processing, computer vision, and applied machine learning for the smart campus. Labs and equipment are open for booking, and the AILO chatbot answers questions from our own published content.`;
+
+function AboutSection({ about, stats }: { about?: { title?: string; body?: string; image?: string }; stats: string[] }) {
+  const paragraphs = (about?.body?.trim() || ABOUT_DEFAULT_BODY)
+    .split(/\n\s*\n/)
+    .map((p) => p.trim())
+    .filter(Boolean);
+  const pillars = [
+    { href: "/research", title: "Research", text: "Four tracks that pair theory with a deployable system." },
+    { href: "/labs", title: "Labs & equipment", text: "Book labs and devices with your AILO member card." },
+    { href: "/join", title: "Community", text: "Students, lecturers and alumni join as AILO members." },
+  ];
+  return (
+    <section id="about">
+      <div className={hm("wrap")}>
+        <div className={hm("about-grid")}>
+          <div className={hm("about-copy")}>
+            <span className={hm("kicker-sm")}>ABOUT AILO</span>
+            <h2>{about?.title?.trim() || ABOUT_DEFAULT_TITLE}</h2>
+            {paragraphs.map((p, i) => (
+              <p key={i}>{p}</p>
+            ))}
+            <div className={hm("about-stats")}>
+              {["Active projects", "Researchers", "Labs & facilities"].map((label, i) => (
+                <div key={label}>
+                  <b>{stats[i]}</b>
+                  <span>{label}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+          {about?.image ? (
+            // eslint-disable-next-line @next/next/no-img-element -- admin-uploaded photo
+            <img className={hm("about-photo")} src={about.image} alt="AILO" />
+          ) : (
+            <div className={hm("about-pillars")}>
+              {pillars.map((x) => (
+                <Link key={x.title} href={x.href} className={hm("about-pillar")}>
+                  <b>{x.title}</b>
+                  <span>{x.text}</span>
+                </Link>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+    </section>
+  );
+}
+
 export default async function HomePage() {
   const data = await getHomeData();
   const hp = data.homepage;
@@ -154,6 +207,8 @@ export default async function HomePage() {
       </section>
 
       {data.strip !== null && <Marquee items={data.strip} />}
+
+      <AboutSection about={data.about} stats={[hp?.stat1Value || "18+", hp?.stat2Value || "32", hp?.stat3Value || "6"]} />
 
       <section id="research" style={bgSectionStyle(hp?.researchBackgroundImages)}>
         <BackgroundLayer images={hp?.researchBackgroundImages} opacityPercent={hp?.researchOverlayOpacity} />
@@ -416,7 +471,7 @@ export default async function HomePage() {
         </div>
       </section>
 
-      <section className={hm("cta-sec")} id="about">
+      <section className={hm("cta-sec")}>
         <div className={hm("wrap")}>
           <h2>Working on something AILO could help with?</h2>
           <p>Whether it&apos;s a research collaboration, a lab booking, or a question for our chatbot, here&apos;s where to start.</p>

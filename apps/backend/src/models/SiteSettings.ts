@@ -28,6 +28,12 @@ const siteSettingsSchema = new Schema(
       youtube: String,
       twitter: String,
     },
+    about: {
+      title: String,
+      /** Plain text; a blank line starts a new paragraph. */
+      body: String,
+      image: String,
+    },
     footer: {
       copyrightText: String,
       quickLinks: [{ label: String, href: String }],

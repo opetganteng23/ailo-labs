@@ -33,6 +33,9 @@ export async function updateSettingsAction(formData: FormData) {
         { key: "global" },
         {
           $set: {
+            "about.title": formData.get("aboutTitle"),
+            "about.body": formData.get("aboutBody"),
+            "about.image": formData.get("aboutImage"),
             "contact.email": formData.get("email"),
             "contact.phone": formData.get("phone"),
             "contact.address": formData.get("address"),

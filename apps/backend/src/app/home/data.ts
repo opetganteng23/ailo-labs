@@ -52,6 +52,7 @@ export type LabRow = { name: string; meta: string; status: "open" | "busy" };
 export type StripItem = { bold?: string; text?: string; image?: string; dark?: boolean };
 
 export type HomeData = {
+  about?: { title?: string; body?: string; image?: string };
   homepage?: HomepageSettings;
   contact?: { email?: string; phone?: string; address?: string; address2?: string };
   socialMedia?: { instagram?: string; linkedin?: string; youtube?: string };
@@ -73,6 +74,7 @@ export async function getHomeData(): Promise<HomeData> {
     const [settings, research, projects, team, news, labs, partners, teamCategories] = await Promise.all([
       SiteSettings.findOne({ key: "global" }).lean<{
         homepage?: HomepageSettings;
+        about?: HomeData["about"];
         contact?: HomeData["contact"];
         socialMedia?: HomeData["socialMedia"];
       }>(),
@@ -114,6 +116,7 @@ export async function getHomeData(): Promise<HomeData> {
 
     return {
       homepage: settings?.homepage,
+      about: settings?.about,
       contact: settings?.contact,
       socialMedia: settings?.socialMedia,
       research,

@@ -3,6 +3,8 @@ import Link from "next/link";
 import { connectToDatabase } from "@/lib/mongodb";
 import { SiteSettings } from "@/models/SiteSettings";
 
+import { ImageUploadField } from "@/components/ImageUploadField";
+
 import { HeroSection } from "./HeroSection";
 import { MarqueeEditor } from "./MarqueeEditor";
 import { SectionBackgroundRow } from "./SectionBackgroundRow";
@@ -11,6 +13,7 @@ import { updateSettingsAction } from "./actions";
 export const dynamic = "force-dynamic";
 
 type Settings = {
+  about?: { title?: string; body?: string; image?: string };
   contact?: { email?: string; phone?: string; address?: string; address2?: string };
   socialMedia?: { instagram?: string; linkedin?: string; youtube?: string };
   homepage?: {
@@ -45,6 +48,7 @@ const NAV = [
   { href: "#general", label: "General" },
   { href: "#social", label: "Social links" },
   { href: "#hero", label: "Homepage hero" },
+  { href: "#about", label: "About section" },
   { href: "#marquee", label: "Scrolling strip" },
   { href: "#backgrounds", label: "Section backgrounds" },
 ];
@@ -157,6 +161,24 @@ export default async function AdminSettingsPage() {
             stat3Value={homepage.stat3Value}
             stat3Label={homepage.stat3Label}
           />
+
+          <section id="about" className="admin2-panel">
+            <div style={{ padding: "20px 24px", borderBottom: "1px solid #eeece6" }}>
+              <h2 style={{ margin: 0, fontSize: 17, fontWeight: 700 }}>About section</h2>
+              <p style={{ margin: 0, fontSize: 14, color: "#5b6664" }}>The &quot;About&quot; block on the homepage. Leave a field empty to use the default text.</p>
+            </div>
+            <div style={{ padding: "20px 24px", display: "flex", flexDirection: "column", gap: 16 }}>
+              <div className="admin2-field">
+                <label htmlFor="aboutTitle">Heading</label>
+                <input id="aboutTitle" name="aboutTitle" type="text" maxLength={140} defaultValue={settings?.about?.title ?? ""} placeholder="A Telkom University Center of Excellence for applied AI." />
+              </div>
+              <div className="admin2-field">
+                <label htmlFor="aboutBody">Text</label>
+                <textarea id="aboutBody" name="aboutBody" rows={8} defaultValue={settings?.about?.body ?? ""} placeholder="Write about AILO. A blank line starts a new paragraph." />
+              </div>
+              <ImageUploadField name="aboutImage" label="Photo (optional)" defaultValue={settings?.about?.image} hint="Shown next to the text. PNG, JPG or WEBP" />
+            </div>
+          </section>
 
           <section id="marquee" className="admin2-panel">
             <div style={{ padding: "20px 24px", borderBottom: "1px solid #eeece6" }}>
