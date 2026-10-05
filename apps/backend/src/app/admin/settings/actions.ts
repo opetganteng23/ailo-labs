@@ -19,6 +19,13 @@ export async function updateSettingsAction(formData: FormData) {
     backgroundFields[`homepage.${zone}OverlayOpacity`] = Number(formData.get(`${zone}OverlayOpacity`) ?? 88);
   }
 
+  const pillarTitles = formData.getAll("aboutPillarTitle").map(String);
+  const pillarTexts = formData.getAll("aboutPillarText").map(String);
+  const pillarHrefs = formData.getAll("aboutPillarHref").map(String);
+  const aboutPillars = pillarTitles
+    .map((title, i) => ({ title: title.trim(), text: (pillarTexts[i] ?? "").trim(), href: (pillarHrefs[i] ?? "").trim() }))
+    .filter((p) => p.title || p.text);
+
   const marqueeBold = formData.getAll("marqueeBold").map(String);
   const marqueeText = formData.getAll("marqueeText").map(String);
   const marqueeImage = formData.getAll("marqueeImage").map(String);
@@ -33,7 +40,9 @@ export async function updateSettingsAction(formData: FormData) {
         { key: "global" },
         {
           $set: {
+            "about.kicker": formData.get("aboutKicker"),
             "about.title": formData.get("aboutTitle"),
+            "about.pillars": aboutPillars,
             "about.body": formData.get("aboutBody"),
             "about.image": formData.get("aboutImage"),
             "contact.email": formData.get("email"),

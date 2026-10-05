@@ -13,7 +13,7 @@ import { updateSettingsAction } from "./actions";
 export const dynamic = "force-dynamic";
 
 type Settings = {
-  about?: { title?: string; body?: string; image?: string };
+  about?: { kicker?: string; title?: string; body?: string; image?: string; pillars?: { title?: string; text?: string; href?: string }[] };
   contact?: { email?: string; phone?: string; address?: string; address2?: string };
   socialMedia?: { instagram?: string; linkedin?: string; youtube?: string };
   homepage?: {
@@ -169,6 +169,10 @@ export default async function AdminSettingsPage() {
             </div>
             <div style={{ padding: "20px 24px", display: "flex", flexDirection: "column", gap: 16 }}>
               <div className="admin2-field">
+                <label htmlFor="aboutKicker">Small label above the heading</label>
+                <input id="aboutKicker" name="aboutKicker" type="text" maxLength={40} defaultValue={settings?.about?.kicker ?? ""} placeholder="ABOUT AILO" />
+              </div>
+              <div className="admin2-field">
                 <label htmlFor="aboutTitle">Heading</label>
                 <input id="aboutTitle" name="aboutTitle" type="text" maxLength={140} defaultValue={settings?.about?.title ?? ""} placeholder="A Telkom University Center of Excellence for applied AI." />
               </div>
@@ -177,6 +181,19 @@ export default async function AdminSettingsPage() {
                 <textarea id="aboutBody" name="aboutBody" rows={8} defaultValue={settings?.about?.body ?? ""} placeholder="Write about AILO. A blank line starts a new paragraph." />
               </div>
               <ImageUploadField name="aboutImage" label="Photo (optional)" defaultValue={settings?.about?.image} hint="Shown next to the text. PNG, JPG or WEBP" />
+              <div>
+                <h3 style={{ margin: "0 0 4px", fontSize: 15, fontWeight: 700 }}>Cards beside the text</h3>
+                <p style={{ margin: "0 0 12px", fontSize: 13, color: "#6b7573" }}>Shown when there is no photo. Leave a card&apos;s title and text empty to use the default, or fill all three to replace it.</p>
+                <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+                  {[0, 1, 2].map((i) => (
+                    <div key={i} style={{ display: "grid", gridTemplateColumns: "1fr 1.6fr 1fr", gap: 10 }}>
+                      <input name="aboutPillarTitle" type="text" maxLength={40} aria-label={`Card ${i + 1} title`} placeholder={`Card ${i + 1} title`} defaultValue={settings?.about?.pillars?.[i]?.title ?? ""} />
+                      <input name="aboutPillarText" type="text" maxLength={120} aria-label={`Card ${i + 1} text`} placeholder="Short text" defaultValue={settings?.about?.pillars?.[i]?.text ?? ""} />
+                      <input name="aboutPillarHref" type="text" aria-label={`Card ${i + 1} link`} placeholder="/research" defaultValue={settings?.about?.pillars?.[i]?.href ?? ""} />
+                    </div>
+                  ))}
+                </div>
+              </div>
             </div>
           </section>
 

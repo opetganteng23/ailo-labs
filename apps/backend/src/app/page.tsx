@@ -5,7 +5,7 @@ import { SiteFooter } from "@/components/SiteFooter";
 
 import { BackgroundLayer } from "./home/BackgroundLayer";
 import { ChatWidget } from "./home/ChatWidget";
-import { getHomeData, type LabRow, type ProjectCard, type ResearchCard } from "./home/data";
+import { getHomeData, type HomeData, type LabRow, type ProjectCard, type ResearchCard } from "./home/data";
 import { HomeHeader } from "./home/HomeHeader";
 import { Marquee } from "./home/Marquee";
 import { NewsSlider } from "./home/NewsSlider";
@@ -95,22 +95,24 @@ const ABOUT_DEFAULT_BODY = `AILO (AI Learning For Optimization) is a Center of E
 
 Our researchers, lecturers and students work across four tracks: optimization and reinforcement learning, natural language processing, computer vision, and applied machine learning for the smart campus. Labs and equipment are open for booking, and the AILO chatbot answers questions from our own published content.`;
 
-function AboutSection({ about, stats }: { about?: { title?: string; body?: string; image?: string }; stats: string[] }) {
+function AboutSection({ about, stats }: { about?: HomeData["about"]; stats: string[] }) {
   const paragraphs = (about?.body?.trim() || ABOUT_DEFAULT_BODY)
     .split(/\n\s*\n/)
     .map((p) => p.trim())
     .filter(Boolean);
-  const pillars = [
+  const defaults = [
     { href: "/research", title: "Research", text: "Four tracks that pair theory with a deployable system." },
     { href: "/labs", title: "Labs & equipment", text: "Book labs and devices with your AILO member card." },
     { href: "/join", title: "Community", text: "Students, lecturers and alumni join as AILO members." },
   ];
+  const custom = (about?.pillars ?? []).filter((p) => p.title?.trim() || p.text?.trim());
+  const pillars = custom.length > 0 ? custom.map((p, i) => ({ href: p.href?.trim() || defaults[i]?.href || "/", title: p.title?.trim() ?? "", text: p.text?.trim() ?? "" })) : defaults;
   return (
     <section id="about">
       <div className={hm("wrap")}>
         <div className={hm("about-grid")}>
           <div className={hm("about-copy")}>
-            <span className={hm("kicker-sm")}>ABOUT AILO</span>
+            <span className={hm("kicker-sm")}>{about?.kicker?.trim() || "ABOUT AILO"}</span>
             <h2>{about?.title?.trim() || ABOUT_DEFAULT_TITLE}</h2>
             {paragraphs.map((p, i) => (
               <p key={i}>{p}</p>

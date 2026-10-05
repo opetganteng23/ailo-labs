@@ -29,7 +29,10 @@ const siteSettingsSchema = new Schema(
       twitter: String,
     },
     about: {
+      kicker: String,
       title: String,
+      /** The cards shown beside the text when no photo is set. */
+      pillars: [{ title: String, text: String, href: String }],
       /** Plain text; a blank line starts a new paragraph. */
       body: String,
       image: String,

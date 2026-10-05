@@ -52,7 +52,7 @@ export type LabRow = { name: string; meta: string; status: "open" | "busy" };
 export type StripItem = { bold?: string; text?: string; image?: string; dark?: boolean };
 
 export type HomeData = {
-  about?: { title?: string; body?: string; image?: string };
+  about?: { kicker?: string; title?: string; body?: string; image?: string; pillars?: { title?: string; text?: string; href?: string }[] };
   homepage?: HomepageSettings;
   contact?: { email?: string; phone?: string; address?: string; address2?: string };
   socialMedia?: { instagram?: string; linkedin?: string; youtube?: string };
