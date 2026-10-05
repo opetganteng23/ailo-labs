@@ -35,6 +35,10 @@ export default async function ServicesPage() {
         <div className="research-grid">
           {items.map((item, i) => (
             <Link key={String(item._id)} href={`/services/${item.slug}`} className="rcard">
+              {item.image && (
+                // eslint-disable-next-line @next/next/no-img-element -- arbitrary uploaded image
+                <img src={item.image} alt={item.title} className="rcard-img" />
+              )}
               <div className="rcard-top">
                 <span className="num">{String(i + 1).padStart(2, "0")}</span>
               </div>

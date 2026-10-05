@@ -1414,3 +1414,5 @@ a.partner-card:hover{border-color:var(--teal); box-shadow:0 14px 28px -18px rgba
 .admin2-split-320 > * { min-width: 0; }
 @media (max-width: 900px) { .admin2-split-320 { grid-template-columns: minmax(0, 1fr); } }
 @media (max-width: 480px) { .admin2-5w1h-grid { grid-template-columns: minmax(0, 1fr); } .admin2-5w1h-grid label { flex-wrap: wrap; } }
+
+.rcard-img { display: block; width: 100%; aspect-ratio: 16 / 9; object-fit: cover; border-radius: var(--radius-lg); margin-bottom: 4px; }
