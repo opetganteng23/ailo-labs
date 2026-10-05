@@ -27,7 +27,7 @@ function readResearch(formData: FormData) {
     description,
     content: sanitizeRichText(String(formData.get("content") ?? "")),
     status: ["published", "review", "archived"].includes(String(formData.get("status"))) ? String(formData.get("status")) : "draft",
-    image: String(formData.get("image") ?? "") || undefined,
+    image: String(formData.get("image") ?? ""),
   };
 }
 

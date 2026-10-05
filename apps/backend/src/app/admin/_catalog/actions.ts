@@ -30,10 +30,11 @@ function readEntry(kind: CatalogKind, formData: FormData) {
     title,
     description: text("description"),
     content: cfg.content ? sanitizeRichText(String(formData.get("content") ?? "")) : "",
-    image: text("image") || undefined,
-    link: cfg.link ? text("link") || undefined : undefined,
-    author: cfg.author ? text("author") || undefined : undefined,
-    year: cfg.year ? text("year") || undefined : undefined,
+    // Empty strings (not undefined) so clearing a field actually clears it - Mongoose ignores undefined on update.
+    image: text("image"),
+    link: cfg.link ? text("link") : "",
+    author: cfg.author ? text("author") : "",
+    year: cfg.year ? text("year") : "",
     order: Number(formData.get("order") ?? 0) || 0,
     status: formData.get("status") === "draft" ? "draft" : "published",
   };
