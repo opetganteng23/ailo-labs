@@ -79,14 +79,25 @@ export async function POST(request: NextRequest) {
 
     const chunks = await ChatEmbedding.find({}).lean();
 
+    // Rank by how rare the matched words are across all chunks (IDF), so "SATRIA" outweighs a common word like "riset".
+    const tokenSets = chunks.map((chunk) => new Set(tokenize(chunk.chunkText as string)));
+    const docFreq = new Map<string, number>();
+    for (const set of tokenSets) for (const word of set) docFreq.set(word, (docFreq.get(word) ?? 0) + 1);
+    const idf = (word: string) => Math.log(1 + chunks.length / (docFreq.get(word) ?? 1));
+
     let best: { chunkText: string; score: number } | null = null;
-    for (const chunk of chunks) {
-      const chunkWords = new Set(tokenize(chunk.chunkText as string));
+    for (let i = 0; i < chunks.length; i++) {
+      const chunk = chunks[i];
       let score = 0;
+      let matched = 0;
       for (const word of queryWords) {
-        if (chunkWords.has(word)) score += 1;
+        if (tokenSets[i].has(word)) {
+          score += idf(word);
+          matched += 1;
+        }
       }
-      if (score > 0 && (!best || score > best.score)) {
+      score *= 1 + matched / queryWords.length;
+      if (matched > 0 && (!best || score > best.score)) {
         best = { chunkText: chunk.chunkText as string, score };
       }
     }
