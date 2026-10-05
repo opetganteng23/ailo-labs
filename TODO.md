@@ -76,7 +76,7 @@ Sumber: `AILO_Evaluasi_Menyeluruh_dan_Rencana_Perbaikan.md` (evaluasi 30 Sep 202
 - [x] Halaman /partners: grid 22 mitra terpublikasi (logo, nama, tautan bila ada; logoDark tampil di chip gelap) + tautan Partners di footer. Diverifikasi di live dengan Playwright: 22 kartu, 22/22 logo termuat, tanpa scroll horizontal di desktop dan HP 390px.
 
 ## Menunggu dari user (5 Okt)
-- [~] Knowledge base chatbot: buku SAFE (draf, 41 bagian) + bagian publik proposal PUI-PT SATRIA (rangkuman + Bab I) diimpor ke koleksi KnowledgeDoc (script `npm run import:knowledge`), diindeks sebagai sourceType `knowledge`. SWOT, anggaran, dan lampiran proposal sengaja TIDAK dimasukkan. Menunggu deploy + import ke ailo-prod + reindex + uji di live.
+- [x] Knowledge base chatbot (commit 0557179): buku SAFE (draf, 41 bagian, placeholder penulis dibuang) + bagian publik proposal PUI-PT SATRIA (rangkuman, Bab I, profil/sejarah/kontak) = 43 dokumen di koleksi KnowledgeDoc (ailo-prod; impor ulang: `npm run import:knowledge -- file.json` dengan MONGODB_DB_NAME=ailo-prod), sourceType `knowledge`, dipecah per paragraf (~700 karakter). SWOT, anggaran, lampiran, dan data staf sengaja TIDAK dimasukkan. Peringkat jawaban kini memakai bobot kelangkaan kata (IDF). Diverifikasi di live: reindex 219 chunk; pertanyaan fakta (didirikan kapan, ketua, hotline) terjawab tepat; anggaran/kelemahan tidak bocor. Batas: chatbot masih pencarian kata kunci, bukan LLM, jadi pertanyaan konseptual dijawab dengan kutipan paragraf. Belum ada UI admin untuk mengedit dokumen knowledge.
 - [!] Buku asli (PDF) untuk Admin > Books: ditunda oleh user, diisi belakangan.
 
 ## P1 - High
