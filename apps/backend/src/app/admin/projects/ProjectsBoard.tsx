@@ -29,7 +29,7 @@ export function ProjectsBoard({ items }: { items: ProjectCard[] }) {
   }
 
   return (
-    <div style={{ display: "grid", gridTemplateColumns: "repeat(3, minmax(0, 1fr))", gap: 20 }}>
+    <div className="admin2-projects-board">
       {COLUMNS.map((col) => {
         const colCards = cards.filter((c) => c.status === col.key);
         return (

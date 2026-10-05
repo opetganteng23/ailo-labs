@@ -73,8 +73,8 @@ export default async function AdminSettingsPage() {
         </div>
       </div>
 
-      <div style={{ display: "flex", gap: 32, alignItems: "flex-start" }}>
-        <nav aria-label="Settings sections" style={{ width: 200, flexShrink: 0, display: "flex", flexDirection: "column", gap: 2, position: "sticky", top: 20 }}>
+      <div className="admin2-settings-layout">
+        <nav aria-label="Settings sections" className="admin2-settings-nav">
           {NAV.map((n, i) => (
             <a
               key={n.href}
