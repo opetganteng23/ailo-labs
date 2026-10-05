@@ -1,0 +1,28 @@
+import { model, models, Schema } from "mongoose";
+
+/**
+ * Services, books and partners are all simple "catalog" entries - a title,
+ * a short description, an optional image, plus a few optional extras - so
+ * they share one schema shape (each still gets its own collection).
+ */
+function catalogSchema() {
+  return new Schema(
+    {
+      title: { type: String, required: true, trim: true },
+      slug: { type: String, required: true, unique: true, trim: true },
+      description: { type: String, default: "" },
+      content: { type: String, default: "" },
+      image: String,
+      link: String,
+      author: String,
+      year: String,
+      order: { type: Number, default: 0 },
+      status: { type: String, enum: ["draft", "published"], default: "published", index: true },
+    },
+    { timestamps: true },
+  );
+}
+
+export const Service = models.Service || model("Service", catalogSchema());
+export const Book = models.Book || model("Book", catalogSchema());
+export const Partner = models.Partner || model("Partner", catalogSchema());

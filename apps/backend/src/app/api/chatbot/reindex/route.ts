@@ -11,6 +11,8 @@ import { Research } from "@/models/Research";
 import { SiteSettings } from "@/models/SiteSettings";
 import { Team } from "@/models/Team";
 import { Lab } from "@/models/Lab";
+import { Device } from "@/models/Device";
+import { Book, Partner, Service } from "@/models/catalog";
 
 export const dynamic = "force-dynamic";
 
@@ -44,14 +46,19 @@ export async function POST(request: NextRequest) {
     await connectToDatabase();
 
     const settings = await SiteSettings.findOne({ key: "global" }).lean<{ chatbot?: { knowledgeSources?: string[] } }>();
-    const enabled = new Set(settings?.chatbot?.knowledgeSources ?? ["news", "research", "project", "team", "lab"]);
+    // Services, books and partners are always part of the chatbot's knowledge.
+    const enabled = new Set([...(settings?.chatbot?.knowledgeSources ?? ["news", "research", "project", "team", "lab"]), "service", "book", "partner"]);
 
-    const [news, research, projects, team, labs] = await Promise.all([
+    const [news, research, projects, team, labs, devices, services, books, partners] = await Promise.all([
       enabled.has("news") ? News.find({ status: "published" }).lean() : [],
       enabled.has("research") ? Research.find({ status: "published" }).lean() : [],
       enabled.has("project") ? Project.find({ publishStatus: { $ne: "review" } }).lean() : [],
       enabled.has("team") ? Team.find({ isActive: true }).lean() : [],
       enabled.has("lab") ? Lab.find({ isActive: true }).lean() : [],
+      enabled.has("lab") ? Device.find().lean() : [],
+      Service.find({ status: "published" }).lean(),
+      Book.find({ status: "published" }).lean(),
+      Partner.find({ status: "published" }).lean(),
     ]);
 
     await ChatEmbedding.deleteMany({});
@@ -79,8 +86,36 @@ export async function POST(request: NextRequest) {
       }
     }
     for (const l of labs) {
-      for (const chunk of chunkText(`${l.name}\n${l.description ?? ""}`)) {
+      const labDevices = devices
+        .filter((d) => String(d.lab) === String(l._id))
+        .map((d) => `${d.name}${d.specification ? ` (${d.specification})` : ""}`)
+        .join("; ");
+      const details = [
+        l.location && `Location: ${l.location}`,
+        l.capacity && `Capacity: ${l.capacity} people`,
+        l.facilities && `Facilities: ${l.facilities}`,
+        labDevices && `Equipment: ${labDevices}`,
+      ]
+        .filter(Boolean)
+        .join("\n");
+      for (const chunk of chunkText(`${l.name}\n${l.description ?? ""}\n${details}`)) {
         docs.push({ sourceType: "lab", sourceId: l._id, chunkText: chunk, embedding: placeholderVector(chunk) });
+      }
+    }
+    for (const sv of services) {
+      for (const chunk of chunkText(`Service: ${sv.title}\n${sv.description ?? ""}\n${sv.content ?? ""}`)) {
+        docs.push({ sourceType: "service", sourceId: sv._id, chunkText: chunk, embedding: placeholderVector(chunk) });
+      }
+    }
+    for (const b of books) {
+      const meta = [b.author && `Author: ${b.author}`, b.year && `Year: ${b.year}`, b.link && `Link: ${b.link}`].filter(Boolean).join(", ");
+      for (const chunk of chunkText(`Book: ${b.title}\n${meta}\n${b.description ?? ""}`)) {
+        docs.push({ sourceType: "book", sourceId: b._id, chunkText: chunk, embedding: placeholderVector(chunk) });
+      }
+    }
+    for (const pt of partners) {
+      for (const chunk of chunkText(`Partner (mitra kerja sama): ${pt.title}\n${pt.description ?? ""}${pt.link ? `\nWebsite: ${pt.link}` : ""}`)) {
+        docs.push({ sourceType: "partner", sourceId: pt._id, chunkText: chunk, embedding: placeholderVector(chunk) });
       }
     }
 

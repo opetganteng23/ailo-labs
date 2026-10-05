@@ -45,6 +45,8 @@ export async function SiteFooter() {
               <li><Link href="/projects">Projects</Link></li>
               <li><Link href="/team">Team</Link></li>
               <li><Link href="/labs">Labs</Link></li>
+              <li><Link href="/services">Services</Link></li>
+              <li><Link href="/books">Books</Link></li>
             </ul>
           </div>
           <div className="foot-col">

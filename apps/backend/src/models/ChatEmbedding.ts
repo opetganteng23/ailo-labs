@@ -4,7 +4,7 @@ const chatEmbeddingSchema = new Schema(
   {
     sourceType: {
       type: String,
-      enum: ["news", "research", "project", "team", "lab", "about"],
+      enum: ["news", "research", "project", "team", "lab", "about", "service", "book", "partner"],
       required: true,
       index: true,
     },

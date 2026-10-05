@@ -2,6 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 
 import { connectToDatabase } from "@/lib/mongodb";
+import { Partner } from "@/models/catalog";
 import { News } from "@/models/News";
 import { Project } from "@/models/Project";
 import { Research } from "@/models/Research";
@@ -366,7 +367,10 @@ export async function GET() {
     html = replaceBlock(html, "FOOTER_CONTACT", buildFooterContact(settingsDoc?.contact));
     html = replaceBlock(html, "FOOTER_ADDRESSES", buildFooterAddresses(settingsDoc?.contact));
     html = replaceBlock(html, "FOOTER_SOCIALS", buildFooterSocials(settingsDoc?.socialMedia));
-    html = replaceBlock(html, "MARQUEE_ITEMS", buildMarqueeItems(homepage?.marqueeItems));
+    // Partners (name + optional logo) feed the strip when any are published; otherwise the Settings strip items are used.
+    const partners = (await Partner.find({ status: "published" }).sort({ order: 1, title: 1 }).select("title image").lean()) as unknown as { title: string; image?: string }[];
+    const stripItems = partners.length > 0 ? partners.map((p) => ({ text: p.title, image: p.image })) : homepage?.marqueeItems;
+    html = replaceBlock(html, "MARQUEE_ITEMS", buildMarqueeItems(stripItems));
   } catch (error) {
     console.error("Failed to load homepage dynamic content, serving defaults", error);
   }
