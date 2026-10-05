@@ -19,6 +19,8 @@ export default async function VerifyMemberPage({ params }: { params: Promise<{ c
     photo?: string;
     cardId?: string;
     validUntil?: Date;
+    reviewedAt?: Date;
+    createdAt?: Date;
     status: string;
   }>();
 
@@ -49,6 +51,7 @@ export default async function VerifyMemberPage({ params }: { params: Promise<{ c
                 affiliation: member.affiliation,
                 photo: member.photo,
                 validUntil: member.validUntil,
+                issuedAt: member.reviewedAt ?? member.createdAt,
                 verifyUrl: `${await getBaseUrl()}/verify/${member.cardId}`,
               }}
             />

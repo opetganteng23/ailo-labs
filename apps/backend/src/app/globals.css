@@ -1298,11 +1298,12 @@ footer.site .foot-bottom .socials .admin-link { color: #7fa9ab; }
 
 @media print {
   body * { visibility: hidden; }
-  .member-card-pair, .member-card-pair * { visibility: visible; }
-  /* Printed at real ID-1 card size (85.6 x 54 mm); a percentage width would collapse inside the absolutely positioned wrapper. */
-  .member-card-pair { position: absolute; top: 0; left: 0; width: 85.6mm; display: block; }
-  .member-card { width: 85.6mm; box-shadow: none; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-  @page { margin: 12mm; }
+  .ms-print-root, .ms-print-root * { visibility: visible; }
+  .ms-print-root { position: absolute; top: 0; left: 0; width: 210mm; margin: 0; }
+  .ms-fit { height: 297mm !important; max-width: none; }
+  .ms-scale { transform: none !important; width: 210mm !important; height: 297mm !important; }
+  .ms-sheet { -webkit-print-color-adjust: exact; print-color-adjust: exact; box-shadow: none; }
+  @page { size: A4; margin: 0; }
 }
 
 /* Rich text editor on small screens (§20 of the eval doc): the toolbar scrolls
@@ -1402,3 +1403,64 @@ a.partner-card:hover{border-color:var(--teal); box-shadow:0 14px 28px -18px rgba
 .member-card-actions { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; margin-top: 20px; }
 .member-card-actions span { flex: 1 1 260px; font-size: 13px; color: #6b7573; line-height: 1.5; }
 @media print { .member-card-actions { display: none; } }
+
+/* Membership sheet (A4): thank-you page with the card, vision, mission and benefits. Sizes are in mm/pt so it prints 1:1. */
+.ms-print-root { margin-top: 8px; }
+.ms-fit { width: 100%; max-width: 210mm; }
+.ms-scale { transform-origin: top left; }
+.ms-sheet { --ms-teal: #06566B; --ms-orange: #F47524; --ms-ink: #1d2327; --ms-muted: #4a5560; font-family: 'Poppins', sans-serif; color: var(--ms-ink); width: 210mm; height: 297mm; position: relative; overflow: hidden; background: #fff; box-shadow: 0 10px 30px -12px rgba(18, 24, 27, .35); text-align: left; }
+.ms-sheet *, .ms-sheet *::before, .ms-sheet *::after { box-sizing: border-box; margin: 0; padding: 0; }
+.ms-corner { position: absolute; left: 0; bottom: 14mm; width: 30mm; height: 40mm; background: #EAF3F5; clip-path: polygon(0 0, 100% 100%, 0 100%); }
+.ms-hero { background: var(--ms-teal); height: 44mm; position: relative; padding: 0 16mm; }
+.ms-tab { position: absolute; top: 0; left: 16mm; background: var(--ms-orange); color: #fff; font-weight: 700; font-size: 11pt; letter-spacing: .06em; padding: 3mm 8mm; border-radius: 0 0 2mm 2mm; }
+.ms-hero h1 { position: absolute; left: 16mm; top: 16mm; color: #fff; font-size: 24pt; font-weight: 700; line-height: 1.05; letter-spacing: -.01em; }
+.ms-brand { position: absolute; right: 14mm; top: 9mm; display: flex; align-items: center; gap: 3mm; }
+.ms-lg { background: #fff; border-radius: 2.5mm; width: 20mm; height: 20mm; display: flex; align-items: center; justify-content: center; }
+.ms-lg img { width: 15mm; height: auto; }
+.ms-bt { color: #fff; line-height: 1.15; }
+.ms-bt b { font-size: 15pt; font-weight: 800; display: block; }
+.ms-bt span { font-size: 6.5pt; opacity: .85; display: block; }
+.ms-notch { position: absolute; right: 0; bottom: -10mm; width: 118mm; height: 10mm; background: #fff; border: 0.4mm solid var(--ms-orange); border-top: none; border-radius: 0 0 2mm 2mm; }
+.ms-notch::before { content: ''; position: absolute; left: -0.4mm; top: -0.4mm; width: 12mm; height: 10.4mm; background: var(--ms-teal); clip-path: polygon(0 0, 100% 0, 0 100%); }
+.ms-wrap { padding: 0 16mm; position: relative; }
+.ms-thx { margin-top: 10mm; color: var(--ms-teal); font-size: 19pt; font-weight: 700; }
+.ms-intro { display: grid; grid-template-columns: 1fr 1.25fr; gap: 12mm; margin-top: 4mm; }
+.ms-lead { color: var(--ms-orange); font-weight: 700; font-size: 11pt; line-height: 1.45; }
+.ms-intro p { font-size: 9.3pt; line-height: 1.5; color: var(--ms-muted); }
+.ms-card { margin-top: 5mm; display: grid; grid-template-columns: 1.12fr 1fr; border: 0.3mm dashed #c9cfd3; border-radius: 1.5mm; overflow: hidden; height: 80mm; background: #fff; }
+.ms-front { position: relative; padding: 7mm 8mm 5mm 8mm; display: flex; flex-direction: column; }
+.ms-year { position: absolute; top: 0; right: 0; background: var(--ms-orange); color: #fff; font-weight: 700; font-size: 12pt; padding: 2.5mm 7mm 2.5mm 10mm; clip-path: polygon(4mm 0, 100% 0, 100% 100%, 0 100%); }
+.ms-role { color: var(--ms-orange); font-weight: 600; font-style: italic; font-size: 12pt; }
+.ms-who { display: flex; gap: 5mm; margin-top: 3mm; align-items: flex-start; }
+.ms-who img, .ms-photo-empty { width: 22mm; height: 28mm; object-fit: cover; border-radius: 1.5mm; flex: none; }
+.ms-photo-empty { background: #e8edee; color: #8a9391; font-size: 8pt; display: flex; align-items: center; justify-content: center; }
+.ms-name { font-weight: 700; font-size: 13pt; letter-spacing: .01em; line-height: 1.2; }
+.ms-meta { font-size: 9.5pt; line-height: 1.5; color: var(--ms-muted); margin-top: 2mm; }
+.ms-meta b { color: var(--ms-ink); font-weight: 600; }
+.ms-valid { font-size: 9.5pt; line-height: 1.5; color: var(--ms-muted); margin-top: 2mm; }
+.ms-sig { margin-top: auto; border-top: 0.3mm solid #dfe3e6; padding-top: 2mm; display: flex; flex-direction: column; gap: 1.5mm; }
+.ms-sigline { width: 45mm; border-bottom: 0.3mm solid var(--ms-ink); height: 7mm; display: block; flex: none; }
+.ms-who2 { color: var(--ms-teal); font-weight: 600; font-size: 7.6pt; line-height: 1.35; }
+.ms-who2 b { display: block; color: var(--ms-ink); font-weight: 700; font-size: 8.8pt; }
+.ms-back { background: var(--ms-teal); color: #fff; padding: 8mm 7mm 6mm 7mm; display: flex; flex-direction: column; position: relative; overflow: hidden; }
+.ms-back::after { content: ''; position: absolute; right: -18mm; top: -18mm; width: 44mm; height: 44mm; border: 6mm solid rgba(255, 255, 255, .07); border-radius: 50%; }
+.ms-info { font-size: 10pt; line-height: 1.5; }
+.ms-fine { font-size: 7pt; line-height: 1.55; opacity: .88; margin-top: 4mm; }
+.ms-bottom { margin-top: auto; display: flex; gap: 4mm; align-items: flex-start; }
+.ms-qr { background: #fff; padding: 2.2mm; border-radius: 1.2mm; width: 27mm; height: 27mm; flex: none; }
+.ms-qr img { width: 100%; height: 100%; display: block; }
+.ms-contact { font-size: 7.6pt; line-height: 1.6; }
+.ms-contact b { color: #FFB27A; font-weight: 700; display: block; font-size: 8pt; }
+.ms-id { font-family: ui-monospace, Menlo, monospace; font-weight: 700; font-size: 8pt; letter-spacing: .02em; }
+.ms-cols { display: grid; grid-template-columns: 1.15fr 1fr; gap: 10mm; margin-top: 5mm; }
+.ms-sheet h3 { color: var(--ms-teal); font-size: 13pt; font-weight: 700; display: inline-block; padding-bottom: 1.2mm; border-bottom: 0.6mm solid var(--ms-orange); margin-bottom: 2.5mm; }
+.ms-mission-h { margin-top: 4mm; }
+.ms-vision { font-style: italic; font-size: 8.6pt; line-height: 1.5; color: var(--ms-muted); }
+.ms-sheet ol { list-style: none; counter-reset: n; }
+.ms-sheet ol li { counter-increment: n; position: relative; padding-left: 5.5mm; font-size: 8.2pt; line-height: 1.45; color: var(--ms-muted); margin-bottom: 1.4mm; }
+.ms-sheet ol li b { color: var(--ms-ink); font-weight: 700; }
+.ms-sheet ol li::before { content: counter(n) '.'; position: absolute; left: 0; color: var(--ms-orange); font-weight: 700; }
+.ms-ben { border-left: 0.8mm solid var(--ms-teal); padding-left: 4mm; margin-bottom: 2.6mm; }
+.ms-ben b { display: block; font-size: 10pt; font-weight: 700; }
+.ms-ben span { font-size: 8.8pt; line-height: 1.45; color: var(--ms-muted); display: block; }
+.ms-foot { position: absolute; left: 0; right: 0; bottom: 0; height: 14mm; background: var(--ms-orange); color: #fff; font-weight: 700; font-size: 11pt; display: flex; align-items: center; padding: 0 16mm; }

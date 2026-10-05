@@ -237,6 +237,7 @@ export default async function AdminMembersPage({
                         affiliation: selected.affiliation,
                         photo: selected.photo,
                         validUntil: selected.validUntil,
+                        issuedAt: selected.createdAt,
                         verifyUrl: `${baseUrl}/verify/${selected.cardId}`,
                       }}
                     />
