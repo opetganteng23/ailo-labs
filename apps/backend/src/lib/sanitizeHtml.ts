@@ -209,5 +209,5 @@ export function renderRichText(html: string): string {
 
 /** True when a body was written in the editor's HTML mode (own styles or layout blocks): the page then shows only that HTML, without the card image above it. */
 export function isHtmlDocument(html: string | undefined): boolean {
-  return Boolean(html && /<style|<(?:div|section|article|aside|header|footer|nav|main|iframe|video)/i.test(html));
+  return Boolean(html && /<(?:style|div|section|article|aside|header|footer|nav|main|iframe|video)[\s>]/i.test(html));
 }
