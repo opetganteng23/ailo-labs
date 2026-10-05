@@ -13,8 +13,8 @@ async function main() {
   const dbName = process.env.MONGODB_DB_NAME ?? "ailo";
   if (!uri) throw new Error("MONGODB_URI is not set.");
   await mongoose.connect(uri, { dbName });
-  const team = await Team.updateMany({ category: { $exists: true, $ne: "" }, $or: [{ categories: { $exists: false } }, { categories: { $size: 0 } }] }, [{ $set: { categories: ["$category"] } }]);
-  const members = await Member.updateMany({ teamCategory: { $exists: true, $ne: "" }, $or: [{ teamCategories: { $exists: false } }, { teamCategories: { $size: 0 } }] }, [{ $set: { teamCategories: ["$teamCategory"] } }]);
+  const team = await Team.updateMany({ category: { $exists: true, $ne: "" }, $or: [{ categories: { $exists: false } }, { categories: { $size: 0 } }] }, [{ $set: { categories: ["$category"] } }], { updatePipeline: true });
+  const members = await Member.updateMany({ teamCategory: { $exists: true, $ne: "" }, $or: [{ teamCategories: { $exists: false } }, { teamCategories: { $size: 0 } }] }, [{ $set: { teamCategories: ["$teamCategory"] } }], { updatePipeline: true });
   console.log(`${dbName}: team ${team.modifiedCount}, members ${members.modifiedCount}`);
   await mongoose.disconnect();
 }
