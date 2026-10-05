@@ -13,6 +13,7 @@ import { Team } from "@/models/Team";
 import { Lab } from "@/models/Lab";
 import { Device } from "@/models/Device";
 import { Book, Partner, Service } from "@/models/catalog";
+import { KnowledgeDoc } from "@/models/KnowledgeDoc";
 
 export const dynamic = "force-dynamic";
 
@@ -25,6 +26,27 @@ function chunkText(text: string): string[] {
     chunks.push(clean.slice(i, i + CHUNK_SIZE));
   }
   return chunks.length > 0 ? chunks : [clean];
+}
+
+/** Long reference text is split on paragraph boundaries (about 700 characters) so an answer never starts mid-sentence. */
+function chunkParagraphs(title: string, text: string): string[] {
+  const chunks: string[] = [];
+  let current = "";
+  for (const para of text.split(/\n{2,}/).map((p) => p.replace(/\s+/g, " ").trim()).filter(Boolean)) {
+    if (current && current.length + para.length > 700) {
+      chunks.push(current);
+      current = "";
+    }
+    current = current ? `${current} ${para}` : para;
+    while (current.length > 1000) {
+      const cut = current.lastIndexOf(". ", 900);
+      const at = cut > 300 ? cut + 1 : 900;
+      chunks.push(current.slice(0, at).trim());
+      current = current.slice(at).trim();
+    }
+  }
+  if (current) chunks.push(current);
+  return chunks.map((c) => `${title}\n${c}`);
 }
 
 /**
@@ -49,7 +71,7 @@ export async function POST(request: NextRequest) {
     // Services, books and partners are always part of the chatbot's knowledge.
     const enabled = new Set([...(settings?.chatbot?.knowledgeSources ?? ["news", "research", "project", "team", "lab"]), "service", "book", "partner"]);
 
-    const [news, research, projects, team, labs, devices, services, books, partners] = await Promise.all([
+    const [news, research, projects, team, labs, devices, services, books, partners, knowledge] = await Promise.all([
       enabled.has("news") ? News.find({ status: "published" }).lean() : [],
       enabled.has("research") ? Research.find({ status: "published" }).lean() : [],
       enabled.has("project") ? Project.find({ publishStatus: { $nin: ["review", "archived"] } }).lean() : [],
@@ -59,6 +81,7 @@ export async function POST(request: NextRequest) {
       Service.find({ status: "published" }).lean(),
       Book.find({ status: "published" }).lean(),
       Partner.find({ status: "published" }).lean(),
+      KnowledgeDoc.find({ status: "published" }).lean(),
     ]);
 
     await ChatEmbedding.deleteMany({});
@@ -116,6 +139,12 @@ export async function POST(request: NextRequest) {
     for (const pt of partners) {
       for (const chunk of chunkText(`Partner (mitra kerja sama): ${pt.title}\n${pt.description ?? ""}${pt.link ? `\nWebsite: ${pt.link}` : ""}`)) {
         docs.push({ sourceType: "partner", sourceId: pt._id, chunkText: chunk, embedding: placeholderVector(chunk) });
+      }
+    }
+
+    for (const k of knowledge) {
+      for (const chunk of chunkParagraphs(k.title, k.content)) {
+        docs.push({ sourceType: "knowledge", sourceId: k._id, chunkText: chunk, embedding: placeholderVector(chunk) });
       }
     }
 

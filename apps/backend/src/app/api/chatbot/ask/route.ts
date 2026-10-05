@@ -12,7 +12,7 @@ const askSchema = z.object({
 });
 
 const STOPWORDS = new Set([
-  "yang", "dan", "di", "ke", "dari", "untuk", "apa", "apakah", "adalah", "itu", "ini",
+  "yang", "dan", "di", "ke", "dari", "untuk", "apa", "apakah", "adalah", "itu", "ini", "dengan", "pada", "bagaimana", "saya", "kamu", "anda",
   "the", "a", "an", "is", "are", "of", "to", "for", "and", "what", "how", "do", "does",
 ]);
 
@@ -22,6 +22,13 @@ function tokenize(text: string): string[] {
     .replace(/[^a-z0-9\s]/g, " ")
     .split(/\s+/)
     .filter((word) => word.length > 2 && !STOPWORDS.has(word));
+}
+
+/** Cuts a long chunk at the last sentence end before 700 characters, so answers do not stop mid-word. */
+function trimAnswer(text: string): string {
+  if (text.length <= 700) return text;
+  const cut = text.lastIndexOf(". ", 700);
+  return cut > 300 ? text.slice(0, cut + 1) : `${text.slice(0, 700).trimEnd()}...`;
 }
 
 /**
@@ -85,7 +92,7 @@ export async function POST(request: NextRequest) {
     }
 
     const answer = best
-      ? best.chunkText.slice(0, 500)
+      ? trimAnswer(best.chunkText)
       : "Saya belum menemukan jawaban pasti untuk itu di konten AILO yang ter-index. Coba tanyakan seputar riset, proyek, tim, atau lab kami, atau hubungi ailo@telkomuniversity.ac.id untuk bantuan langsung.";
 
     return NextResponse.json({ success: true, data: { answer } });
