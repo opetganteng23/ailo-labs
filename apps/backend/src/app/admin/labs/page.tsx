@@ -42,7 +42,7 @@ export default async function AdminLabsPage() {
         </div>
       </div>
 
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(320px, 1fr))", gap: 20 }}>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(min(320px, 100%), 1fr))", gap: 20 }}>
         {items.map((lab) => (
           <article key={lab._id} style={{ background: "#fff", border: "1px solid #e3e1da", borderRadius: 16, overflow: "hidden", display: "flex", flexDirection: "column" }}>
             <div style={{ height: 180, background: "#dde7e6", position: "relative" }}>

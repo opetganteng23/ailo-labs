@@ -64,7 +64,7 @@ export default async function AdminUsersPage({ searchParams }: { searchParams: P
         </div>
       </div>
 
-      <div style={{ display: "grid", gridTemplateColumns: "minmax(0, 1fr) 320px", gap: 24, alignItems: "start" }}>
+      <div className="admin2-split-320">
         <section className="admin2-panel">
           <div className="admin2-panel-toolbar">
             <div className="admin2-tabs">

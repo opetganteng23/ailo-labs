@@ -1409,3 +1409,7 @@ a.partner-card:hover{border-color:var(--teal); box-shadow:0 14px 28px -18px rgba
 }
 /* Projects board: columns wrap instead of squeezing into slivers on phones. */
 .admin2-projects-board { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 20px; }
+
+.admin2-split-320 { display: grid; grid-template-columns: minmax(0, 1fr) 320px; gap: 24px; align-items: start; }
+.admin2-split-320 > * { min-width: 0; }
+@media (max-width: 900px) { .admin2-split-320 { grid-template-columns: minmax(0, 1fr); } }

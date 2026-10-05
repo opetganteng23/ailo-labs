@@ -95,7 +95,7 @@ export default async function AdminTeamPage({ searchParams }: { searchParams: Pr
         ))}
       </div>
 
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))", gap: 20 }}>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(min(300px, 100%), 1fr))", gap: 20 }}>
         {items.map((item) => {
           const links = Object.entries(item.profiles ?? {}).filter(([, v]) => v);
           return (
