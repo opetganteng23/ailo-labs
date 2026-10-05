@@ -32,30 +32,6 @@ export async function MemberCard({ data }: { data: MemberCardData }) {
         validUntil={formatValidUntil(data.validUntil)}
         qrSrc={qrDataUrl}
       />
-
-      {/* Back */}
-      <div className="member-card member-card-back">
-        <div className="member-card-back-bar" />
-        <div className="member-card-back-qr-col">
-          {/* eslint-disable-next-line @next/next/no-img-element -- generated data URI, not a static asset */}
-          <img src={qrDataUrl} alt="Verification QR code" className="member-card-qr" />
-          <span className="member-card-scan">Scan to verify</span>
-        </div>
-        <div className="member-card-back-text">
-          <span className="member-card-statement">This card identifies a member of CoE AILO, Telkom University.</span>
-          <span className="member-card-disclaimer">
-            Valid only with a current status on the verification page. Non-transferable. If found, please return to the CoE AILO office.
-          </span>
-          <div className="member-card-verify">
-            <span className="member-card-verify-label">VERIFY ONLINE</span>
-            <span className="member-card-verify-url">{data.verifyUrl.replace(/^https?:\/\//, "")}</span>
-          </div>
-          <div className="member-card-signature">
-            <span className="member-card-signature-line" />
-            <span className="member-card-signature-name">Head of CoE AILO</span>
-          </div>
-        </div>
-      </div>
     </div>
   );
 }

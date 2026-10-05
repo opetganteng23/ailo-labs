@@ -6,6 +6,7 @@ import { redirect } from "next/navigation";
 import crypto from "node:crypto";
 
 import { getSession, isAdminRole } from "@/lib/auth";
+import { getBaseUrl } from "@/lib/baseUrl";
 import { flash, FlashError, withFlash } from "@/lib/flash";
 import { provisionDosenAccount } from "@/lib/dosenAccount";
 import { sendMail } from "@/lib/mailer";
@@ -71,10 +72,11 @@ export async function approveMemberAction(formData: FormData) {
       await member.save();
 
       const validText = `berlaku sampai ${validUntil.toLocaleDateString("id-ID")}`;
+      const cardUrl = `${await getBaseUrl()}/verify/${cardId}`;
       const mail = await sendMail({
         to: member.email,
         subject: "AILO Membership Approved - Your Digital Card is Ready",
-        text: `Halo ${member.name},\n\nSelamat! Pengajuan keanggotaan AILO Anda sebagai "${member.approvedAs}" telah disetujui.\n\nID kartu: ${cardId}\nMasa berlaku: ${validText}\n\nLihat kartu digital Anda di: /verify/${cardId}\n\nTerima kasih,\nTim AILO`,
+        text: `Halo ${member.name},\n\nSelamat! Pengajuan keanggotaan AILO Anda sebagai "${member.approvedAs}" telah disetujui.\n\nID kartu: ${cardId}\nMasa berlaku: ${validText}\n\nLihat kartu digital Anda di: ${cardUrl}\n\nBuka tautan itu, lalu klik tombol cetak untuk mencetak kartu atau menyimpannya sebagai PDF. Anda dapat melakukannya kapan saja.\n\nTerima kasih,\nTim AILO`,
       });
       mailSent = mail.sent;
 
@@ -224,10 +226,11 @@ export async function resendCardEmailAction(formData: FormData) {
       if (!member || member.status !== "approved" || !member.cardId) throw new FlashError("Only approved members have a card to resend.");
 
       const validText = member.validUntil ? `berlaku sampai ${member.validUntil.toLocaleDateString("id-ID")}` : "tanpa batas waktu";
+      const cardUrl = `${await getBaseUrl()}/verify/${member.cardId}`;
       const mail = await sendMail({
         to: member.email,
         subject: "Your AILO Digital Member Card",
-        text: `Halo ${member.name},\n\nBerikut kembali informasi kartu anggota AILO Anda.\n\nID kartu: ${member.cardId}\nMasa berlaku: ${validText}\n\nLihat kartu digital Anda di: /verify/${member.cardId}\n\nTerima kasih,\nTim AILO`,
+        text: `Halo ${member.name},\n\nBerikut kembali informasi kartu anggota AILO Anda.\n\nID kartu: ${member.cardId}\nMasa berlaku: ${validText}\n\nLihat kartu digital Anda di: ${cardUrl}\n\nBuka tautan itu, lalu klik tombol cetak untuk mencetak kartu atau menyimpannya sebagai PDF. Anda dapat melakukannya kapan saja.\n\nTerima kasih,\nTim AILO`,
       });
       if (!mail.sent) throw new FlashError("The card email could not be sent - check the mail settings.");
     },
