@@ -18,9 +18,9 @@ function slugify(input: string) {
     .replace(/(^-|-$)/g, "");
 }
 
-function readStatus(formData: FormData): "draft" | "review" | "published" {
+function readStatus(formData: FormData): "draft" | "review" | "published" | "archived" {
   const status = formData.get("status");
-  return status === "published" || status === "review" ? status : "draft";
+  return status === "published" || status === "review" || status === "archived" ? status : "draft";
 }
 
 /** Server-side check of the fields the form marks as required. */
@@ -142,4 +142,21 @@ export async function deleteNewsAction(formData: FormData) {
     { success: "Article deleted.", error: "Couldn't delete the article. Please try again." },
   );
   revalidatePath("/admin/news");
+}
+
+/** Archives an article (hides it from the public site, keeps it) or restores it to draft. */
+export async function setNewsArchivedAction(formData: FormData) {
+  const session = await getSession();
+  if (!session || !isAdminRole(session.role)) redirect("/admin/login");
+  const archive = formData.get("archive") === "1";
+  await withFlash(
+    async () => {
+      await connectToDatabase();
+      await News.findByIdAndUpdate(String(formData.get("id")), { status: archive ? "archived" : "draft", ...(archive ? {} : { publishedAt: undefined }) });
+    },
+    { success: archive ? "Article archived." : "Article restored to drafts.", error: "Couldn't update the article. Please try again." },
+  );
+  revalidatePath("/admin/news");
+  revalidatePath("/news");
+  revalidatePath("/");
 }

@@ -15,7 +15,7 @@ const STATUS_CLASS: Record<string, string> = { planned: "status-planned", ongoin
 export default async function ProjectDetailPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   await connectToDatabase();
-  const item = await Project.findOne({ slug, publishStatus: { $ne: "review" } }).lean<{
+  const item = await Project.findOne({ slug, publishStatus: { $nin: ["review", "archived"] } }).lean<{
     title: string;
     description: string;
     content: string;

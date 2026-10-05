@@ -224,7 +224,7 @@ const PROJECT_STATUS_LABEL: Record<string, string> = { planned: "Planned", ongoi
 const PROJECT_STATUS_CLASS: Record<string, string> = { planned: "status-planned", ongoing: "status-ongoing", completed: "status-completed" };
 
 async function buildProjectCards(): Promise<CardResult> {
-  const items = await Project.find({ publishStatus: { $ne: "review" } })
+  const items = await Project.find({ publishStatus: { $nin: ["review", "archived"] } })
     .sort({ publishedAt: -1, createdAt: -1 })
     .limit(4)
     .select("title description slug status images")

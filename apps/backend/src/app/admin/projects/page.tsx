@@ -6,7 +6,7 @@ import { Project } from "@/models/Project";
 
 import { User } from "@/models/User";
 
-import { deleteProjectAction, publishProjectAction } from "./actions";
+import { deleteProjectAction, publishProjectAction, setProjectArchivedAction } from "./actions";
 import { ProjectsBoard } from "./ProjectsBoard";
 import { EmptyState } from "@/components/EmptyState";
 
@@ -29,7 +29,7 @@ export default async function AdminProjectsPage({
     content?: string;
     images?: string[];
     updatedAt: string;
-    publishStatus?: "review" | "published";
+    publishStatus?: "review" | "published" | "archived";
     owner?: string;
   }[];
   const ownerIds = Array.from(new Set(items.map((p) => p.owner).filter(Boolean).map(String)));
@@ -101,7 +101,7 @@ export default async function AdminProjectsPage({
 
       {isTable ? (
         <section className="admin2-panel">
-          <div className="admin2-table-head" style={{ gridTemplateColumns: "minmax(0, 1fr) 140px 150px 96px" }}>
+          <div className="admin2-table-head" style={{ gridTemplateColumns: "minmax(0, 1fr) 140px 150px 160px" }}>
             <span>TITLE</span>
             <span>STATUS</span>
             <span>UPDATED</span>
@@ -109,7 +109,7 @@ export default async function AdminProjectsPage({
           </div>
           {items.length === 0 && <EmptyState title="No projects yet" message="Projects you add will show up here and on the public site." actionHref="/admin/projects/new" actionLabel="New project" />}
           {items.map((item) => (
-            <div key={item._id} className="admin2-table-row" style={{ gridTemplateColumns: "minmax(0, 1fr) 140px 150px 96px" }}>
+            <div key={item._id} className="admin2-table-row" style={{ gridTemplateColumns: "minmax(0, 1fr) 140px 150px 160px" }}>
               <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
                 {item.images?.[0] ? (
                   // eslint-disable-next-line @next/next/no-img-element -- arbitrary uploaded image, no static optimization needed
@@ -119,6 +119,12 @@ export default async function AdminProjectsPage({
                 )}
                 <span style={{ display: "flex", flexDirection: "column", gap: 2 }}>
                   <span style={{ fontSize: 15, fontWeight: 700 }}>{item.title}</span>
+                  {item.publishStatus === "archived" && (
+                    <span className="admin2-pill archived" style={{ fontSize: 11, width: "fit-content" }}>
+                      <span className="dot" />
+                      Archived
+                    </span>
+                  )}
                   {item.publishStatus === "review" && (
                     <span style={{ display: "flex", gap: 6, alignItems: "center" }}>
                       <span className="admin2-pill review" style={{ fontSize: 11 }}>
@@ -141,6 +147,15 @@ export default async function AdminProjectsPage({
                     <path d="M4 20h4L19 9l-4-4L4 16z" />
                   </svg>
                 </Link>
+                {item.publishStatus !== "review" && (
+                  <form action={setProjectArchivedAction} style={{ display: "flex", alignItems: "center" }}>
+                    <input type="hidden" name="id" value={item._id} />
+                    <input type="hidden" name="archive" value={item.publishStatus === "archived" ? "0" : "1"} />
+                    <button type="submit" className="row-action">
+                      {item.publishStatus === "archived" ? "Restore" : "Archive"}
+                    </button>
+                  </form>
+                )}
                 <form action={deleteProjectAction}>
                   <input type="hidden" name="id" value={item._id} />
                   <ConfirmSubmit title="Delete this project?" message="It will be removed from the admin and the public site." confirmLabel="Delete" ariaLabel="Delete" className="admin2-btn ghost" style={{ padding: 0, width: 40, height: 40, justifyContent: "center", color: "#9d1b1b" }}>
@@ -155,7 +170,7 @@ export default async function AdminProjectsPage({
         </section>
       ) : (
         <ProjectsBoard
-          items={items.map((item) => ({
+          items={items.filter((item) => item.publishStatus !== "archived").map((item) => ({
             _id: item._id,
             title: item.title,
             status: item.status,

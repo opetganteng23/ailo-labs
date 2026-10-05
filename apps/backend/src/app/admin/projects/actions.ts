@@ -67,12 +67,12 @@ export async function updateProjectAction(formData: FormData) {
       const data = readProject(formData);
       const manualDate = readManualDate(formData);
       await connectToDatabase();
-      const existing = await Project.findById(id).lean<{ publishedAt?: Date }>();
+      const existing = await Project.findById(id).lean<{ publishedAt?: Date; publishStatus?: string }>();
       if (!existing) throw new FlashError("This project no longer exists.");
       // An admin saving a lecturer's submission publishes it.
       await Project.findByIdAndUpdate(id, {
         ...data,
-        publishStatus: "published",
+        publishStatus: existing.publishStatus === "archived" ? "archived" : "published",
         publishedAt: manualDate ?? existing.publishedAt ?? new Date(),
         publishedAtManual: isManualDate(formData),
       });
@@ -121,4 +121,20 @@ export async function moveProjectStatusAction(id: string, status: "planned" | "o
     await flash("error", "Couldn't move the project. Please try again.");
   }
   revalidatePath("/admin/projects");
+}
+
+/** Archives a project (hides it from the public site, keeps it) or restores it. */
+export async function setProjectArchivedAction(formData: FormData) {
+  await requireAdmin();
+  const archive = formData.get("archive") === "1";
+  await withFlash(
+    async () => {
+      await connectToDatabase();
+      await Project.findByIdAndUpdate(String(formData.get("id")), { publishStatus: archive ? "archived" : "published" });
+    },
+    { success: archive ? "Project archived." : "Project restored.", error: "Couldn't update the project. Please try again." },
+  );
+  revalidatePath("/admin/projects");
+  revalidatePath("/projects");
+  revalidatePath("/");
 }

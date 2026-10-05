@@ -9,7 +9,7 @@ const researchSchema = new Schema(
     image: String,
     relatedTeamMembers: [{ type: Schema.Types.ObjectId, ref: "Team" }],
     // "review" = submitted by a lecturer, waiting for an admin to publish.
-    status: { type: String, enum: ["draft", "review", "published"], default: "draft", index: true },
+    status: { type: String, enum: ["draft", "review", "published", "archived"], default: "draft", index: true },
     owner: { type: Schema.Types.ObjectId, ref: "User", index: true },
     reviewNote: String,
     publishedAt: Date,

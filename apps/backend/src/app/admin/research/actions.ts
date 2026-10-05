@@ -26,7 +26,7 @@ function readResearch(formData: FormData) {
     title,
     description,
     content: sanitizeRichText(String(formData.get("content") ?? "")),
-    status: ["published", "review"].includes(String(formData.get("status"))) ? String(formData.get("status")) : "draft",
+    status: ["published", "review", "archived"].includes(String(formData.get("status"))) ? String(formData.get("status")) : "draft",
     image: String(formData.get("image") ?? "") || undefined,
   };
 }
@@ -96,4 +96,20 @@ export async function deleteResearchAction(formData: FormData) {
     { success: "Research deleted.", error: "Couldn't delete the research item. Please try again." },
   );
   revalidatePath("/admin/research");
+}
+
+/** Archives a research item (hides it from the public site, keeps it) or restores it to draft. */
+export async function setResearchArchivedAction(formData: FormData) {
+  await requireAdmin();
+  const archive = formData.get("archive") === "1";
+  await withFlash(
+    async () => {
+      await connectToDatabase();
+      await Research.findByIdAndUpdate(String(formData.get("id")), { status: archive ? "archived" : "draft" });
+    },
+    { success: archive ? "Research archived." : "Research restored to drafts.", error: "Couldn't update the research item. Please try again." },
+  );
+  revalidatePath("/admin/research");
+  revalidatePath("/research");
+  revalidatePath("/");
 }

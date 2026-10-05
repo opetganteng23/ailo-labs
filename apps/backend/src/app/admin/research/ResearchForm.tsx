@@ -109,10 +109,10 @@ export function ResearchForm({
           ) : (
             <section className="admin2-section pad-sm">
               <h2>Publishing</h2>
-              <div className="admin2-radio-group" role="radiogroup" aria-label="Status">
-                {(["draft", "review", "published"] as const).map((s) => (
+              <div className="admin2-radio-group" role="radiogroup" aria-label="Status" style={{ gridTemplateColumns: "repeat(2, minmax(0, 1fr))" }}>
+                {(["draft", "review", "published", "archived"] as const).map((s) => (
                   <button key={s} type="button" className={status === s ? "active" : ""} onClick={() => setStatus(s)}>
-                    {s === "draft" ? "Draft" : s === "review" ? "Review" : "Published"}
+                    {s === "draft" ? "Draft" : s === "review" ? "Review" : s === "published" ? "Published" : "Archived"}
                   </button>
                 ))}
               </div>

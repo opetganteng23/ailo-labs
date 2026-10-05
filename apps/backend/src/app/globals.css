@@ -1343,3 +1343,19 @@ footer.site .foot-bottom .socials .admin-link { color: #7fa9ab; }
 .empty-state-public { padding: 72px 20px; border: 1px dashed #d9d5c9; border-radius: 20px; background: #fff; }
 .empty-state-public h3 { font-size: 19px; }
 .empty-state-public p { font-size: 15px; }
+
+/* ===== CMS list extras: sort, board, archived ===== */
+.admin2-pill.archived { color: #5b6664; background: #ecebe6; } .admin2-pill.archived .dot { background: #8a9391; }
+.admin2-sort { height: 40px; padding: 0 12px; border: 1px solid #dad7cf; border-radius: 10px; background: #fff; font-size: 13.5px; font-weight: 600; color: #3b4947; cursor: pointer; }
+.status-board { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; padding: 16px; align-items: start; }
+.status-board-col { background: #f7f6f2; border: 1px solid #eeece6; border-radius: 14px; padding: 12px; display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+.status-board-col header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px; }
+.status-board-col .count { font-size: 13px; font-weight: 700; color: #6b7573; }
+.status-board-card { display: flex; flex-direction: column; gap: 4px; padding: 12px; background: #fff; border: 1px solid #e3e1da; border-radius: 10px; color: #15201f; font-size: 14px; line-height: 1.35; }
+.status-board-card:hover { border-color: #00809d; box-shadow: 0 6px 16px -10px rgba(18, 24, 27, 0.35); }
+.status-board-card span { font-size: 12.5px; color: #6b7573; overflow-wrap: anywhere; }
+.status-board-empty { margin: 0; padding: 12px 4px; font-size: 13px; color: #8a9391; }
+@media (max-width: 1100px) { .status-board { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 640px) { .status-board { grid-template-columns: 1fr; } }
+.row-action { font-size: 13px; font-weight: 600; color: #00809d; background: none; border: 0; padding: 0; cursor: pointer; }
+.row-action:hover { text-decoration: underline; }

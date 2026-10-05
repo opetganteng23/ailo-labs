@@ -12,7 +12,7 @@ const projectSchema = new Schema(
     startDate: Date,
     endDate: Date,
     // Lecturer submissions wait in "review" until an admin publishes them.
-    publishStatus: { type: String, enum: ["review", "published"], default: "published", index: true },
+    publishStatus: { type: String, enum: ["review", "published", "archived"], default: "published", index: true },
     owner: { type: Schema.Types.ObjectId, ref: "User", index: true },
     reviewNote: String,
     publishedAt: Date,
