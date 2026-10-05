@@ -2,6 +2,8 @@ import { createHash } from "node:crypto";
 
 import postcss, { type AtRule, type Rule } from "postcss";
 
+import { signScript, verifyScript } from "./scriptSign";
+
 /**
  * Support for complete HTML documents (their own <style>) pasted in the editor's HTML mode.
  *
@@ -174,4 +176,44 @@ export function scopeDocument(css: string, body: string): string {
   const prefix = `s${hash}-`;
   const scoped = scopeCss(clean, scopeClass, prefix);
   return `<style>${scoped.replace(/<\/?style/gi, "")}</style><div class="${scopeClass}">${rewriteTagAttributes(body, prefix)}</div>`;
+}
+
+const RAW_SCRIPT = /<script\b([^>]*)>([\s\S]*?)<\/script>/gi;
+const SIGNED_SCRIPT = /<script data-sig="([0-9a-f]{64})">([\s\S]*?)<\/script>/g;
+
+/** Takes inline <script> blocks out of the HTML (those with a src are dropped). */
+export function extractScripts(html: string): { html: string; scripts: string[] } {
+  const scripts: string[] = [];
+  const rest = html.replace(RAW_SCRIPT, (_m, attrs: string, code: string) => {
+    if (!/\bsrc\s*=/i.test(attrs) && code.trim()) scripts.push(code.trim());
+    return "";
+  });
+  return { html: rest, scripts };
+}
+
+/** Save time (admin only): appends each script with its signature. */
+export function attachSignedScripts(stored: string, scripts: string[]): string {
+  return stored + scripts.map((code) => `<script data-sig="${signScript(code)}">${code}</script>`).join("");
+}
+
+/** Display time: pulls out the scripts whose signature is valid and leaves everything else. */
+export function takeVerifiedScripts(stored: string): { html: string; scripts: string[] } {
+  const scripts: string[] = [];
+  const html = stored.replace(SIGNED_SCRIPT, (_m, sig: string, code: string) => {
+    if (verifyScript(code, sig)) scripts.push(code);
+    return "";
+  });
+  return { html, scripts };
+}
+
+/** Wraps display markup in its scope element, with the verified scripts as inert data for the client runner. */
+export function scopeDocumentWithScripts(css: string, body: string, scripts: string[]): string {
+  const clean = cleanCss(css);
+  if (!clean && scripts.length === 0) return body;
+  const hash = createHash("sha1").update(clean + scripts.join("\n")).digest("hex").slice(0, 8);
+  const scopeClass = `rte-scope-${hash}`;
+  const prefix = `s${hash}-`;
+  const style = clean ? `<style>${scopeCss(clean, scopeClass, prefix).replace(/<\/?style/gi, "")}</style>` : "";
+  const data = scripts.map((code) => `<script type="text/rte-script" data-prefix="${prefix}">${code.replace(/<\/script/gi, "<\\/script")}</script>`).join("");
+  return `${style}<div class="${scopeClass}" data-rte-scripts="${scripts.length}">${rewriteTagAttributes(body, prefix)}${data}</div>`;
 }

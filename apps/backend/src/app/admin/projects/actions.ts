@@ -6,6 +6,7 @@ import { redirect } from "next/navigation";
 import { getSession, isAdminRole } from "@/lib/auth";
 import { FlashError, flash, withFlash } from "@/lib/flash";
 import { connectToDatabase } from "@/lib/mongodb";
+import { canWriteScripts } from "@/lib/htmlTrust";
 import { sanitizeRichText } from "@/lib/sanitizeHtml";
 import { Project } from "@/models/Project";
 
@@ -18,14 +19,15 @@ async function requireAdmin() {
   if (!session || !isAdminRole(session.role)) redirect("/admin/login");
 }
 
-function readProject(formData: FormData) {
+async function readProject(formData: FormData) {
+  const scripts = await canWriteScripts();
   const title = String(formData.get("title") ?? "").trim();
   const description = String(formData.get("description") ?? "").trim();
   if (!title || !description) throw new FlashError(`Please fill in the ${[!title && "title", !description && "summary"].filter(Boolean).join(" and ")}.`, "warning");
   return {
     title,
     description,
-    content: sanitizeRichText(String(formData.get("content") ?? ""), { trusted: true }),
+    content: sanitizeRichText(String(formData.get("content") ?? ""), { trusted: true, scripts }),
     status: formData.get("status") ?? "planned",
     images: formData.get("image") ? [String(formData.get("image"))] : [],
   };
@@ -48,7 +50,7 @@ export async function createProjectAction(formData: FormData) {
   await requireAdmin();
   const ok = await withFlash(
     async () => {
-      const data = readProject(formData);
+      const data = await readProject(formData);
       const manualDate = readManualDate(formData);
       await connectToDatabase();
       await Project.create({ ...data, slug: slugify(data.title), publishedAt: manualDate ?? new Date(), publishedAtManual: isManualDate(formData) });
@@ -64,7 +66,7 @@ export async function updateProjectAction(formData: FormData) {
   const id = String(formData.get("id"));
   const ok = await withFlash(
     async () => {
-      const data = readProject(formData);
+      const data = await readProject(formData);
       const manualDate = readManualDate(formData);
       await connectToDatabase();
       const existing = await Project.findById(id).lean<{ publishedAt?: Date; publishStatus?: string }>();

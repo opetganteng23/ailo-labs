@@ -7,6 +7,7 @@ import { getSession, isAdminRole } from "@/lib/auth";
 import { FlashError, withFlash } from "@/lib/flash";
 import { connectToDatabase } from "@/lib/mongodb";
 import { formatDraftFromFiveW1H } from "@/lib/newsDraft";
+import { canWriteScripts } from "@/lib/htmlTrust";
 import { sanitizeRichText } from "@/lib/sanitizeHtml";
 import { News } from "@/models/News";
 
@@ -24,10 +25,11 @@ function readStatus(formData: FormData): "draft" | "review" | "published" | "arc
 }
 
 /** Server-side check of the fields the form marks as required. */
-function readArticle(formData: FormData) {
+async function readArticle(formData: FormData) {
+  const scripts = await canWriteScripts();
   const title = String(formData.get("title") ?? "").trim();
   const summary = String(formData.get("summary") ?? "").trim();
-  const content = sanitizeRichText(String(formData.get("content") ?? ""), { trusted: true }).trim();
+  const content = sanitizeRichText(String(formData.get("content") ?? ""), { trusted: true, scripts }).trim();
   const category = String(formData.get("category") ?? "").trim();
   const missing = [!title && "headline", !summary && "summary", !content && "article body", !category && "category"].filter(Boolean);
   if (missing.length) throw new FlashError(`Please fill in the ${missing.join(", ")}.`, "warning");
@@ -77,7 +79,7 @@ export async function createNewsAction(formData: FormData) {
 
   const saved = await withFlash(
     async () => {
-      const article = readArticle(formData);
+      const article = await readArticle(formData);
       const status = readStatus(formData);
       const manualDate = readManualDate(formData);
       await connectToDatabase();
@@ -106,7 +108,7 @@ export async function updateNewsAction(formData: FormData) {
 
   const saved = await withFlash(
     async () => {
-      const article = readArticle(formData);
+      const article = await readArticle(formData);
       const status = readStatus(formData);
       const manualDate = readManualDate(formData);
       const id = String(formData.get("id"));

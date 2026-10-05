@@ -1,3 +1,4 @@
+import { getSession } from "@/lib/auth";
 import { connectToDatabase } from "@/lib/mongodb";
 import { User } from "@/models/User";
 
@@ -11,4 +12,12 @@ export async function isHtmlTrusted(userId: string | undefined): Promise<boolean
   } catch {
     return false;
   }
+}
+
+/** Roles whose saves may keep inline <script> blocks in rich-text bodies. */
+export const SCRIPT_ROLES = ["super_admin", "admin"];
+
+export async function canWriteScripts(): Promise<boolean> {
+  const session = await getSession();
+  return Boolean(session && SCRIPT_ROLES.includes(session.role));
 }

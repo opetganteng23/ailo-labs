@@ -5,6 +5,7 @@ import { SiteFooter } from "@/components/SiteFooter";
 import { SiteHeader } from "@/components/SiteHeader";
 import { connectToDatabase } from "@/lib/mongodb";
 import { Research } from "@/models/Research";
+import { RichContent } from "@/components/RichContent";
 import { renderRichText } from "@/lib/sanitizeHtml";
 
 export const dynamic = "force-dynamic";
@@ -41,7 +42,7 @@ export default async function ResearchDetailPage({ params }: { params: Promise<{
           // eslint-disable-next-line @next/next/no-img-element -- arbitrary uploaded image, no static optimization needed
           <img className="detail-thumb" src={item.image} alt={item.title} style={{ borderRadius: 20 }} />
         )}
-        <div className="rte-body" style={{ marginTop: 24, padding: 0 }} dangerouslySetInnerHTML={{ __html: renderRichText(item.content) }} />
+        <RichContent className="rte-body" style={{ marginTop: 24, padding: 0 }} html={renderRichText(item.content)} />
       </main>
       <SiteFooter />
     </>

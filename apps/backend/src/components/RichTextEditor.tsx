@@ -11,6 +11,8 @@ import { useEffect, useRef, useState, type ReactNode } from "react";
 
 import { toast } from "@/lib/toast";
 
+import { RichContent } from "./RichContent";
+
 import { Figure } from "./richtext/Figure";
 
 type RichTextEditorProps = {
@@ -444,7 +446,7 @@ export function RichTextEditor({ name, defaultValue = "", placeholder, minHeight
             )}
             <span>Scripts, forms and event handlers are removed when you save. Iframes only work for YouTube, Vimeo, Google Maps/Docs/Drive, Canva, Spotify and Figma.</span>
           </div>
-          {preview !== null && <div className="rte-body rte-preview" dangerouslySetInnerHTML={{ __html: preview }} />}
+          {preview !== null && <RichContent className="rte-body rte-preview" html={preview} />}
         </div>
       )}
       {required && (

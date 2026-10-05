@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 
 import { isAdminRole, requireSession } from "@/lib/auth";
+import { SCRIPT_ROLES } from "@/lib/htmlTrust";
 import { isHtmlTrusted } from "@/lib/htmlTrust";
-import { renderRichText } from "@/lib/sanitizeHtml";
+import { renderRichText, sanitizeRichText } from "@/lib/sanitizeHtml";
 
 export const dynamic = "force-dynamic";
 
@@ -21,5 +22,5 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ success: false, error: "We could not read that request." }, { status: 400 });
   }
   const html = typeof body.html === "string" ? body.html.slice(0, 500_000) : "";
-  return NextResponse.json({ success: true, data: { html: renderRichText(html) } });
+  return NextResponse.json({ success: true, data: { html: renderRichText(sanitizeRichText(html, { trusted: true, scripts: SCRIPT_ROLES.includes(auth.session.role) })) } });
 }

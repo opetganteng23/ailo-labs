@@ -7,6 +7,7 @@ import { getSession, isAdminRole } from "@/lib/auth";
 import { catalogModel, CATALOG, isCatalogKind, type CatalogKind } from "@/lib/catalog";
 import { FlashError, withFlash } from "@/lib/flash";
 import { connectToDatabase } from "@/lib/mongodb";
+import { canWriteScripts } from "@/lib/htmlTrust";
 import { sanitizeRichText } from "@/lib/sanitizeHtml";
 
 function slugify(input: string) {
@@ -25,7 +26,8 @@ function kindIsPartner(kind: CatalogKind) {
   return kind === "partners";
 }
 
-function readEntry(kind: CatalogKind, formData: FormData) {
+async function readEntry(kind: CatalogKind, formData: FormData) {
+  const scripts = await canWriteScripts();
   const cfg = CATALOG[kind];
   const title = String(formData.get("title") ?? "").trim();
   if (!title) throw new FlashError(`Please fill in the ${cfg.titleLabel.toLowerCase()}.`, "warning");
@@ -33,7 +35,7 @@ function readEntry(kind: CatalogKind, formData: FormData) {
   return {
     title,
     description: text("description"),
-    content: cfg.content ? sanitizeRichText(String(formData.get("content") ?? ""), { trusted: true }) : "",
+    content: cfg.content ? sanitizeRichText(String(formData.get("content") ?? ""), { trusted: true, scripts }) : "",
     // Empty strings (not undefined) so clearing a field actually clears it - Mongoose ignores undefined on update.
     image: text("image"),
     link: cfg.link ? text("link") : "",
@@ -57,7 +59,7 @@ export async function createCatalogAction(formData: FormData) {
   const kind = await requireAdminKind(formData);
   const ok = await withFlash(
     async () => {
-      const data = readEntry(kind, formData);
+      const data = await readEntry(kind, formData);
       await connectToDatabase();
       await catalogModel(kind).create({ ...data, slug: slugify(data.title) });
     },
@@ -72,7 +74,7 @@ export async function updateCatalogAction(formData: FormData) {
   const id = String(formData.get("id"));
   const ok = await withFlash(
     async () => {
-      const data = readEntry(kind, formData);
+      const data = await readEntry(kind, formData);
       await connectToDatabase();
       await catalogModel(kind).findByIdAndUpdate(id, data);
     },

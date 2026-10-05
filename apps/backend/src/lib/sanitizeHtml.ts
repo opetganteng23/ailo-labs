@@ -1,6 +1,6 @@
 import sanitize from "sanitize-html";
 
-import { joinDocument, scopeDocument, splitDocument } from "./scopedHtml";
+import { attachSignedScripts, extractScripts, joinDocument, scopeDocumentWithScripts, splitDocument, takeVerifiedScripts } from "./scopedHtml";
 
 // The browser re-serializes colours as rgb()/rgba() when TipTap reads them back from the DOM, so hex alone would strip every colour on save.
 const HEX_OR_INHERIT = /^(#[0-9a-fA-F]{3,8}|inherit|rgba?\(\s*\d{1,3}\s*,\s*\d{1,3}\s*,\s*\d{1,3}\s*(,\s*(0|1|0?\.\d+)\s*)?\))$/;
@@ -100,11 +100,18 @@ const SAFE_ID = /^[A-Za-z][\w-]{0,60}$/;
  * iframes from a short list of known embed hosts, but still no script,
  * forms, event handlers, position/z-index or url()-based styles.
  */
-export function sanitizeRichText(html: string, options: { trusted?: boolean } = {}): string {
+export function sanitizeRichText(html: string, options: { trusted?: boolean; scripts?: boolean } = {}): string {
   if (!options.trusted) return sanitizeBody(html, false);
-  // A pasted complete document brings its own <style>: it is cleaned and kept (scoped only when displayed); the shell, scripts and the rest are dropped.
-  const { body, css } = splitDocument(html ?? "");
-  return joinDocument(css, sanitizeBody(body, true));
+  // A pasted complete document brings its own <style>: it is cleaned and kept (scoped only when displayed); the shell and the rest are dropped.
+  // Inline scripts are kept (signed) only when `scripts` is set, which the server does for super admin and admin saves.
+  const { html: withoutScripts, scripts } = options.scripts ? extractScripts(html ?? "") : { html: stripStoredScripts(html ?? ""), scripts: [] };
+  const { body, css } = splitDocument(withoutScripts);
+  return attachSignedScripts(joinDocument(css, sanitizeBody(body, true)), scripts);
+}
+
+/** Without the scripts permission every <script> block, including already stored signed ones, is removed. */
+function stripStoredScripts(html: string): string {
+  return html.replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi, "");
 }
 
 function sanitizeBody(html: string, trusted: boolean): string {
@@ -194,6 +201,8 @@ function sanitizeBody(html: string, trusted: boolean): string {
  * and a document's own CSS is scoped to it so it renders as authored without touching the rest of the site.
  */
 export function renderRichText(html: string): string {
-  const { body, css } = splitDocument(sanitizeRichText(html, { trusted: true }));
-  return scopeDocument(css, body);
+  // Verified (signed) scripts are set aside first; sanitizing the rest cannot reintroduce or alter them.
+  const { html: withoutScripts, scripts } = takeVerifiedScripts(html ?? "");
+  const { body, css } = splitDocument(sanitizeRichText(withoutScripts, { trusted: true }));
+  return scopeDocumentWithScripts(css, body, scripts);
 }
