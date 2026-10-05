@@ -11,7 +11,10 @@ import { useEffect, useRef, useState, type ReactNode } from "react";
 
 import { toast } from "@/lib/toast";
 
+import { clampEmbedHeight, EMBED_DEFAULT_HEIGHT, EMBED_MAX_HEIGHT, EMBED_MAX_HTML, EMBED_MIN_HEIGHT } from "@/lib/htmlEmbed";
+
 import { Figure } from "./richtext/Figure";
+import { HtmlEmbed } from "./richtext/HtmlEmbed";
 
 type RichTextEditorProps = {
   name: string;
@@ -20,6 +23,8 @@ type RichTextEditorProps = {
   minHeight?: number;
   /** Blocks form submission while the body is empty, with the same red marking as other required fields. */
   required?: boolean;
+  /** Adds the HTML embed block (admin only; the server drops it from lecturer submissions). */
+  allowHtml?: boolean;
 };
 
 const FONT_FAMILIES = [
@@ -86,6 +91,12 @@ const I = {
       <path d="M3 10h18M3 15h18M9 4v16M15 4v16" />
     </>
   ),
+  html: (
+    <>
+      <rect x="2.5" y="4" width="19" height="16" rx="3" />
+      <path d="M9.5 9.5L7 12l2.5 2.5M14.5 9.5L17 12l-2.5 2.5" />
+    </>
+  ),
   clear: <path d="M6 5h12M12 5l-3 14M4 20l16-16" />,
   reset: <path d="M6 6l12 12M18 6L6 18" />,
 };
@@ -109,7 +120,7 @@ function ToolButton({ label, active, disabled, onClick, children }: { label: str
   );
 }
 
-function Toolbar({ editor, onPickImage, uploading }: { editor: Editor; onPickImage: () => void; uploading: boolean }) {
+function Toolbar({ editor, onPickImage, uploading, onInsertHtml }: { editor: Editor; onPickImage: () => void; uploading: boolean; onInsertHtml?: () => void }) {
   const s = useEditorState({
     editor,
     selector: ({ editor: e }) => ({
@@ -261,6 +272,7 @@ function Toolbar({ editor, onPickImage, uploading }: { editor: Editor; onPickIma
       <ToolButton label="Remove link" disabled={!s.link} onClick={() => editor.chain().focus().unsetLink().run()}>{I.unlink}</ToolButton>
       <ToolButton label={uploading ? "Uploading image…" : "Insert image"} disabled={uploading} onClick={onPickImage}>{I.image}</ToolButton>
       <ToolButton label="Insert table" active={s.inTable} onClick={() => editor.chain().focus().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run()}>{I.table}</ToolButton>
+      {onInsertHtml && <ToolButton label="Insert HTML embed" onClick={onInsertHtml}>{I.html}</ToolButton>}
       <ToolButton label="Clear formatting" onClick={() => editor.chain().focus().unsetAllMarks().clearNodes().run()}>{I.clear}</ToolButton>
       {s.inTable && (
         <div className="rte-table-tools">
@@ -282,13 +294,16 @@ function Toolbar({ editor, onPickImage, uploading }: { editor: Editor; onPickIma
  * a hidden input under `name`, so it drops into server-action forms
  * unchanged. The server sanitizes the HTML on save.
  */
-export function RichTextEditor({ name, defaultValue = "", placeholder, minHeight = 260, required }: RichTextEditorProps) {
+export function RichTextEditor({ name, defaultValue = "", placeholder, minHeight = 260, required, allowHtml = false }: RichTextEditorProps) {
   const [html, setHtml] = useState(defaultValue);
   const [text, setText] = useState("");
   const [invalid, setInvalid] = useState(false);
   const [uploading, setUploading] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
   const validatorRef = useRef<HTMLTextAreaElement>(null);
+  const editorRef = useRef<Editor | null>(null);
+  // pos === null inserts a new block; otherwise edits the embed at that position.
+  const [embed, setEmbed] = useState<{ pos: number | null; html: string; height: number } | null>(null);
 
   // The shared Toaster marks the hidden validator and adds a message after it;
   // clear both as soon as the body has content again.
@@ -313,6 +328,7 @@ export function RichTextEditor({ name, defaultValue = "", placeholder, minHeight
       FontSize,
       Highlight.configure({ multicolor: true }),
       Figure,
+      ...(allowHtml ? [HtmlEmbed.configure({ onEdit: (pos: number) => openEmbedEditor(pos) })] : []),
       Table.configure({ resizable: false }),
       TableRow,
       TableHeader,
@@ -330,6 +346,36 @@ export function RichTextEditor({ name, defaultValue = "", placeholder, minHeight
       if (t) setInvalid(false);
     },
   });
+
+  useEffect(() => {
+    editorRef.current = editor;
+  }, [editor]);
+
+  function openEmbedEditor(pos: number) {
+    const node = editorRef.current?.state.doc.nodeAt(pos);
+    if (node?.type.name === "htmlEmbed") setEmbed({ pos, html: String(node.attrs.html), height: Number(node.attrs.height) });
+  }
+
+  function saveEmbed() {
+    if (!editor || !embed) return;
+    const html = embed.html.trim();
+    if (!html) return;
+    const height = clampEmbedHeight(embed.height);
+    if (embed.pos === null) {
+      editor.chain().focus().setHtmlEmbed({ html, height }).run();
+    } else {
+      const pos = embed.pos;
+      editor
+        .chain()
+        .focus()
+        .command(({ tr }) => {
+          tr.setNodeMarkup(pos, undefined, { html, height });
+          return true;
+        })
+        .run();
+    }
+    setEmbed(null);
+  }
 
   async function uploadImage(file: File | undefined) {
     if (!file || !editor) return;
@@ -351,9 +397,53 @@ export function RichTextEditor({ name, defaultValue = "", placeholder, minHeight
   return (
     <div className={`rte${invalid ? " field-invalid" : ""}`}>
       <input type="hidden" name={name} value={html} />
-      {editor && <Toolbar editor={editor} uploading={uploading} onPickImage={() => fileRef.current?.click()} />}
+      {editor && (
+        <Toolbar
+          editor={editor}
+          uploading={uploading}
+          onPickImage={() => fileRef.current?.click()}
+          onInsertHtml={allowHtml ? () => setEmbed({ pos: null, html: "", height: EMBED_DEFAULT_HEIGHT }) : undefined}
+        />
+      )}
       <input ref={fileRef} type="file" accept="image/png,image/jpeg,image/webp,image/gif" hidden onChange={(e) => uploadImage(e.target.files?.[0])} />
       <EditorContent editor={editor} />
+      {embed && (
+        <div className="rte-embed-overlay" role="presentation" onMouseDown={(e) => e.target === e.currentTarget && setEmbed(null)}>
+          <div className="rte-embed-dialog" role="dialog" aria-modal="true" aria-label="HTML embed" onKeyDown={(e) => e.key === "Escape" && setEmbed(null)}>
+            <h3>{embed.pos === null ? "Insert HTML embed" : "Edit HTML embed"}</h3>
+            <p>
+              Paste HTML, for example a YouTube or Google Maps embed code, a chart, or a custom layout. Visitors see it inside an isolated frame: scripts run there, but they cannot touch the rest of the site.
+            </p>
+            <textarea
+              autoFocus
+              spellCheck={false}
+              value={embed.html}
+              maxLength={EMBED_MAX_HTML}
+              placeholder='<iframe src="https://www.youtube.com/embed/..." width="100%" height="360" allowfullscreen></iframe>'
+              onChange={(e) => setEmbed({ ...embed, html: e.target.value })}
+            />
+            <label>
+              Height (px)
+              <input
+                type="number"
+                min={EMBED_MIN_HEIGHT}
+                max={EMBED_MAX_HEIGHT}
+                value={embed.height}
+                onChange={(e) => setEmbed({ ...embed, height: Number(e.target.value) })}
+                onKeyDown={(e) => e.key === "Enter" && e.preventDefault()}
+              />
+            </label>
+            <div className="rte-embed-actions">
+              <button type="button" onClick={() => setEmbed(null)}>
+                Cancel
+              </button>
+              <button type="button" className="primary" disabled={!embed.html.trim()} onClick={saveEmbed}>
+                {embed.pos === null ? "Insert" : "Save"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
       {required && (
         <textarea
           ref={validatorRef}

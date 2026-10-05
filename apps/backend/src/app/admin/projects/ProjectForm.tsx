@@ -96,7 +96,7 @@ export function ProjectForm({
               <h2>Content</h2>
             </div>
             <div style={{ padding: "0 28px 28px" }}>
-              <RichTextEditor name="content" defaultValue={initial?.content} placeholder="Goals, team, results, links…" minHeight={320} required />
+              <RichTextEditor allowHtml={!forReview} name="content" defaultValue={initial?.content} placeholder="Goals, team, results, links…" minHeight={320} required />
             </div>
           </section>
         </div>

@@ -4,7 +4,7 @@ import { notFound } from "next/navigation";
 import { SiteFooter } from "@/components/SiteFooter";
 import { SiteHeader } from "@/components/SiteHeader";
 import { connectToDatabase } from "@/lib/mongodb";
-import { sanitizeRichText } from "@/lib/sanitizeHtml";
+import { renderRichText } from "@/lib/sanitizeHtml";
 import { Service } from "@/models/catalog";
 
 export const dynamic = "force-dynamic";
@@ -34,7 +34,7 @@ export default async function ServiceDetailPage({ params }: { params: Promise<{ 
           // eslint-disable-next-line @next/next/no-img-element -- arbitrary uploaded image
           <img className="detail-thumb" src={item.image} alt={item.title} style={{ borderRadius: 20 }} />
         )}
-        {item.content && <div className="rte-body" style={{ marginTop: 24, padding: 0 }} dangerouslySetInnerHTML={{ __html: sanitizeRichText(item.content) }} />}
+        {item.content && <div className="rte-body" style={{ marginTop: 24, padding: 0 }} dangerouslySetInnerHTML={{ __html: renderRichText(item.content) }} />}
       </main>
       <SiteFooter />
     </>

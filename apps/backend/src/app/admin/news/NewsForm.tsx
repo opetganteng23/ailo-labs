@@ -330,7 +330,7 @@ export function NewsForm({
               )}
             </div>
             <div style={{ padding: "20px 28px 36px" }}>
-              <RichTextEditor key={draftVersion} name="content" defaultValue={draft} placeholder="Write the article body…" required />
+              <RichTextEditor key={draftVersion} allowHtml={!forReview} name="content" defaultValue={draft} placeholder="Write the article body…" required />
             </div>
           </section>
         </div>

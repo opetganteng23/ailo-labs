@@ -95,7 +95,7 @@ export function ResearchForm({
               <h2>Content</h2>
             </div>
             <div style={{ padding: "0 28px 28px" }}>
-              <RichTextEditor name="content" defaultValue={initial?.content} placeholder="Background, methods, publications…" minHeight={320} required />
+              <RichTextEditor allowHtml={!forReview} name="content" defaultValue={initial?.content} placeholder="Background, methods, publications…" minHeight={320} required />
             </div>
           </section>
         </div>

@@ -73,7 +73,7 @@ export function CatalogForm({ config, initial }: { config: CatalogConfig; initia
                 <h2>Details</h2>
               </div>
               <div style={{ padding: "0 28px 28px" }}>
-                <RichTextEditor name="content" defaultValue={initial?.content} placeholder="Describe this service in detail…" minHeight={280} />
+                <RichTextEditor allowHtml name="content" defaultValue={initial?.content} placeholder="Describe this service in detail…" minHeight={280} />
               </div>
             </section>
           )}
