@@ -1,6 +1,7 @@
 import sanitize from "sanitize-html";
 
-const HEX_OR_INHERIT = /^(#[0-9a-fA-F]{3,8}|inherit)$/;
+// The browser re-serializes colours as rgb()/rgba() when TipTap reads them back from the DOM, so hex alone would strip every colour on save.
+const HEX_OR_INHERIT = /^(#[0-9a-fA-F]{3,8}|inherit|rgba?\(\s*\d{1,3}\s*,\s*\d{1,3}\s*,\s*\d{1,3}\s*(,\s*(0|1|0?\.\d+)\s*)?\))$/;
 const FONT_FAMILY = /^[a-zA-Z0-9\s,'-]{1,120}$/;
 const FONT_SIZE = /^\d{1,3}(\.\d+)?(px|em|rem|%)$/;
 const PERCENT_WIDTH = /^\d{1,3}%$/;
