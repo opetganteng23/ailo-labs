@@ -99,7 +99,7 @@ export async function getHomeData(): Promise<HomeData> {
         >(),
       News.find({ status: "published" })
         .sort({ publishedAt: -1 })
-        .limit(3)
+        .limit(9)
         .select("title summary slug category publishedAt images")
         .lean<{ title: string; summary: string; slug: string; category: string; publishedAt?: Date; images?: string[] }[]>(),
       Lab.find({ isActive: true }).sort({ name: 1 }).limit(4).select("name location capacity facilities").lean<{ name: string; location?: string; capacity?: number; facilities?: string }[]>(),
