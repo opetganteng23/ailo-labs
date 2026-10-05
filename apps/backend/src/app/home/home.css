@@ -401,3 +401,4 @@ html:has(.hm-root) { scroll-behavior: smooth; scroll-padding-top: 84px; }
 .hm-about-pillar b{font-size:18px; font-weight:700;}
 .hm-about-pillar span{font-size:14.5px; color:#5b6469; line-height:1.55;}
 @media (max-width:900px){ .hm-about-grid{grid-template-columns:1fr; gap:32px;} .hm-about-stats{gap:28px; flex-wrap:wrap;} }
+.hm-about-copy .hm-kicker-sm{display:block; font-size:13px; font-weight:700; letter-spacing:0.14em; color:#b4530f; margin-bottom:14px;}
