@@ -49,7 +49,7 @@ export type TeamCard = {
   badges: string[];
 };
 export type LabRow = { name: string; meta: string; status: "open" | "busy" };
-export type StripItem = { bold?: string; text?: string; image?: string };
+export type StripItem = { bold?: string; text?: string; image?: string; dark?: boolean };
 
 export type HomeData = {
   homepage?: HomepageSettings;
@@ -103,13 +103,13 @@ export async function getHomeData(): Promise<HomeData> {
         .select("title summary slug category publishedAt images")
         .lean<{ title: string; summary: string; slug: string; category: string; publishedAt?: Date; images?: string[] }[]>(),
       Lab.find({ isActive: true }).sort({ name: 1 }).limit(4).select("name location capacity facilities").lean<{ name: string; location?: string; capacity?: number; facilities?: string }[]>(),
-      Partner.find({ status: "published" }).sort({ order: 1, title: 1 }).select("title image").lean<{ title: string; image?: string }[]>(),
+      Partner.find({ status: "published" }).sort({ order: 1, title: 1 }).select("title image logoDark").lean<{ title: string; image?: string; logoDark?: boolean }[]>(),
       listTeamCategories(),
     ]);
 
     // Published partners feed the strip, but only as logos (never as text); with no logo uploaded yet the strip stays hidden.
     // With no partners at all, the Settings strip items are used.
-    const partnerLogos = partners.filter((p) => p.image).map((p) => ({ text: p.title, image: p.image }));
+    const partnerLogos = partners.filter((p) => p.image).map((p) => ({ text: p.title, image: p.image, dark: p.logoDark }));
     const strip = partners.length > 0 ? (partnerLogos.length > 0 ? partnerLogos : null) : settings?.homepage?.marqueeItems?.length ? settings.homepage.marqueeItems : undefined;
 
     return {

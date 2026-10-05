@@ -17,7 +17,7 @@ const SPEED_PX_PER_SEC = 60;
 function Item({ item }: { item: StripItem }) {
   if (item.image) {
     // eslint-disable-next-line @next/next/no-img-element -- partner logos are arbitrary uploads
-    return <img src={item.image} alt={item.bold || item.text || ""} />;
+    return <img src={item.image} alt={item.bold || item.text || ""} className={item.dark ? hm("dark") : undefined} />;
   }
   return (
     <span>

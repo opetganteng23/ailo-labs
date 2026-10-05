@@ -21,6 +21,10 @@ async function requireAdminKind(formData: FormData): Promise<CatalogKind> {
   return kind;
 }
 
+function kindIsPartner(kind: CatalogKind) {
+  return kind === "partners";
+}
+
 function readEntry(kind: CatalogKind, formData: FormData) {
   const cfg = CATALOG[kind];
   const title = String(formData.get("title") ?? "").trim();
@@ -35,6 +39,7 @@ function readEntry(kind: CatalogKind, formData: FormData) {
     link: cfg.link ? text("link") : "",
     author: cfg.author ? text("author") : "",
     year: cfg.year ? text("year") : "",
+    logoDark: kindIsPartner(cfg.kind) ? formData.get("logoDark") === "on" : false,
     order: Number(formData.get("order") ?? 0) || 0,
     status: formData.get("status") === "draft" ? "draft" : "published",
   };

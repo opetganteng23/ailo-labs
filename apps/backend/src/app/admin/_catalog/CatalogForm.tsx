@@ -19,6 +19,7 @@ export type CatalogInitial = {
   year?: string;
   order?: number;
   status?: string;
+  logoDark?: boolean;
 };
 
 export function CatalogForm({ config, initial }: { config: CatalogConfig; initial?: CatalogInitial }) {
@@ -97,6 +98,15 @@ export function CatalogForm({ config, initial }: { config: CatalogConfig; initia
           <section className="admin2-section pad-sm">
             <h2>{config.kind === "partners" ? "Logo" : "Image"}</h2>
             <ImageUploadField name="image" label="" defaultValue={initial?.image} hint={config.kind === "partners" ? "Logo with transparent or white background" : "PNG, JPG or WEBP"} />
+            {config.kind === "partners" && (
+              <label style={{ flexDirection: "row", alignItems: "flex-start", gap: 10, marginTop: 14, fontWeight: 500 }}>
+                <input type="checkbox" name="logoDark" defaultChecked={Boolean(initial?.logoDark)} style={{ marginTop: 3 }} />
+                <span>
+                  This logo is white or light
+                  <span style={{ display: "block", fontSize: 12.5, color: "#6b7573" }}>Shows it on a dark chip in the homepage strip so it stays visible.</span>
+                </span>
+              </label>
+            )}
           </section>
 
           <button type="submit" className="admin2-btn" style={{ width: "100%", justifyContent: "center" }}>

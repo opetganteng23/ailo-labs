@@ -14,6 +14,8 @@ function catalogSchema() {
       content: { type: String, default: "" },
       image: String,
       link: String,
+      /** Partners only: the uploaded logo is white/light, so the strip shows it on a dark chip instead of a white one. */
+      logoDark: { type: Boolean, default: false },
       author: String,
       year: String,
       order: { type: Number, default: 0 },
