@@ -2,6 +2,7 @@ import Image from "next/image";
 import { redirect } from "next/navigation";
 import type { ReactNode } from "react";
 
+import { AdminShell } from "@/components/AdminShell";
 import { Toaster } from "@/components/Toaster";
 import { getSession } from "@/lib/auth";
 
@@ -17,7 +18,7 @@ export default async function DosenLayout({ children }: { children: ReactNode })
   if (!session || session.role !== "dosen") redirect("/login?next=/dosen");
 
   return (
-    <div className="admin-shell">
+    <AdminShell title="AILO Dosen">
       <aside>
         <div className="admin-brand">
           <span className="admin-brand-mark">
@@ -40,6 +41,6 @@ export default async function DosenLayout({ children }: { children: ReactNode })
       </aside>
       <main>{children}</main>
       <Toaster />
-    </div>
+    </AdminShell>
   );
 }

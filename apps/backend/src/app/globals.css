@@ -348,9 +348,35 @@ textarea { min-height: 100px; }
 .stat-cards .card .n { font-size: 30px; font-weight: 700; color: var(--teal-dark); font-family: var(--serif, var(--sans)); }
 .stat-cards .card .l { font-size: 12.5px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.03em; color: #5b6469; margin-top: 6px; }
 
+.admin-topbar, .admin-backdrop { display: none; }
 @media (max-width: 860px) {
-  .admin-shell aside { position: static; width: auto; height: auto; }
-  .admin-shell main { margin-left: 0; }
+  .admin-topbar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    position: sticky;
+    top: 0;
+    z-index: 60;
+    height: 56px;
+    padding: 0 12px;
+    background: #00566b;
+    color: #fff;
+  }
+  .admin-topbar-menu { width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; background: transparent; border: none; border-radius: 10px; color: #fff; cursor: pointer; }
+  .admin-topbar-menu:hover { background: rgba(255, 255, 255, 0.1); }
+  .admin-topbar-title { font-size: 16px; font-weight: 700; }
+  .admin-shell aside {
+    width: min(280px, 85vw);
+    height: 100vh;
+    z-index: 80;
+    transform: translateX(-100%);
+    visibility: hidden;
+    transition: transform 0.25s ease, visibility 0s linear 0.25s;
+  }
+  .admin-shell[data-nav-open="true"] aside { transform: none; visibility: visible; transition: transform 0.25s ease; }
+  .admin-backdrop { position: fixed; inset: 0; z-index: 70; background: rgba(10, 30, 32, 0.5); opacity: 0; pointer-events: none; transition: opacity 0.25s ease; }
+  .admin-shell[data-nav-open="true"] .admin-backdrop { display: block; opacity: 1; pointer-events: auto; }
+  .admin-shell main { margin-left: 0; padding: 20px 16px; min-height: calc(100vh - 56px); }
 }
 
 /* ===== Admin content design system (matches redesign mockup) ===== */

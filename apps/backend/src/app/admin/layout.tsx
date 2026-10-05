@@ -1,6 +1,7 @@
 import Image from "next/image";
 import type { ReactNode } from "react";
 
+import { AdminShell } from "@/components/AdminShell";
 import { Toaster } from "@/components/Toaster";
 import { getSession, isAdminRole } from "@/lib/auth";
 import { connectToDatabase } from "@/lib/mongodb";
@@ -29,7 +30,7 @@ export default async function AdminLayout({ children }: { children: ReactNode })
   }
 
   return (
-    <div className="admin-shell">
+    <AdminShell title="AILO Admin">
       <aside>
         <div className="admin-brand">
           <span className="admin-brand-mark">
@@ -52,6 +53,6 @@ export default async function AdminLayout({ children }: { children: ReactNode })
       </aside>
       <main>{children}</main>
       <Toaster />
-    </div>
+    </AdminShell>
   );
 }
