@@ -9,7 +9,7 @@ export function MinimalSiteHeader({ backHref = "/" }: { backHref?: string }) {
     <header className="minimal-header">
       <div className="wrap minimal-header-row">
         <Link href="/" className="minimal-header-brand">
-          <Image src="/logo-horizontal.png" alt="AILO" width={200} height={75} priority style={{ height: 44, width: "auto" }} />
+          <Image src="/logo-horizontal-white.png" alt="AILO" width={140} height={44} priority style={{ height: 44, width: "auto" }} />
         </Link>
         <BackButton fallbackHref={backHref} />
       </div>
