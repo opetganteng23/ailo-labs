@@ -48,7 +48,7 @@ export default async function AdminUsersPage({ searchParams }: { searchParams: P
     .filter((u) => !query || `${u.name} ${u.email}`.toLowerCase().includes(query));
 
   return (
-    <div>
+    <div className="admin2-page">
       <div className="admin2-header">
         <div>
           <h1>Users</h1>
@@ -64,9 +64,9 @@ export default async function AdminUsersPage({ searchParams }: { searchParams: P
         </div>
       </div>
 
-      <div className="admin2-split-320">
-        <section className="admin2-panel">
-          <div className="admin2-panel-toolbar">
+      <div className="admin2-split-320 admin2-fill">
+        <section className="admin2-panel" style={{ display: "flex", flexDirection: "column" }}>
+          <div className="admin2-panel-toolbar" style={{ flexShrink: 0 }}>
             <div className="admin2-tabs">
               {TABS.map((t) => (
                 <Link key={t} href={`/admin/users?tab=${t}`} className={`admin2-tab${currentTab === t ? " active" : ""}`}>
@@ -84,12 +84,13 @@ export default async function AdminUsersPage({ searchParams }: { searchParams: P
             </form>
           </div>
 
-          <div className="admin2-table-head" style={{ gridTemplateColumns: "minmax(0, 1fr) 160px 96px" }}>
+          <div className="admin2-table-head" style={{ gridTemplateColumns: "minmax(0, 1fr) 160px 96px", flexShrink: 0 }}>
             <span>USER</span>
             <span>ROLE</span>
             <span></span>
           </div>
 
+          <div className="admin2-scroll">
           {items.length === 0 && <EmptyState title="No users found" message="Try a different search or filter." />}
 
           {items.map((u) => {
@@ -152,6 +153,7 @@ export default async function AdminUsersPage({ searchParams }: { searchParams: P
               </div>
             );
           })}
+          </div>
         </section>
 
         <section className="admin2-section pad-sm">
