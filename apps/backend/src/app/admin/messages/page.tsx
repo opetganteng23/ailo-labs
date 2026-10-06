@@ -68,7 +68,7 @@ export default async function AdminMessagesPage({
   }
 
   return (
-    <div>
+    <div className="admin2-page">
       <div style={{ marginBottom: 20 }}>
         <h1 style={{ margin: 0, fontSize: 30, fontWeight: 800, letterSpacing: "-0.01em" }}>Messages</h1>
         <p style={{ margin: "4px 0 0", fontSize: 15, color: "#5b6664" }}>
@@ -80,8 +80,8 @@ export default async function AdminMessagesPage({
         </p>
       </div>
 
-      <section style={{ background: "#fff", border: "1px solid #e3e1da", borderRadius: 16, overflow: "hidden", display: "flex", minHeight: 520 }}>
-        <div style={{ width: 380, flexShrink: 0, borderRight: "1px solid #eeece6", display: "flex", flexDirection: "column" }}>
+      <section className="admin2-fill" style={{ background: "#fff", border: "1px solid #e3e1da", borderRadius: 16, overflow: "hidden", display: "flex", minHeight: 0 }}>
+        <div style={{ width: 380, flexShrink: 0, borderRight: "1px solid #eeece6", display: "flex", flexDirection: "column", minHeight: 0 }}>
           <form action="/admin/messages" style={{ padding: 16, display: "flex", flexDirection: "column", gap: 12, borderBottom: "1px solid #eeece6" }}>
             <input type="hidden" name="tab" value={currentTab} />
             <input type="search" name="q" defaultValue={q} aria-label="Search messages" placeholder="Search name, email, subject…" style={{ height: 42 }} />
@@ -141,7 +141,7 @@ export default async function AdminMessagesPage({
           </div>
         </div>
 
-        <div style={{ flexGrow: 1, display: "flex", flexDirection: "column", background: "#fbfaf7" }}>
+        <div style={{ flexGrow: 1, display: "flex", flexDirection: "column", background: "#fbfaf7", minWidth: 0, minHeight: 0 }}>
           {!selected ? (
             <div style={{ flexGrow: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 12, padding: 40, textAlign: "center" }}>
               <span style={{ width: 64, height: 64, borderRadius: 18, background: "#e3f1f1", color: "#0e6b73", display: "flex", alignItems: "center", justifyContent: "center" }}>
@@ -193,7 +193,8 @@ export default async function AdminMessagesPage({
                 </form>
               </div>
 
-              <div style={{ padding: 28, whiteSpace: "pre-wrap", fontSize: 15, lineHeight: 1.6, color: "#22302e", flexGrow: 1 }}>{selected.message}</div>
+              <div className="admin2-scroll">
+              <div style={{ padding: 28, whiteSpace: "pre-wrap", fontSize: 15, lineHeight: 1.6, color: "#22302e" }}>{selected.message}</div>
 
               {(selected.replies?.length ?? 0) > 0 && (
                 <div className="msg-timeline">
@@ -208,6 +209,8 @@ export default async function AdminMessagesPage({
                   ))}
                 </div>
               )}
+
+              </div>
 
               {selected.archived ? (
                 <p style={{ margin: 0, padding: 20, borderTop: "1px solid #eeece6", background: "#fff", fontSize: 14, color: "#5b6664" }}>

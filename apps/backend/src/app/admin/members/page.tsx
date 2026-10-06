@@ -58,7 +58,7 @@ export default async function AdminMembersPage({
   const baseUrl = selected?.cardId ? await getBaseUrl() : null;
 
   return (
-    <div>
+    <div className="admin2-page">
       <div className="admin2-header">
         <div>
           <h1>Members</h1>
@@ -71,8 +71,8 @@ export default async function AdminMembersPage({
         </div>
       </div>
 
-      <div className="admin2-split-460">
-        <section className="admin2-panel">
+      <div className="admin2-split-460 admin2-fill">
+        <section className="admin2-panel" style={{ display: "flex", flexDirection: "column" }}>
           <div className="admin2-panel-toolbar" style={{ padding: "14px 16px" }}>
             <div className="admin2-tabs">
               {STATUSES.map((s) => (
@@ -87,6 +87,7 @@ export default async function AdminMembersPage({
             </form>
           </div>
 
+          <div className="admin2-scroll">
           {items.length === 0 && <p className="admin2-table-empty">No {current} applications.</p>}
 
           {items.map((m) => (
@@ -122,6 +123,7 @@ export default async function AdminMembersPage({
               <span style={{ fontSize: 13, color: "#6b7573", width: 70, textAlign: "right", flexShrink: 0 }}>{new Date(m.createdAt).toLocaleDateString("en-GB")}</span>
             </Link>
           ))}
+          </div>
         </section>
 
         <section className="admin2-panel" style={{ display: "flex", flexDirection: "column" }}>
@@ -129,7 +131,7 @@ export default async function AdminMembersPage({
             <div style={{ padding: 40, textAlign: "center", color: "#6b7573", fontSize: 14 }}>Select an applicant to review.</div>
           ) : (
             <>
-              <div style={{ padding: "20px 22px", display: "flex", gap: 14, alignItems: "center", borderBottom: "1px solid #eeece6" }}>
+              <div style={{ padding: "20px 22px", display: "flex", gap: 14, alignItems: "center", borderBottom: "1px solid #eeece6", flexShrink: 0 }}>
                 {selected.photo ? (
                   // eslint-disable-next-line @next/next/no-img-element -- arbitrary uploaded image, no static optimization needed
                   <img src={selected.photo} alt="" style={{ width: 52, height: 52, borderRadius: 999, objectFit: "cover" }} />
@@ -138,16 +140,17 @@ export default async function AdminMembersPage({
                     {selected.name.charAt(0).toUpperCase()}
                   </span>
                 )}
-                <div style={{ display: "flex", flexDirection: "column", gap: 2, flexGrow: 1 }}>
+                <div style={{ display: "flex", flexDirection: "column", gap: 2, flexGrow: 1, minWidth: 0 }}>
                   <span style={{ fontSize: 17, fontWeight: 800 }}>{selected.name}</span>
-                  <span style={{ fontSize: 13, color: "#6b7573" }}>{selected.email}</span>
+                  <span style={{ fontSize: 13, color: "#6b7573", overflowWrap: "anywhere" }}>{selected.email}</span>
                 </div>
-                <span className={`admin2-pill ${selected.status}`}>
+                <span className={`admin2-pill ${selected.status}`} style={{ flexShrink: 0, whiteSpace: "nowrap" }}>
                   <span className="dot" />
                   {selected.status.charAt(0).toUpperCase() + selected.status.slice(1)}
                 </span>
               </div>
 
+              <div className="admin2-scroll">
               {selected.status === "pending" && (
                 <form action={approveMemberAction} style={{ padding: "20px 22px", display: "flex", flexDirection: "column", gap: 16 }}>
                   <input type="hidden" name="id" value={selected._id} />
@@ -343,7 +346,9 @@ export default async function AdminMembersPage({
                 </details>
               )}
 
-              <div style={{ margin: "0 22px 22px", paddingTop: 16, borderTop: "1px solid #ece9e1", display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
+              </div>
+
+              <div style={{ margin: "0 22px 22px", paddingTop: 16, borderTop: "1px solid #ece9e1", display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap", flexShrink: 0 }}>
                 <span style={{ flex: 1, fontSize: 12.5, color: "#6b7573", minWidth: 200 }}>Deleting removes this record for good. Use Revoke instead if the card should only stop being valid.</span>
                 <form action={deleteMemberAction}>
                   <input type="hidden" name="id" value={selected._id} />

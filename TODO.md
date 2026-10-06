@@ -9,6 +9,10 @@ Sumber: `AILO_Evaluasi_Menyeluruh_dan_Rencana_Perbaikan.md` (evaluasi 30 Sep 202
 - Team Board: checkbox "Include in Team Board" di Members **dan** tambah manual di menu Team tetap ada.
 - Kategori Team awal: Dosen, Peneliti, Peneliti Mahasiswa, Peneliti Alumni, Honorary Advisory Board (bisa dikelola admin).
 
+## Layout admin: scroll di dalam panel, bukan seluruh halaman (6 Okt)
+- [~] Perintah user 6 Okt: halaman web tidak boleh ikut scroll sampai bawah. Sidebar tetap diam, hanya area konten (main) yang scroll; di halaman dua kolom (Members, Messages, dll.) masing-masing kolom (daftar & detail) scroll sendiri. Berlaku ke semua halaman admin, dirapikan.
+- [ ] Bug 6 Okt (screenshot Members): badge status di header panel detail terpotong ("Ap..." dari "Approved") karena panel tidak cukup lebar / tidak wrap - perbaiki bersama layout di atas.
+
 ## P0 - Critical
 - [x] §15 Label "Valid until" saja (keterangan jadi helper text kecil) - DONE & VERIFIED on live (commit 633a049): reviewed a fresh pending applicant, label reads "Valid until" with "Empty = no expiry" helper text
 - [x] §3 Join: tolak nama/email yang sudah terdaftar (backend, checked both on step 1 and on final submit) + pesan "Anda sudah menjadi member" - DONE & VERIFIED on live (633a049): tried a known member's name and a known member's email separately, both blocked with the message
