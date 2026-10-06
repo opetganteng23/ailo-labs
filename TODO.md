@@ -10,8 +10,9 @@ Sumber: `AILO_Evaluasi_Menyeluruh_dan_Rencana_Perbaikan.md` (evaluasi 30 Sep 202
 - Kategori Team awal: Dosen, Peneliti, Peneliti Mahasiswa, Peneliti Alumni, Honorary Advisory Board (bisa dikelola admin).
 
 ## Layout admin: scroll di dalam panel, bukan seluruh halaman (6 Okt)
-- [~] Perintah user 6 Okt: halaman web tidak boleh ikut scroll sampai bawah. Sidebar tetap diam, hanya area konten (main) yang scroll; di halaman dua kolom (Members, Messages) masing-masing kolom (daftar & detail) scroll sendiri. Commit f9a4a0d, deployed (build sukses di server, login 200). Belum terverifikasi visual di live: butuh login admin untuk Playwright. Halaman lain (dashboard, news, dll.) mengikuti shell baru tapi belum dicek satu per satu.
-- [~] Bug 6 Okt (screenshot Members): badge status di header panel detail terpotong ("Ap..." dari "Approved") karena nama/email panjang mendorong pill keluar panel - diperbaiki di commit f9a4a0d (pill nowrap + email wrap). Belum dikonfirmasi visual di live.
+## Layout admin: scroll di dalam panel, bukan seluruh halaman (6 Okt)
+- [x] Perintah user 6 Okt: halaman web tidak scroll sampai bawah; sidebar tetap diam, hanya area konten (main) yang scroll, dan Members/Messages scroll daftar & detail masing-masing. Commit f9a4a0d + 33c8413 - DONE & VERIFIED on live (Playwright, login admin uji): dokumen tidak bisa di-scroll di Members, Messages, News, Settings; sidebar top=0; Members panel detail (1191px isi, 542px tinggi) scroll sendiri, footer Delete tetap di bawah; News/Settings scroll di dalam main.
+- [x] Bug 6 Okt (screenshot Members): badge "Approved" terpotong - DONE & VERIFIED on live (f9a4a0d + 33c8413): badge tampil utuh; email panjang di daftar dipotong elipsis, tidak lagi menabrak badge.
 
 ## P0 - Critical
 - [x] §15 Label "Valid until" saja (keterangan jadi helper text kecil) - DONE & VERIFIED on live (commit 633a049): reviewed a fresh pending applicant, label reads "Valid until" with "Empty = no expiry" helper text
