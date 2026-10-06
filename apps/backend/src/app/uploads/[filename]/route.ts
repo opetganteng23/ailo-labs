@@ -23,12 +23,17 @@ export async function GET(_request: NextRequest, { params }: { params: Promise<{
 
   try {
     const buffer = await fs.readFile(path.join(UPLOADS_DIR, filename));
-    return new NextResponse(buffer, {
-      headers: {
-        "content-type": contentType,
-        "cache-control": "public, max-age=31536000, immutable",
-      },
-    });
+    const headers: Record<string, string> = {
+      "content-type": contentType,
+      "cache-control": "public, max-age=31536000, immutable",
+      "x-content-type-options": "nosniff",
+    };
+    // SVGs can embed <script>; neutralize it if the file is ever opened directly
+    // (not via <img>, which already can't execute scripts in an SVG it renders).
+    if (contentType === "image/svg+xml") {
+      headers["content-security-policy"] = "script-src 'none'; sandbox";
+    }
+    return new NextResponse(buffer, { headers });
   } catch {
     return NextResponse.json({ success: false, error: "Not found." }, { status: 404 });
   }
