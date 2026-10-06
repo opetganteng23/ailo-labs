@@ -65,7 +65,7 @@ export async function MemberCard({ data }: { data: MemberCardData }) {
             <div className="ms-brand">
               <div className="ms-lg">
                 {/* eslint-disable-next-line @next/next/no-img-element -- small static logo */}
-                <img src="/logo-telkomu.webp" alt="Telkom University" />
+                <img src="/logo-telkomu.png" alt="Telkom University" />
               </div>
               <div className="ms-lg">
                 {/* eslint-disable-next-line @next/next/no-img-element -- small static logo */}

@@ -65,7 +65,7 @@ html:has(.hm-root) { scroll-behavior: smooth; scroll-padding-top: 84px; }
     -webkit-backdrop-filter:blur(18px) saturate(150%); backdrop-filter:blur(18px) saturate(150%);
   }
   .hm-brand{display:flex; align-items:center; gap:10px; color:#fff;}
-  .hm-brand img.hm-logo{height:44px; width:auto;}
+  .hm-brand img.hm-logo{height:40px; width:auto;}
   nav.hm-main-nav ul{list-style:none; display:flex; gap:32px; align-items:center;}
   nav.hm-main-nav a{font-size:14.5px; font-weight:500; color:#C9DCDC; position:relative; padding:4px 0;}
   nav.hm-main-nav a:hover{color:#fff;}
