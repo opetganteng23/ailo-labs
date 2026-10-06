@@ -56,10 +56,13 @@ export async function approveMemberAction(formData: FormData) {
 
       const validUntil = readValidUntil(validUntilRaw, { mustBeFuture: true });
 
+      const faculty = String(formData.get("faculty") ?? "").trim();
+
       member.status = "approved";
       member.approvedAs = approvedAs || member.requestedAs;
       member.validUntil = validUntil;
       member.reviewNote = reviewNote || undefined;
+      if (faculty) member.faculty = faculty;
       member.verification = {
         nameMatches: formData.get("nameMatches") === "on",
         affiliationConfirmed: formData.get("affiliationConfirmed") === "on",
@@ -278,6 +281,8 @@ export async function updateMemberAction(formData: FormData) {
       member.approvedAs = approvedAs;
       member.validUntil = validUntil;
       member.photo = photo || undefined;
+      member.faculty = String(formData.get("faculty") ?? "").trim() || undefined;
+      member.studyLevel = String(formData.get("studyLevel") ?? "").trim() || undefined;
       await member.save();
 
       // Keep the linked Team Board profile in step with the member's name and photo.

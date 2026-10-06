@@ -668,6 +668,26 @@ header.site.site-back .row { justify-content: space-between; }
 .admin2-tab .count { color: #6b7573; margin-left: 4px; }
 .admin2-tab.active .count { color: #4e6b6c; }
 
+/* Smaller secondary filter pill, e.g. study level / faculty under the main status tabs. */
+.admin2-chip {
+  height: 28px;
+  padding: 0 10px;
+  border: 1px solid #e3e1da;
+  border-radius: var(--radius-pill);
+  background: #fff;
+  color: #4e5957;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  white-space: nowrap;
+}
+.admin2-chip:hover { border-color: var(--hover-border); color: var(--hover-ink); }
+.admin2-chip.active { background: #0b454c; border-color: #0b454c; color: #fff; }
+.admin2-chip .count { opacity: 0.75; margin-left: 4px; }
+
 .admin2-search { position: relative; display: flex; align-items: center; margin-left: auto; }
 .admin2-search svg { position: absolute; left: 12px; color: #6b7573; pointer-events: none; }
 .admin2-search input {
@@ -1417,9 +1437,6 @@ a.partner-card:hover{border-color:var(--teal); box-shadow:0 14px 28px -18px rgba
 @media (max-width: 480px) { .admin2-5w1h-grid { grid-template-columns: minmax(0, 1fr); } .admin2-5w1h-grid label { flex-wrap: wrap; } }
 
 .rcard-img { display: block; width: 100%; aspect-ratio: 16 / 9; object-fit: cover; border-radius: var(--radius-lg); margin-bottom: 4px; }
-.member-card-actions { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; margin-top: 20px; }
-.member-card-actions span { flex: 1 1 260px; font-size: 13px; color: #6b7573; line-height: 1.5; }
-@media print { .member-card-actions { display: none; } }
 
 /* Membership sheet (A4): thank-you page with the card, vision, mission and benefits. Sizes are in mm/pt so it prints 1:1. */
 .ms-print-root { margin-top: 8px; }

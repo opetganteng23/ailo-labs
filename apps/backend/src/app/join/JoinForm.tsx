@@ -24,6 +24,7 @@ type FormState = {
   categoryIndex: number;
   studyLevel: string;
   institution: string;
+  faculty: string;
   studyProgram: string;
   nim: string;
   entryYear: string;
@@ -47,6 +48,7 @@ const INITIAL_STATE: FormState = {
   categoryIndex: 0,
   studyLevel: "S1",
   institution: "Telkom University",
+  faculty: "",
   studyProgram: "",
   nim: "",
   entryYear: "",
@@ -62,7 +64,7 @@ const INITIAL_STATE: FormState = {
   showProfilePublicly: false,
 };
 
-export function JoinForm() {
+export function JoinForm({ faculties }: { faculties: string[] }) {
   const [step, setStep] = useState(1);
   const [state, setState] = useState<FormState>(INITIAL_STATE);
   const [submitting, setSubmitting] = useState(false);
@@ -141,6 +143,7 @@ export function JoinForm() {
           photo: state.photo,
           proofDocument: state.proofDocument,
           studyLevel: isStudent ? state.studyLevel : undefined,
+          faculty: state.faculty || undefined,
           researchInterests: state.researchInterests,
           motivation: state.motivation || undefined,
           showProfilePublicly: state.showProfilePublicly,
@@ -406,6 +409,19 @@ export function JoinForm() {
                 <input id="jinst" type="text" value={state.institution} onChange={(e) => set("institution", e.target.value)} />
               </div>
               <div className="join-field">
+                <label htmlFor="jfac">
+                  Faculty <span style={{ fontWeight: 500, color: "#6b7573" }}>(if at Telkom University)</span>
+                </label>
+                <select id="jfac" value={state.faculty} onChange={(e) => set("faculty", e.target.value)}>
+                  <option value="">Not applicable</option>
+                  {faculties.map((f) => (
+                    <option key={f} value={f}>
+                      {f}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div className="join-field">
                 <label htmlFor="jprog">Study program / unit</label>
                 <input id="jprog" type="text" placeholder="e.g. S2 Informatika" value={state.studyProgram} onChange={(e) => set("studyProgram", e.target.value)} />
               </div>
@@ -502,6 +518,12 @@ export function JoinForm() {
               <span style={{ fontWeight: 700 }}>{categoryLabel}</span>
               <span style={{ color: "#6b7573" }}>Affiliation</span>
               <span style={{ fontWeight: 700 }}>{affiliation || state.institution}</span>
+              {state.faculty && (
+                <>
+                  <span style={{ color: "#6b7573" }}>Faculty</span>
+                  <span style={{ fontWeight: 700 }}>{state.faculty}</span>
+                </>
+              )}
               <span style={{ color: "#6b7573" }}>Proof document</span>
               <span style={{ fontWeight: 700 }}>{state.proofDocument ? "Uploaded" : "Not uploaded"}</span>
             </div>

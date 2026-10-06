@@ -17,6 +17,7 @@ const registerSchema = z.object({
   photo: z.string().trim().min(1),
   proofDocument: z.string().trim().min(1),
   studyLevel: z.string().trim().max(10).optional(),
+  faculty: z.string().trim().max(80).optional(),
   researchInterests: z.array(z.string().trim().max(60)).max(10).optional(),
   motivation: z.string().trim().max(1000).optional(),
   showProfilePublicly: z.boolean().optional(),

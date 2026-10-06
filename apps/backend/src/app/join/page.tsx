@@ -1,8 +1,12 @@
 import { MinimalSiteHeader } from "@/components/MinimalSiteHeader";
+import { listMemberFaculties } from "@/lib/memberFacultiesDb";
 
 import { JoinForm } from "./JoinForm";
 
-export default function JoinPage() {
+export const dynamic = "force-dynamic";
+
+export default async function JoinPage() {
+  const faculties = await listMemberFaculties();
   return (
     <>
       <MinimalSiteHeader />
@@ -14,7 +18,7 @@ export default function JoinPage() {
             Takes about five minutes. Our team reviews every request before a member card is issued.
           </p>
         </div>
-        <JoinForm />
+        <JoinForm faculties={faculties} />
       </main>
     </>
   );

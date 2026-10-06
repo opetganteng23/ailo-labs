@@ -3,6 +3,7 @@ import Link from "next/link";
 import { ConfirmSubmit } from "@/components/ConfirmSubmit";
 import { getBaseUrl } from "@/lib/baseUrl";
 import { connectToDatabase } from "@/lib/mongodb";
+import { listMemberFaculties } from "@/lib/memberFacultiesDb";
 import { listTeamCategories } from "@/lib/teamCategoriesDb";
 import { MEMBER_CATEGORIES, Member } from "@/models/Member";
 import { MemberCard } from "@/components/MemberCard";
@@ -24,6 +25,8 @@ type MemberItem = {
   photo?: string;
   proofDocument?: string;
   status: "pending" | "approved" | "rejected" | "expired";
+  studyLevel?: string;
+  faculty?: string;
   cardId?: string;
   validUntil?: string;
   createdAt: string;
@@ -33,29 +36,56 @@ type MemberItem = {
 };
 
 const STATUSES = ["pending", "approved", "rejected", "expired"] as const;
+const STUDY_LEVELS = ["S1", "S2", "S3"] as const;
 
 export default async function AdminMembersPage({
   searchParams,
 }: {
-  searchParams: Promise<{ status?: string; q?: string; id?: string }>;
+  searchParams: Promise<{ status?: string; q?: string; id?: string; level?: string; faculty?: string }>;
 }) {
-  const { status, q, id } = await searchParams;
+  const { status, q, id, level, faculty } = await searchParams;
   const current = STATUSES.includes(status as (typeof STATUSES)[number]) ? (status as (typeof STATUSES)[number]) : "pending";
 
   await connectToDatabase();
   const teamCategories = await listTeamCategories();
+  const memberFaculties = await listMemberFaculties();
   const all = (await Member.find().sort({ createdAt: -1 }).lean()) as unknown as MemberItem[];
 
   const counts: Record<string, number> = {};
   for (const s of STATUSES) counts[s] = all.filter((m) => m.status === s).length;
 
+  // Scoped to the current status tab, before the level/faculty/search filters -
+  // so the filter chips show how many are available to narrow down to, not how
+  // many are left after narrowing.
+  const inTab = all.filter((m) => m.status === current);
+  const levelCounts: Record<string, number> = {};
+  for (const l of STUDY_LEVELS) levelCounts[l] = inTab.filter((m) => m.studyLevel === l).length;
+  const facultyCounts: Record<string, number> = {};
+  for (const f of memberFaculties) facultyCounts[f] = inTab.filter((m) => m.faculty === f).length;
+  const currentLevel = STUDY_LEVELS.includes(level as (typeof STUDY_LEVELS)[number]) ? level : undefined;
+  const currentFaculty = faculty && memberFaculties.includes(faculty) ? faculty : undefined;
+
   const query = (q ?? "").toLowerCase().trim();
-  const items = all
-    .filter((m) => m.status === current)
-    .filter((m) => !query || `${m.name} ${m.email}`.toLowerCase().includes(query));
+  const items = inTab
+    .filter((m) => !currentLevel || m.studyLevel === currentLevel)
+    .filter((m) => !currentFaculty || m.faculty === currentFaculty)
+    .filter((m) => !query || `${m.name} ${m.email} ${m.affiliation} ${m.faculty ?? ""}`.toLowerCase().includes(query));
 
   const selected = (id ? all.find((m) => String(m._id) === id) : items[0]) ?? null;
   const baseUrl = selected?.cardId ? await getBaseUrl() : null;
+
+  const filterParams = (extra: Record<string, string | undefined>) => {
+    const params = new URLSearchParams();
+    params.set("status", current);
+    if (q) params.set("q", q);
+    if (currentLevel) params.set("level", currentLevel);
+    if (currentFaculty) params.set("faculty", currentFaculty);
+    for (const [k, v] of Object.entries(extra)) {
+      if (v) params.set(k, v);
+      else params.delete(k);
+    }
+    return params.toString();
+  };
 
   return (
     <div className="admin2-page">
@@ -65,6 +95,9 @@ export default async function AdminMembersPage({
           <p>Review sign-ups from the public site. Approving one generates and sends a digital member card.</p>
         </div>
         <div className="admin2-actions">
+          <Link href="/admin/members/faculties" className="admin2-btn outline">
+            Manage faculties
+          </Link>
           <a href={`/api/admin/members/export?status=${current}`} className="admin2-btn outline">
             Export CSV
           </a>
@@ -83,17 +116,50 @@ export default async function AdminMembersPage({
             </div>
             <form className="admin2-search" action="/admin/members" style={{ marginLeft: "auto" }}>
               <input type="hidden" name="status" value={current} />
+              {currentLevel && <input type="hidden" name="level" value={currentLevel} />}
+              {currentFaculty && <input type="hidden" name="faculty" value={currentFaculty} />}
               <input type="search" name="q" placeholder="Search…" defaultValue={q} style={{ width: 180, height: 38, paddingLeft: 12 }} />
             </form>
           </div>
 
+          {(Object.values(levelCounts).some((n) => n > 0) || Object.values(facultyCounts).some((n) => n > 0)) && (
+            <div style={{ display: "flex", flexDirection: "column", gap: 6, padding: "0 16px 14px", borderBottom: "1px solid #eeece6" }}>
+              {Object.values(levelCounts).some((n) => n > 0) && (
+                <div style={{ display: "flex", gap: 6, flexWrap: "wrap", alignItems: "center" }}>
+                  <span style={{ fontSize: 11.5, fontWeight: 700, color: "#9aa3a0", textTransform: "uppercase", letterSpacing: "0.03em", width: 52 }}>Level</span>
+                  <Link href={`/admin/members?${filterParams({ level: undefined })}`} className={`admin2-chip${!currentLevel ? " active" : ""}`}>
+                    All
+                  </Link>
+                  {STUDY_LEVELS.filter((l) => levelCounts[l] > 0).map((l) => (
+                    <Link key={l} href={`/admin/members?${filterParams({ level: currentLevel === l ? undefined : l })}`} className={`admin2-chip${currentLevel === l ? " active" : ""}`}>
+                      {l} <span className="count">{levelCounts[l]}</span>
+                    </Link>
+                  ))}
+                </div>
+              )}
+              {Object.values(facultyCounts).some((n) => n > 0) && (
+                <div style={{ display: "flex", gap: 6, flexWrap: "wrap", alignItems: "center" }}>
+                  <span style={{ fontSize: 11.5, fontWeight: 700, color: "#9aa3a0", textTransform: "uppercase", letterSpacing: "0.03em", width: 52 }}>Faculty</span>
+                  <Link href={`/admin/members?${filterParams({ faculty: undefined })}`} className={`admin2-chip${!currentFaculty ? " active" : ""}`}>
+                    All
+                  </Link>
+                  {memberFaculties.filter((f) => facultyCounts[f] > 0).map((f) => (
+                    <Link key={f} href={`/admin/members?${filterParams({ faculty: currentFaculty === f ? undefined : f })}`} className={`admin2-chip${currentFaculty === f ? " active" : ""}`} title={f}>
+                      {f.replace(/^Fakultas /, "").replace(/\s*\([^)]*\)$/, "")} <span className="count">{facultyCounts[f]}</span>
+                    </Link>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+
           <div className="admin2-scroll">
-          {items.length === 0 && <p className="admin2-table-empty">No {current} applications.</p>}
+          {items.length === 0 && <p className="admin2-table-empty">No {current} applications match these filters.</p>}
 
           {items.map((m) => (
             <Link
               key={m._id}
-              href={`/admin/members?status=${current}${q ? `&q=${q}` : ""}&id=${m._id}`}
+              href={`/admin/members?${filterParams({ id: m._id })}`}
               style={{
                 display: "flex",
                 alignItems: "center",
@@ -159,6 +225,8 @@ export default async function AdminMembersPage({
                     <span style={{ fontWeight: 600 }}>{selected.requestedAs}</span>
                     <span style={{ color: "#6b7573" }}>Affiliation</span>
                     <span style={{ fontWeight: 600 }}>{selected.affiliation}</span>
+                    <span style={{ color: "#6b7573" }}>Study level</span>
+                    <span style={{ fontWeight: 600 }}>{selected.studyLevel || "Not applicable"}</span>
                     <span style={{ color: "#6b7573" }}>Phone</span>
                     <span style={{ fontWeight: 600 }}>{selected.phone || "Not provided"}</span>
                     <span style={{ color: "#6b7573" }}>Submitted</span>
@@ -206,6 +274,19 @@ export default async function AdminMembersPage({
                       <input id="validUntil" name="validUntil" type="date" required min={new Date().toISOString().slice(0, 10)} style={{ height: 42 }} />
                       <span style={{ fontSize: 12, lineHeight: 1.4, color: "#6b7573" }}>Required. The card expires on this date.</span>
                     </div>
+                  </div>
+                  <div className="admin2-field">
+                    <label htmlFor="faculty">
+                      Faculty <span style={{ fontWeight: 500, color: "#6b7573" }}>(if not already set by the applicant)</span>
+                    </label>
+                    <select id="faculty" name="faculty" defaultValue={selected.faculty ?? ""} style={{ height: 42 }}>
+                      <option value="">Not applicable</option>
+                      {memberFaculties.map((f) => (
+                        <option key={f} value={f}>
+                          {f}
+                        </option>
+                      ))}
+                    </select>
                   </div>
                   <div className="admin2-field">
                     <label htmlFor="reviewNote">
@@ -320,6 +401,30 @@ export default async function AdminMembersPage({
                     <div className="admin2-field">
                       <label htmlFor="edit-phone">Phone</label>
                       <input id="edit-phone" name="phone" type="text" defaultValue={selected.phone ?? ""} style={{ height: 42 }} />
+                    </div>
+                    <div style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: 12 }}>
+                      <div className="admin2-field">
+                        <label htmlFor="edit-faculty">Faculty</label>
+                        <select id="edit-faculty" name="faculty" defaultValue={selected.faculty ?? ""} style={{ height: 42 }}>
+                          <option value="">Not applicable</option>
+                          {memberFaculties.map((f) => (
+                            <option key={f} value={f}>
+                              {f}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                      <div className="admin2-field">
+                        <label htmlFor="edit-studyLevel">Study level</label>
+                        <select id="edit-studyLevel" name="studyLevel" defaultValue={selected.studyLevel ?? ""} style={{ height: 42 }}>
+                          <option value="">Not applicable</option>
+                          {STUDY_LEVELS.map((l) => (
+                            <option key={l} value={l}>
+                              {l}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
                     </div>
                     <div style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: 12 }}>
                       <div className="admin2-field">

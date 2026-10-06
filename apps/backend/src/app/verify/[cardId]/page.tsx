@@ -4,7 +4,6 @@ import { getBaseUrl } from "@/lib/baseUrl";
 import { connectToDatabase } from "@/lib/mongodb";
 import { Member } from "@/models/Member";
 import { MemberCard } from "@/components/MemberCard";
-import { PrintCardButton } from "@/components/PrintCardButton";
 
 export const dynamic = "force-dynamic";
 
@@ -55,10 +54,9 @@ export default async function VerifyMemberPage({ params }: { params: Promise<{ c
                 verifyUrl: `${await getBaseUrl()}/verify/${member.cardId}`,
               }}
             />
-            <div className="member-card-actions">
-              <PrintCardButton />
-              <span>Print this card or save it as a PDF. The QR code leads back to this page, which confirms the card is still valid.</span>
-            </div>
+            <p style={{ fontSize: 13, color: "#6b7573", marginTop: 16 }}>
+              The QR code leads back to this page, which confirms the card is still valid.
+            </p>
           </>
         )}
       </main>
