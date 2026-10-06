@@ -10,8 +10,8 @@ Sumber: `AILO_Evaluasi_Menyeluruh_dan_Rencana_Perbaikan.md` (evaluasi 30 Sep 202
 - Kategori Team awal: Dosen, Peneliti, Peneliti Mahasiswa, Peneliti Alumni, Honorary Advisory Board (bisa dikelola admin).
 
 ## Layout admin: scroll di dalam panel, bukan seluruh halaman (6 Okt)
-- [~] Perintah user 6 Okt: halaman web tidak boleh ikut scroll sampai bawah. Sidebar tetap diam, hanya area konten (main) yang scroll; di halaman dua kolom (Members, Messages, dll.) masing-masing kolom (daftar & detail) scroll sendiri. Berlaku ke semua halaman admin, dirapikan.
-- [ ] Bug 6 Okt (screenshot Members): badge status di header panel detail terpotong ("Ap..." dari "Approved") karena panel tidak cukup lebar / tidak wrap - perbaiki bersama layout di atas.
+- [~] Perintah user 6 Okt: halaman web tidak boleh ikut scroll sampai bawah. Sidebar tetap diam, hanya area konten (main) yang scroll; di halaman dua kolom (Members, Messages) masing-masing kolom (daftar & detail) scroll sendiri. Commit f9a4a0d, deployed (build sukses di server, login 200). Belum terverifikasi visual di live: butuh login admin untuk Playwright. Halaman lain (dashboard, news, dll.) mengikuti shell baru tapi belum dicek satu per satu.
+- [~] Bug 6 Okt (screenshot Members): badge status di header panel detail terpotong ("Ap..." dari "Approved") karena nama/email panjang mendorong pill keluar panel - diperbaiki di commit f9a4a0d (pill nowrap + email wrap). Belum dikonfirmasi visual di live.
 
 ## P0 - Critical
 - [x] §15 Label "Valid until" saja (keterangan jadi helper text kecil) - DONE & VERIFIED on live (commit 633a049): reviewed a fresh pending applicant, label reads "Valid until" with "Empty = no expiry" helper text
