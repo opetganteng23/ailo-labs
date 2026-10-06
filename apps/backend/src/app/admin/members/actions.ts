@@ -55,12 +55,10 @@ export async function approveMemberAction(formData: FormData) {
       if (!member) throw new FlashError("This application no longer exists.");
 
       const validUntil = readValidUntil(validUntilRaw, { mustBeFuture: true });
-      const cardId = member.cardId || (await generateCardId());
 
       member.status = "approved";
       member.approvedAs = approvedAs || member.requestedAs;
       member.validUntil = validUntil;
-      member.cardId = cardId;
       member.reviewNote = reviewNote || undefined;
       member.verification = {
         nameMatches: formData.get("nameMatches") === "on",
@@ -69,7 +67,24 @@ export async function approveMemberAction(formData: FormData) {
       };
       member.reviewedBy = session.sub;
       member.reviewedAt = new Date();
-      await member.save();
+
+      // Assigning the id and saving happen together in a retry loop: if two
+      // approvals race each other, both can compute the same "next" id before
+      // either saves, and the second one trips the unique index. Retrying
+      // with a freshly-computed id resolves it without the admin seeing an error.
+      let cardId = member.cardId;
+      for (let attempt = 0; ; attempt++) {
+        cardId = member.cardId || (await generateCardId());
+        member.cardId = cardId;
+        try {
+          await member.save();
+          break;
+        } catch (error) {
+          const isDuplicateCardId = (error as { code?: number; keyPattern?: Record<string, unknown> })?.code === 11000;
+          if (!isDuplicateCardId || attempt >= 4) throw error;
+          member.cardId = undefined;
+        }
+      }
 
       const validText = `berlaku sampai ${validUntil.toLocaleDateString("id-ID")}`;
       const cardUrl = `${await getBaseUrl()}/verify/${cardId}`;
