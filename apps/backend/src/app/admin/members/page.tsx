@@ -115,7 +115,7 @@ export default async function AdminMembersPage({
               )}
               <span style={{ display: "flex", flexDirection: "column", gap: 2, flexGrow: 1, minWidth: 0, textAlign: "left" }}>
                 <span style={{ fontSize: 15, fontWeight: 700, color: "#15201f" }}>{m.name}</span>
-                <span style={{ fontSize: 13, color: "#6b7573" }}>{m.email}</span>
+                <span style={{ fontSize: 13, color: "#6b7573", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{m.email}</span>
               </span>
               <span style={{ fontSize: 12, fontWeight: 700, color: "#0b454c", background: "#e3f1f1", borderRadius: 999, padding: "4px 10px", whiteSpace: "nowrap" }}>
                 {m.approvedAs ?? m.requestedAs}
