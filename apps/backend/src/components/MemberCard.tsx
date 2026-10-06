@@ -63,14 +63,11 @@ export async function MemberCard({ data }: { data: MemberCardData }) {
           <div className="ms-hero">
             <div className="ms-tab">WITH CoE AILO</div>
             <div className="ms-brand">
-              <div className="ms-lg">
-                {/* eslint-disable-next-line @next/next/no-img-element -- small static logo */}
-                <img src="/logo-telkomu.png" alt="Telkom University" />
-              </div>
-              <div className="ms-lg">
-                {/* eslint-disable-next-line @next/next/no-img-element -- small static logo */}
-                <img src="/logo-square.png" alt="AILO" />
-              </div>
+              {/* eslint-disable-next-line @next/next/no-img-element -- small static logo */}
+              <img src="/logo-telkomu.png" alt="Telkom University" className="ms-logo-mark" />
+              <span className="ms-brand-divider" />
+              {/* eslint-disable-next-line @next/next/no-img-element -- small static logo */}
+              <img src="/logo-square.png" alt="AILO" className="ms-logo-mark" />
               <div className="ms-bt">
                 <b>CoE AILO</b>
                 <span>
