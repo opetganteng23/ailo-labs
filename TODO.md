@@ -10,7 +10,6 @@ Sumber: `AILO_Evaluasi_Menyeluruh_dan_Rencana_Perbaikan.md` (evaluasi 30 Sep 202
 - Kategori Team awal: Dosen, Peneliti, Peneliti Mahasiswa, Peneliti Alumni, Honorary Advisory Board (bisa dikelola admin).
 
 ## Layout admin: scroll di dalam panel, bukan seluruh halaman (6 Okt)
-## Layout admin: scroll di dalam panel, bukan seluruh halaman (6 Okt)
 - [x] Perintah user 6 Okt: halaman web tidak scroll sampai bawah; sidebar tetap diam, hanya area konten (main) yang scroll, dan Members/Messages scroll daftar & detail masing-masing. Commit f9a4a0d + 33c8413 - DONE & VERIFIED on live (Playwright, login admin uji): dokumen tidak bisa di-scroll di Members, Messages, News, Settings; sidebar top=0; Members panel detail (1191px isi, 542px tinggi) scroll sendiri, footer Delete tetap di bawah; News/Settings scroll di dalam main.
 - [x] Bug 6 Okt (screenshot Members): badge "Approved" terpotong - DONE & VERIFIED on live (f9a4a0d + 33c8413): badge tampil utuh; email panjang di daftar dipotong elipsis, tidak lagi menabrak badge.
 
