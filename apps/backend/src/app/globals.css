@@ -1453,12 +1453,8 @@ a.partner-card:hover{border-color:var(--teal); box-shadow:0 14px 28px -18px rgba
 .ms-name { font-weight: 700; font-size: 13pt; letter-spacing: .01em; line-height: 1.2; }
 .ms-meta { font-size: 9.5pt; line-height: 1.5; color: var(--ms-muted); margin-top: 2mm; }
 .ms-meta b { color: var(--ms-ink); font-weight: 600; }
-.ms-valid { font-size: 9.5pt; line-height: 1.5; color: var(--ms-muted); margin-top: 2mm; }
-.ms-sig { margin-top: auto; border-top: 0.3mm solid #dfe3e6; padding-top: 2mm; display: flex; flex-direction: column; gap: 1.5mm; }
-.ms-sigline { width: 45mm; border-bottom: 0.3mm solid var(--ms-ink); height: 7mm; display: block; flex: none; }
-.ms-who2 { color: var(--ms-teal); font-weight: 600; font-size: 7.6pt; line-height: 1.35; }
-.ms-who2 b { display: block; color: var(--ms-ink); font-weight: 700; font-size: 8.8pt; }
-.ms-back { background: var(--ms-teal); color: #fff; padding: 8mm 7mm 6mm 7mm; display: flex; flex-direction: column; position: relative; overflow: hidden; }
+.ms-valid { font-size: 9.5pt; line-height: 1.5; color: var(--ms-muted); margin-top: auto; }
+.ms-back { background: var(--ms-teal); color: #fff; padding: 8mm 7mm 10mm 7mm; display: flex; flex-direction: column; position: relative; overflow: hidden; }
 .ms-back::after { content: ''; position: absolute; right: -18mm; top: -18mm; width: 44mm; height: 44mm; border: 6mm solid rgba(255, 255, 255, .07); border-radius: 50%; }
 .ms-info { font-size: 10pt; line-height: 1.5; }
 .ms-fine { font-size: 7pt; line-height: 1.55; opacity: .88; margin-top: 4mm; }

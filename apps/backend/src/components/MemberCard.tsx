@@ -14,8 +14,7 @@ export type MemberCardData = {
   verifyUrl: string;
 };
 
-// Static text of the membership sheet. The director is the head of the CoE named on the printed card.
-const DIRECTOR = { name: "Prof. Ir. Agus Pratondo, S.T., M.T., Ph.D", title: "Director of CoE AILO Telkom University" };
+// Static text of the membership sheet.
 const VISION =
   "To become a center of excellence in science and technology in Artificial Intelligence, based on the SAFE AI framework, that accelerates digital transformation and delivers both strategic and sustainable impact for science, industry, and society at national and global levels.";
 const MISSION = [
@@ -135,13 +134,6 @@ export async function MemberCard({ data }: { data: MemberCardData }) {
                   </div>
                 </div>
                 <div className="ms-valid">Valid through {formatValidUntil(data.validUntil)}</div>
-                <div className="ms-sig">
-                  <span className="ms-sigline" />
-                  <span className="ms-who2">
-                    <b>{DIRECTOR.name}</b>
-                    {DIRECTOR.title}
-                  </span>
-                </div>
               </div>
 
               <div className="ms-back">
