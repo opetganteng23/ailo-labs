@@ -60,6 +60,10 @@ header.site .row {
 }
 header.site .brand { display: flex; align-items: center; gap: var(--space-3); font-weight: 700; flex-shrink: 0; }
 header.site .brand img { height: 48px; width: auto; display: block; }
+.brand-divider { width: 1px; align-self: stretch; background: currentColor; opacity: 0.2; flex-shrink: 0; }
+/* The Telkom University mark's muted tones need a light backing on dark headers/footer, same fix as the member card. */
+.telkomu-chip { background: #fff; border-radius: 6px; padding: 4px 6px; display: flex; align-items: center; flex-shrink: 0; }
+.telkomu-chip img { display: block; }
 .header-nav-menu { display: flex; align-items: center; gap: var(--space-8); }
 .nav-toggle-checkbox { display: none; }
 .nav-toggle-btn {
@@ -889,7 +893,6 @@ footer.site .foot-grid {
   gap: var(--space-10);
   padding-bottom: 32px;
 }
-footer.site .foot-brand img { height: 36px; margin-bottom: 14px; }
 footer.site .foot-brand p { font-size: var(--fs-md); line-height: 1.7; color: #c9dcdc; max-width: 32ch; }
 footer.site .foot-col h5 { color: #fff; font-size: var(--fs-sm); font-weight: 700; margin-bottom: 16px; letter-spacing: 0.02em; }
 footer.site .foot-col ul { list-style: none; display: flex; flex-direction: column; gap: var(--space-3); margin: 0; padding: 0; }

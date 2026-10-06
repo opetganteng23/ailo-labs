@@ -23,6 +23,9 @@ export function HomeHeader() {
   return (
     <header className={`${hm("site-nav")}${open ? ` ${hm("open")}` : ""}`}>
       <a href="#top" className={hm("brand")}>
+        <span className="telkomu-chip">
+          <Image src="/logo-telkomu.webp" alt="Telkom University" width={120} height={120} style={{ height: 26, width: "auto" }} />
+        </span>
         <Image src="/logo-horizontal-white.png" alt="AILO" className={hm("logo")} width={140} height={44} priority />
       </a>
       <nav className={hm("main-nav")}>

@@ -41,7 +41,12 @@ export async function SiteFooter() {
       <div className="wrap">
         <div className="foot-grid">
           <div className="foot-brand">
-            <Image src="/logo-horizontal-white.png" alt="AILO" width={114} height={36} style={{ height: 36, width: "auto" }} />
+            <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 14 }}>
+              <span className="telkomu-chip">
+                <Image src="/logo-telkomu.webp" alt="Telkom University" width={120} height={120} style={{ height: 26, width: "auto" }} />
+              </span>
+              <Image src="/logo-horizontal-white.png" alt="AILO" width={114} height={36} style={{ height: 36, width: "auto" }} />
+            </div>
             <p>AI Learning For Optimization, a Center of Excellence under Telkom University, Bandung.</p>
           </div>
           <div className="foot-col">
