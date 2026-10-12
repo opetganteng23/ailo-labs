@@ -213,6 +213,20 @@ export default async function HomePage() {
 
       <AboutSection about={data.about} stats={[hp?.stat1Value || "18+", hp?.stat2Value || "32", hp?.stat3Value || "6"]} />
 
+      <section id="news" style={bgSectionStyle(hp?.newsBackgroundImages)}>
+        <BackgroundLayer images={hp?.newsBackgroundImages} opacityPercent={hp?.newsOverlayOpacity} />
+        <div className={hm("wrap")}>
+          <SectionHead
+            kicker="NEWS"
+            title="Latest from the lab."
+            desc="Research updates, publications, and lab announcements, drafted with AI and reviewed by our team before they go live."
+            linkHref="/news"
+            linkLabel="Browse all news"
+          />
+          <NewsSlider items={data.news} />
+        </div>
+      </section>
+
       <section id="research" style={bgSectionStyle(hp?.researchBackgroundImages)}>
         <BackgroundLayer images={hp?.researchBackgroundImages} opacityPercent={hp?.researchOverlayOpacity} />
         <div className={hm("wrap")}>
@@ -330,20 +344,6 @@ export default async function HomePage() {
               ))}
             </ul>
           </div>
-        </div>
-      </section>
-
-      <section id="news" style={bgSectionStyle(hp?.newsBackgroundImages)}>
-        <BackgroundLayer images={hp?.newsBackgroundImages} opacityPercent={hp?.newsOverlayOpacity} />
-        <div className={hm("wrap")}>
-          <SectionHead
-            kicker="NEWS"
-            title="Latest from the lab."
-            desc="Research updates, publications, and lab announcements, drafted with AI and reviewed by our team before they go live."
-            linkHref="/news"
-            linkLabel="Browse all news"
-          />
-          <NewsSlider items={data.news} />
         </div>
       </section>
 

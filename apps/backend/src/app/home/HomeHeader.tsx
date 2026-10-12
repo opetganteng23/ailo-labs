@@ -8,13 +8,13 @@ import { hm } from "./util";
 const NAV = [
   { href: "#top", label: "Home", active: true },
   { href: "#about", label: "About" },
+  { href: "#news", label: "News" },
   { href: "#research", label: "Research" },
   { href: "#projects", label: "Projects" },
   { href: "/services", label: "Services" },
   { href: "#team", label: "Team" },
   { href: "#labs", label: "Labs" },
   { href: "/books", label: "Books" },
-  { href: "#news", label: "News" },
 ];
 
 /** Glass navigation bar over the hero; on phones the menu opens as a dropdown. */
