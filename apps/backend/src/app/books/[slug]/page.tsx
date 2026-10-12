@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 
 import { SiteFooter } from "@/components/SiteFooter";
 import { SiteHeader } from "@/components/SiteHeader";
+import { ReaderToolbar } from "@/components/ReaderToolbar";
 import { connectToDatabase } from "@/lib/mongodb";
 import { Book } from "@/models/catalog";
 
@@ -52,6 +53,7 @@ export default async function BookReaderPage({ params }: { params: Promise<{ slu
           !book.link && <p className="notice">This book has no readable file yet.</p>
         )}
       </main>
+      <ReaderToolbar title={book.title} />
       <SiteFooter />
     </>
   );

@@ -5,6 +5,7 @@ import { notFound } from "next/navigation";
 
 import { SiteFooter } from "@/components/SiteFooter";
 import { SiteHeader } from "@/components/SiteHeader";
+import { ReaderToolbar } from "@/components/ReaderToolbar";
 import { connectToDatabase } from "@/lib/mongodb";
 import { RichContent } from "@/components/RichContent";
 import { isHtmlDocument, renderRichText } from "@/lib/sanitizeHtml";
@@ -41,6 +42,7 @@ export default async function ServiceDetailPage({ params }: { params: Promise<{ 
         )}
         {item.content && <RichContent className="rte-body" style={{ marginTop: 24, padding: 0 }} html={renderRichText(item.content)} />}
       </main>
+      <ReaderToolbar title={item.title} />
       <SiteFooter />
     </>
   );

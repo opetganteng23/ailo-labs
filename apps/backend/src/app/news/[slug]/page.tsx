@@ -5,6 +5,7 @@ import { notFound } from "next/navigation";
 
 import { SiteFooter } from "@/components/SiteFooter";
 import { SiteHeader } from "@/components/SiteHeader";
+import { ReaderToolbar } from "@/components/ReaderToolbar";
 import { ArticleEngagement } from "@/components/ArticleEngagement";
 import { connectToDatabase } from "@/lib/mongodb";
 import { News } from "@/models/News";
@@ -47,6 +48,7 @@ export default async function NewsDetailPage({ params }: { params: Promise<{ slu
         <RichContent className="rte-body" style={{ marginTop: 24, padding: 0 }} html={renderRichText(item.content)} />
         <ArticleEngagement kind="news" slug={slug} title={item.title} initialCounts={item.reactions ?? {}} />
       </main>
+      <ReaderToolbar title={item.title} />
       <SiteFooter />
     </>
   );

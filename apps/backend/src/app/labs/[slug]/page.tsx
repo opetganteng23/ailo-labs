@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { AvailabilityCalendar } from "@/components/AvailabilityCalendar";
 import { SiteFooter } from "@/components/SiteFooter";
 import { SiteHeader } from "@/components/SiteHeader";
+import { ReaderToolbar } from "@/components/ReaderToolbar";
 import { connectToDatabase } from "@/lib/mongodb";
 import { Device } from "@/models/Device";
 import { Lab } from "@/models/Lab";
@@ -114,6 +115,7 @@ export default async function LabDetailPage({ params }: { params: Promise<{ slug
           </div>
         </div>
       </main>
+      <ReaderToolbar title={lab.name} />
       <SiteFooter />
     </>
   );

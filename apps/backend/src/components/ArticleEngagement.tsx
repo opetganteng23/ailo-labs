@@ -29,6 +29,7 @@ export function ArticleEngagement({ kind, slug, title, initialCounts }: { kind: 
 
   useEffect(() => {
     try {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- localStorage is only readable after hydration
       setReacted(window.localStorage.getItem(storageKey));
     } catch {
       // Private browsing or storage disabled - reactions still work, just not remembered across visits.
@@ -72,7 +73,7 @@ export function ArticleEngagement({ kind, slug, title, initialCounts }: { kind: 
   const encodedTitle = encodeURIComponent(title);
 
   return (
-    <div style={{ marginTop: 40, display: "flex", flexDirection: "column", gap: 12 }}>
+    <div data-reader-skip style={{ marginTop: 40, display: "flex", flexDirection: "column", gap: 12 }}>
       <div
         style={{
           display: "flex",

@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 
 import { SiteFooter } from "@/components/SiteFooter";
 import { SiteHeader } from "@/components/SiteHeader";
+import { ReaderToolbar } from "@/components/ReaderToolbar";
 import { connectToDatabase } from "@/lib/mongodb";
 import { Team } from "@/models/Team";
 
@@ -94,6 +95,7 @@ export default async function TeamDetailPage({ params }: { params: Promise<{ slu
           <p style={{ margin: 0 }}>Documents: {item.scopusData?.documentCount ?? "-"}</p>
         </div>
       </main>
+      <ReaderToolbar title={item.name} />
       <SiteFooter />
     </>
   );

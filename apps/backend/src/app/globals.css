@@ -1494,3 +1494,45 @@ a.partner-card:hover{border-color:var(--teal); box-shadow:0 14px 28px -18px rgba
 .ms-ben b { display: block; font-size: 10pt; font-weight: 700; }
 .ms-ben span { font-size: 8.8pt; line-height: 1.45; color: var(--ms-muted); display: block; }
 .ms-foot { position: absolute; left: 0; right: 0; bottom: 0; height: 14mm; background: var(--ms-orange); color: #fff; font-weight: 700; font-size: 11pt; display: flex; align-items: center; padding: 0 16mm; }
+
+/* Reader toolbar (components/ReaderToolbar.tsx) - floating on the right of content detail pages */
+.reader-toolbar { position: fixed; right: 16px; top: 50%; transform: translateY(-50%); z-index: 60; display: flex; flex-direction: column; align-items: center; }
+.reader-toolbar-stack { display: flex; flex-direction: column; gap: 10px; }
+.rt-btn { width: 44px; height: 44px; border-radius: 999px; display: inline-flex; align-items: center; justify-content: center; background: #fff; color: var(--teal-darker); border: 1px solid var(--line); box-shadow: 0 2px 8px rgba(18, 24, 27, 0.08); cursor: pointer; padding: 0; transition: background 0.15s ease, color 0.15s ease, transform 0.15s ease; }
+.rt-btn:hover:not(:disabled) { transform: scale(1.06); border-color: var(--teal); color: var(--teal); }
+.rt-btn.dark { background: var(--teal-darker); color: #fff; border-color: var(--teal-darker); }
+.rt-btn.dark:hover { background: var(--teal); border-color: var(--teal); color: #fff; }
+.rt-btn.active { background: var(--orange); border-color: var(--orange); color: #fff; }
+.rt-btn.active:hover:not(:disabled) { color: #fff; border-color: var(--orange); }
+.rt-btn:disabled { opacity: 0.4; cursor: default; }
+.rt-btn:focus-visible { outline: 2px solid var(--orange); outline-offset: 2px; }
+.rt-toggle { display: none; }
+.rt-bookmark { position: relative; }
+.rt-badge { position: absolute; top: -4px; left: -6px; min-width: 18px; height: 18px; padding: 0 4px; border-radius: 999px; background: var(--teal); color: #fff; font: 700 11px/18px Poppins, sans-serif; border: 0; cursor: pointer; }
+.rt-saved { position: absolute; right: 56px; top: 50%; transform: translateY(-50%); width: 280px; max-height: 320px; overflow: auto; background: #fff; border: 1px solid var(--line); border-radius: 16px; box-shadow: 0 12px 32px rgba(18, 24, 27, 0.16); padding: 12px; font-size: 13px; }
+.rt-saved-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 8px; color: var(--ink); }
+.rt-saved button { background: none; border: 0; padding: 4px; cursor: pointer; color: #5b6469; display: inline-flex; }
+.rt-saved ul { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 4px; }
+.rt-saved li { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 6px 8px; border-radius: 8px; background: var(--paper-dim); }
+.rt-saved li a { color: var(--teal-dark); text-decoration: none; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.rt-saved-empty { margin: 0; color: #5b6469; }
+.rt-toast { position: absolute; right: 56px; bottom: 0; white-space: nowrap; background: var(--ink); color: #fff; font-size: 13px; font-weight: 600; padding: 8px 12px; border-radius: 10px; pointer-events: none; }
+
+/* Phones: collapse to one button at the bottom-right that opens the stack above it. */
+@media (max-width: 720px) {
+  .reader-toolbar { top: auto; bottom: 16px; right: 16px; transform: none; }
+  .reader-toolbar-stack { display: none; max-height: calc(100vh - 100px); overflow-y: auto; padding: 4px; margin-bottom: 10px; }
+  .reader-toolbar.is-open .reader-toolbar-stack { display: flex; }
+  .rt-toggle { display: inline-flex; }
+  .rt-saved { right: 56px; width: min(280px, calc(100vw - 100px)); }
+}
+
+/* Dark reading mode: no real dark theme exists on the public site, so invert the
+   whole page and flip media + the toolbar back so photos and brand colours stay true. */
+html.reader-dark { filter: invert(1) hue-rotate(180deg); background: #fff; }
+html.reader-dark img, html.reader-dark video, html.reader-dark picture, html.reader-dark iframe, html.reader-dark canvas, html.reader-dark [data-reader-keep] { filter: invert(1) hue-rotate(180deg); }
+html.reader-dark [data-reader-keep] img, html.reader-dark header.site img { filter: none; }
+/* Keep the header as-is (its logos have black text on transparent), and give content images a
+   white backing so transparent PNG/SVG logos don't lose their dark parts on the dark page. */
+html.reader-dark header.site { filter: invert(1) hue-rotate(180deg); }
+html.reader-dark main img { background: #fff; }
