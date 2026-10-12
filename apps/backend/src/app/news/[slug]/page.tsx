@@ -5,6 +5,7 @@ import { notFound } from "next/navigation";
 
 import { SiteFooter } from "@/components/SiteFooter";
 import { SiteHeader } from "@/components/SiteHeader";
+import { ArticleEngagement } from "@/components/ArticleEngagement";
 import { connectToDatabase } from "@/lib/mongodb";
 import { News } from "@/models/News";
 import { RichContent } from "@/components/RichContent";
@@ -22,6 +23,7 @@ export default async function NewsDetailPage({ params }: { params: Promise<{ slu
     category: string;
     categories?: string[];
     images?: string[];
+    reactions?: Record<string, number>;
   }>();
 
   if (!item) notFound();
@@ -43,6 +45,7 @@ export default async function NewsDetailPage({ params }: { params: Promise<{ slu
           <img className="detail-thumb" src={item.images[0]} alt={item.title} style={{ borderRadius: 20 }} />
         )}
         <RichContent className="rte-body" style={{ marginTop: 24, padding: 0 }} html={renderRichText(item.content)} />
+        <ArticleEngagement kind="news" slug={slug} title={item.title} initialCounts={item.reactions ?? {}} />
       </main>
       <SiteFooter />
     </>

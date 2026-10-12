@@ -5,6 +5,7 @@ import { notFound } from "next/navigation";
 
 import { SiteFooter } from "@/components/SiteFooter";
 import { SiteHeader } from "@/components/SiteHeader";
+import { ArticleEngagement } from "@/components/ArticleEngagement";
 import { connectToDatabase } from "@/lib/mongodb";
 import { Research } from "@/models/Research";
 import { RichContent } from "@/components/RichContent";
@@ -23,6 +24,7 @@ export default async function ResearchDetailPage({ params }: { params: Promise<{
     image?: string;
     publishedAt?: Date;
     createdAt?: Date;
+    reactions?: Record<string, number>;
   }>();
 
   if (!item) notFound();
@@ -47,6 +49,7 @@ export default async function ResearchDetailPage({ params }: { params: Promise<{
           <img className="detail-thumb" src={item.image} alt={item.title} style={{ borderRadius: 20 }} />
         )}
         <RichContent className="rte-body" style={{ marginTop: 24, padding: 0 }} html={renderRichText(item.content)} />
+        <ArticleEngagement kind="research" slug={slug} title={item.title} initialCounts={item.reactions ?? {}} />
       </main>
       <SiteFooter />
     </>

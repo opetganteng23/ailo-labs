@@ -10,6 +10,12 @@ const projectSchema = new Schema(
     images: { type: [String], default: [] },
     status: { type: String, enum: ["ongoing", "completed", "planned"], default: "planned" },
     teamMembers: [{ type: Schema.Types.ObjectId, ref: "Team" }],
+    reactions: {
+      keren: { type: Number, default: 0 },
+      inspiratif: { type: Number, default: 0 },
+      wow: { type: Number, default: 0 },
+      belajarBaru: { type: Number, default: 0 },
+    },
     startDate: Date,
     endDate: Date,
     // Lecturer submissions wait in "review" until an admin publishes them.

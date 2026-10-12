@@ -22,6 +22,12 @@ const newsSchema = new Schema(
     /** True when an admin picked the date by hand instead of using the publish moment. */
     publishedAtManual: { type: Boolean, default: false },
     author: { type: Schema.Types.ObjectId, ref: "User" },
+    reactions: {
+      keren: { type: Number, default: 0 },
+      inspiratif: { type: Number, default: 0 },
+      wow: { type: Number, default: 0 },
+      belajarBaru: { type: Number, default: 0 },
+    },
     source5W1H: {
       what: String,
       who: String,

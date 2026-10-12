@@ -9,6 +9,12 @@ const researchSchema = new Schema(
     categories: { type: [String], default: [], index: true },
     image: String,
     relatedTeamMembers: [{ type: Schema.Types.ObjectId, ref: "Team" }],
+    reactions: {
+      keren: { type: Number, default: 0 },
+      inspiratif: { type: Number, default: 0 },
+      wow: { type: Number, default: 0 },
+      belajarBaru: { type: Number, default: 0 },
+    },
     // "review" = submitted by a lecturer, waiting for an admin to publish.
     status: { type: String, enum: ["draft", "review", "published", "archived"], default: "draft", index: true },
     owner: { type: Schema.Types.ObjectId, ref: "User", index: true },

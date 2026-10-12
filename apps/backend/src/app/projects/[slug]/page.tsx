@@ -5,6 +5,7 @@ import { notFound } from "next/navigation";
 
 import { SiteFooter } from "@/components/SiteFooter";
 import { SiteHeader } from "@/components/SiteHeader";
+import { ArticleEngagement } from "@/components/ArticleEngagement";
 import { connectToDatabase } from "@/lib/mongodb";
 import { Project } from "@/models/Project";
 import { RichContent } from "@/components/RichContent";
@@ -27,6 +28,7 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
     images?: string[];
     publishedAt?: Date;
     createdAt?: Date;
+    reactions?: Record<string, number>;
   }>();
 
   if (!item) notFound();
@@ -54,6 +56,7 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
           <img className="detail-thumb" src={item.images[0]} alt={item.title} style={{ borderRadius: 20 }} />
         )}
         <RichContent className="rte-body" style={{ marginTop: 24, padding: 0 }} html={renderRichText(item.content)} />
+        <ArticleEngagement kind="project" slug={slug} title={item.title} initialCounts={item.reactions ?? {}} />
       </main>
       <SiteFooter />
     </>
