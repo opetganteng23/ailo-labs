@@ -24,6 +24,14 @@ type RichTextEditorProps = {
   required?: boolean;
   /** Adds the Visual / HTML switch (admin only; the server keeps raw layout HTML only from admin saves). */
   allowHtml?: boolean;
+  /**
+   * Trims the toolbar to the essentials - no font pickers, highlight, quote/code/rule,
+   * indent, text alignment, table or clear-formatting - for a short field that sits in
+   * a column too narrow for the full toolbar to fit in one row (e.g. Settings > About,
+   * next to its section nav). Nothing already using those marks is affected; they just
+   * can't be added from this toolbar.
+   */
+  compact?: boolean;
 };
 
 const FONT_FAMILIES = [
@@ -113,7 +121,7 @@ function ToolButton({ label, active, disabled, onClick, children }: { label: str
   );
 }
 
-function Toolbar({ editor, onPickImage, uploading }: { editor: Editor; onPickImage: () => void; uploading: boolean }) {
+function Toolbar({ editor, onPickImage, uploading, compact }: { editor: Editor; onPickImage: () => void; uploading: boolean; compact?: boolean }) {
   const s = useEditorState({
     editor,
     selector: ({ editor: e }) => ({
@@ -184,38 +192,42 @@ function Toolbar({ editor, onPickImage, uploading }: { editor: Editor; onPickIma
           </option>
         ))}
       </select>
-      <select
-        aria-label="Font family"
-        className="rte-block"
-        value={s.fontFamily}
-        onChange={(e) => {
-          const v = e.target.value;
-          if (v) editor.chain().focus().setFontFamily(v).run();
-          else editor.chain().focus().unsetFontFamily().run();
-        }}
-      >
-        {FONT_FAMILIES.map((f) => (
-          <option key={f.label} value={f.value}>
-            {f.label}
-          </option>
-        ))}
-      </select>
-      <select
-        aria-label="Font size"
-        className="rte-block"
-        value={s.fontSize}
-        onChange={(e) => {
-          const v = e.target.value;
-          if (v) editor.chain().focus().setFontSize(v).run();
-          else editor.chain().focus().unsetFontSize().run();
-        }}
-      >
-        {FONT_SIZES.map((f) => (
-          <option key={f.label} value={f.value}>
-            {f.label}
-          </option>
-        ))}
-      </select>
+      {!compact && (
+        <>
+          <select
+            aria-label="Font family"
+            className="rte-block"
+            value={s.fontFamily}
+            onChange={(e) => {
+              const v = e.target.value;
+              if (v) editor.chain().focus().setFontFamily(v).run();
+              else editor.chain().focus().unsetFontFamily().run();
+            }}
+          >
+            {FONT_FAMILIES.map((f) => (
+              <option key={f.label} value={f.value}>
+                {f.label}
+              </option>
+            ))}
+          </select>
+          <select
+            aria-label="Font size"
+            className="rte-block"
+            value={s.fontSize}
+            onChange={(e) => {
+              const v = e.target.value;
+              if (v) editor.chain().focus().setFontSize(v).run();
+              else editor.chain().focus().unsetFontSize().run();
+            }}
+          >
+            {FONT_SIZES.map((f) => (
+              <option key={f.label} value={f.value}>
+                {f.label}
+              </option>
+            ))}
+          </select>
+        </>
+      )}
       <span className="rte-sep" />
       <ToolButton label="Bold" active={s.bold} onClick={() => editor.chain().focus().toggleBold().run()}>{I.bold}</ToolButton>
       <ToolButton label="Italic" active={s.italic} onClick={() => editor.chain().focus().toggleItalic().run()}>{I.italic}</ToolButton>
@@ -234,38 +246,54 @@ function Toolbar({ editor, onPickImage, uploading }: { editor: Editor; onPickIma
           {I.reset}
         </svg>
       </button>
-      <span className="rte-color highlight" title="Highlight colour">
-        <input
-          type="color"
-          aria-label="Highlight colour"
-          value={s.highlight || "#fff3b0"}
-          onChange={(e) => editor.chain().focus().setHighlight({ color: e.target.value }).run()}
-        />
-      </span>
-      <button type="button" title="Remove highlight" aria-label="Remove highlight" onMouseDown={(e) => e.preventDefault()} onClick={() => editor.chain().focus().unsetHighlight().run()}>
-        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round">
-          {I.reset}
-        </svg>
-      </button>
+      {!compact && (
+        <>
+          <span className="rte-color highlight" title="Highlight colour">
+            <input
+              type="color"
+              aria-label="Highlight colour"
+              value={s.highlight || "#fff3b0"}
+              onChange={(e) => editor.chain().focus().setHighlight({ color: e.target.value }).run()}
+            />
+          </span>
+          <button type="button" title="Remove highlight" aria-label="Remove highlight" onMouseDown={(e) => e.preventDefault()} onClick={() => editor.chain().focus().unsetHighlight().run()}>
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round">
+              {I.reset}
+            </svg>
+          </button>
+        </>
+      )}
       <span className="rte-sep" />
       <ToolButton label="Bulleted list" active={s.bullet} onClick={() => editor.chain().focus().toggleBulletList().run()}>{I.bullet}</ToolButton>
       <ToolButton label="Numbered list" active={s.ordered} onClick={() => editor.chain().focus().toggleOrderedList().run()}>{I.ordered}</ToolButton>
-      <ToolButton label="Decrease indent" disabled={!s.canOutdent} onClick={() => editor.chain().focus().liftListItem("listItem").run()}>{I.outdent}</ToolButton>
-      <ToolButton label="Increase indent (nest this list item)" disabled={!s.canIndent} onClick={() => editor.chain().focus().sinkListItem("listItem").run()}>{I.indent}</ToolButton>
-      <ToolButton label="Quote" active={s.quote} onClick={() => editor.chain().focus().toggleBlockquote().run()}>{I.quote}</ToolButton>
-      <ToolButton label="Code block" active={s.codeBlock} onClick={() => editor.chain().focus().toggleCodeBlock().run()}>{I.code}</ToolButton>
-      <ToolButton label="Divider" onClick={() => editor.chain().focus().setHorizontalRule().run()}>{I.rule}</ToolButton>
-      <span className="rte-sep" />
-      <ToolButton label="Align left" active={s.left} onClick={() => editor.chain().focus().setTextAlign("left").run()}>{I.alignLeft}</ToolButton>
-      <ToolButton label="Align center" active={s.center} onClick={() => editor.chain().focus().setTextAlign("center").run()}>{I.alignCenter}</ToolButton>
-      <ToolButton label="Align right" active={s.right} onClick={() => editor.chain().focus().setTextAlign("right").run()}>{I.alignRight}</ToolButton>
-      <ToolButton label="Justify" active={s.justify} onClick={() => editor.chain().focus().setTextAlign("justify").run()}>{I.alignJustify}</ToolButton>
+      {!compact && (
+        <>
+          <ToolButton label="Decrease indent" disabled={!s.canOutdent} onClick={() => editor.chain().focus().liftListItem("listItem").run()}>{I.outdent}</ToolButton>
+          <ToolButton label="Increase indent (nest this list item)" disabled={!s.canIndent} onClick={() => editor.chain().focus().sinkListItem("listItem").run()}>{I.indent}</ToolButton>
+          <ToolButton label="Quote" active={s.quote} onClick={() => editor.chain().focus().toggleBlockquote().run()}>{I.quote}</ToolButton>
+          <ToolButton label="Code block" active={s.codeBlock} onClick={() => editor.chain().focus().toggleCodeBlock().run()}>{I.code}</ToolButton>
+          <ToolButton label="Divider" onClick={() => editor.chain().focus().setHorizontalRule().run()}>{I.rule}</ToolButton>
+        </>
+      )}
+      {!compact && (
+        <>
+          <span className="rte-sep" />
+          <ToolButton label="Align left" active={s.left} onClick={() => editor.chain().focus().setTextAlign("left").run()}>{I.alignLeft}</ToolButton>
+          <ToolButton label="Align center" active={s.center} onClick={() => editor.chain().focus().setTextAlign("center").run()}>{I.alignCenter}</ToolButton>
+          <ToolButton label="Align right" active={s.right} onClick={() => editor.chain().focus().setTextAlign("right").run()}>{I.alignRight}</ToolButton>
+          <ToolButton label="Justify" active={s.justify} onClick={() => editor.chain().focus().setTextAlign("justify").run()}>{I.alignJustify}</ToolButton>
+        </>
+      )}
       <span className="rte-sep" />
       <ToolButton label="Insert link" active={s.link} onClick={setLink}>{I.link}</ToolButton>
       <ToolButton label="Remove link" disabled={!s.link} onClick={() => editor.chain().focus().unsetLink().run()}>{I.unlink}</ToolButton>
       <ToolButton label={uploading ? "Uploading image…" : "Insert image"} disabled={uploading} onClick={onPickImage}>{I.image}</ToolButton>
-      <ToolButton label="Insert table" active={s.inTable} onClick={() => editor.chain().focus().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run()}>{I.table}</ToolButton>
-      <ToolButton label="Clear formatting" onClick={() => editor.chain().focus().unsetAllMarks().clearNodes().run()}>{I.clear}</ToolButton>
+      {!compact && (
+        <>
+          <ToolButton label="Insert table" active={s.inTable} onClick={() => editor.chain().focus().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run()}>{I.table}</ToolButton>
+          <ToolButton label="Clear formatting" onClick={() => editor.chain().focus().unsetAllMarks().clearNodes().run()}>{I.clear}</ToolButton>
+        </>
+      )}
       {s.inTable && (
         <div className="rte-table-tools">
           <button type="button" onClick={() => editor.chain().focus().addRowAfter().run()}>+ Row</button>
@@ -307,7 +335,7 @@ function prettify(html: string): string {
  * a hidden input under `name`, so it drops into server-action forms
  * unchanged. The server sanitizes the HTML on save.
  */
-export function RichTextEditor({ name, defaultValue = "", placeholder, minHeight = 260, required, allowHtml = false }: RichTextEditorProps) {
+export function RichTextEditor({ name, defaultValue = "", placeholder, minHeight = 260, required, allowHtml = false, compact = false }: RichTextEditorProps) {
   const [html, setHtml] = useState(defaultValue);
   const [text, setText] = useState("");
   const [invalid, setInvalid] = useState(false);
@@ -418,7 +446,7 @@ export function RichTextEditor({ name, defaultValue = "", placeholder, minHeight
         </div>
       )}
       <div hidden={mode !== "visual"}>
-        {editor && <Toolbar editor={editor} uploading={uploading} onPickImage={() => fileRef.current?.click()} />}
+        {editor && <Toolbar editor={editor} uploading={uploading} onPickImage={() => fileRef.current?.click()} compact={compact} />}
         <input ref={fileRef} type="file" accept="image/png,image/jpeg,image/webp,image/gif" hidden onChange={(e) => uploadImage(e.target.files?.[0])} />
         <EditorContent editor={editor} />
       </div>

@@ -185,6 +185,7 @@ export default async function AdminSettingsPage() {
                   defaultValue={settings?.about?.body ? (looksLikePlainText(settings.about.body) ? plainTextToParagraphs(settings.about.body) : settings.about.body) : ""}
                   placeholder="Write about AILO."
                   minHeight={160}
+                  compact
                 />
               </div>
               <ImageUploadField name="aboutImage" label="Photo (optional)" defaultValue={settings?.about?.image} hint="Shown next to the text. PNG, JPG or WEBP" />
