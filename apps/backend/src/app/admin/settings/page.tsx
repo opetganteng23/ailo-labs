@@ -1,9 +1,11 @@
 import Link from "next/link";
 
 import { connectToDatabase } from "@/lib/mongodb";
+import { looksLikePlainText, plainTextToParagraphs } from "@/lib/sanitizeHtml";
 import { SiteSettings } from "@/models/SiteSettings";
 
 import { ImageUploadField } from "@/components/ImageUploadField";
+import { RichTextEditor } from "@/components/RichTextEditor";
 
 import { HeroSection } from "./HeroSection";
 import { MarqueeEditor } from "./MarqueeEditor";
@@ -178,14 +180,19 @@ export default async function AdminSettingsPage() {
               </div>
               <div className="admin2-field">
                 <label htmlFor="aboutBody">Text</label>
-                <textarea id="aboutBody" name="aboutBody" rows={8} defaultValue={settings?.about?.body ?? ""} placeholder="Write about AILO. A blank line starts a new paragraph." />
+                <RichTextEditor
+                  name="aboutBody"
+                  defaultValue={settings?.about?.body ? (looksLikePlainText(settings.about.body) ? plainTextToParagraphs(settings.about.body) : settings.about.body) : ""}
+                  placeholder="Write about AILO."
+                  minHeight={160}
+                />
               </div>
               <ImageUploadField name="aboutImage" label="Photo (optional)" defaultValue={settings?.about?.image} hint="Shown next to the text. PNG, JPG or WEBP" />
               <div>
                 <h3 style={{ margin: "0 0 4px", fontSize: 15, fontWeight: 700 }}>Cards beside the text</h3>
-                <p style={{ margin: "0 0 12px", fontSize: 13, color: "#6b7573" }}>Shown when there is no photo. Cards left empty are not shown. Leave all three empty to use the default cards.</p>
+                <p style={{ margin: "0 0 12px", fontSize: 13, color: "#6b7573" }}>Shown when there is no photo. Cards left empty are not shown. Leave all four empty to use the default cards.</p>
                 <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-                  {[0, 1, 2].map((i) => (
+                  {[0, 1, 2, 3].map((i) => (
                     <div key={i} className="admin2-triple">
                       <input name="aboutPillarTitle" type="text" maxLength={40} aria-label={`Card ${i + 1} title`} placeholder={`Card ${i + 1} title`} defaultValue={settings?.about?.pillars?.[i]?.title ?? ""} />
                       <input name="aboutPillarText" type="text" maxLength={120} aria-label={`Card ${i + 1} text`} placeholder="Short text" defaultValue={settings?.about?.pillars?.[i]?.text ?? ""} />

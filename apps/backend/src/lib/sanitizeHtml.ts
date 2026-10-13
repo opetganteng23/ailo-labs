@@ -211,3 +211,22 @@ export function renderRichText(html: string): string {
 export function isHtmlDocument(html: string | undefined): boolean {
   return Boolean(html && /<(?:style|div|section|article|aside|header|footer|nav|main|iframe|video)[\s>]/i.test(html));
 }
+
+/** True when a stored value has no markup at all - a field saved before it was upgraded to a rich text editor. */
+export function looksLikePlainText(value: string | undefined): boolean {
+  return Boolean(value && !/<[a-z][\s\S]*>/i.test(value));
+}
+
+/**
+ * Upgrades an old plain-text field (paragraphs separated by a blank line, as the
+ * "About" textarea used to store it) into the `<p>` markup a rich text editor and
+ * `renderRichText` both expect, so nothing already saved goes blank after the switch.
+ */
+export function plainTextToParagraphs(text: string): string {
+  return text
+    .split(/\n\s*\n/)
+    .map((p) => p.trim())
+    .filter(Boolean)
+    .map((p) => `<p>${p.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/\n/g, "<br>")}</p>`)
+    .join("");
+}

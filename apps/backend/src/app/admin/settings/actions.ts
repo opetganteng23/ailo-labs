@@ -5,6 +5,7 @@ import { revalidatePath } from "next/cache";
 import { getSession, isAdminRole } from "@/lib/auth";
 import { withFlash } from "@/lib/flash";
 import { connectToDatabase } from "@/lib/mongodb";
+import { sanitizeRichText } from "@/lib/sanitizeHtml";
 import { SiteSettings } from "@/models/SiteSettings";
 
 const BACKGROUND_ZONES = ["hero", "research", "projects", "team", "news"];
@@ -43,7 +44,7 @@ export async function updateSettingsAction(formData: FormData) {
             "about.kicker": formData.get("aboutKicker"),
             "about.title": formData.get("aboutTitle"),
             "about.pillars": aboutPillars,
-            "about.body": formData.get("aboutBody"),
+            "about.body": sanitizeRichText(String(formData.get("aboutBody") ?? ""), { trusted: true }).trim(),
             "about.image": formData.get("aboutImage"),
             "contact.email": formData.get("email"),
             "contact.phone": formData.get("phone"),
