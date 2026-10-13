@@ -1101,7 +1101,7 @@ footer.site .foot-bottom .socials .admin-link { color: #7fa9ab; }
 .auth-back:hover { color: var(--teal-dark); }
 
 /* ===== Rich text editor ===== */
-.rte { border: 1px solid #dad7cf; border-radius: var(--radius-md); background: #fbfaf7; position: relative; }
+.rte { container-type: inline-size; border: 1px solid #dad7cf; border-radius: var(--radius-md); background: #fbfaf7; position: relative; }
 .rte.field-invalid { border-color: #c0392b; box-shadow: 0 0 0 3px rgba(192, 57, 43, 0.12); }
 .rte-toolbar { position: sticky; top: 0; z-index: 2; display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-0); padding: 6px 8px; border-bottom: 1px solid #eeece6; background: #f7f6f2; border-radius: 12px 12px 0 0; }
 .rte-toolbar button { width: 34px; height: 34px; border: 0; border-radius: var(--radius-sm); background: transparent; color: #3b4947; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; font-family: inherit; }
@@ -1340,10 +1340,14 @@ footer.site .foot-bottom .socials .admin-link { color: #7fa9ab; }
   @page { size: A4; margin: 0; }
 }
 
-/* Rich text editor on small screens (§20 of the eval doc): the toolbar scrolls
-   horizontally with touch instead of wrapping into a tall, cramped grid, and
-   everything stays reachable and tappable. */
-@media (max-width: 640px) {
+/* Rich text editor toolbar, narrow (§20 of the eval doc, extended 13 Okt): the full
+   toolbar needs ~1200px to lay out in one row. Below that it used to wrap into a tall,
+   cramped grid - several rows of buttons squeezed with almost no gap, as happened in
+   Settings > About, whose editor sits in a column narrowed by the section nav sidebar.
+   A container query (keyed to the editor's own rendered width, not the viewport) now
+   switches it to a single horizontally-scrollable row whenever ITS column is narrow,
+   which also covers that case on a wide desktop screen - not only small viewports. */
+@container (max-width: 760px) {
   .rte-toolbar {
     flex-wrap: nowrap;
     overflow-x: auto;
@@ -1353,6 +1357,8 @@ footer.site .foot-bottom .socials .admin-link { color: #7fa9ab; }
   }
   .rte-toolbar > * { flex-shrink: 0; }
   .rte-toolbar .rte-table-tools { flex-basis: auto; flex-wrap: nowrap; border-top: 0; margin-top: 0; }
+}
+@media (max-width: 640px) {
   .rte-toolbar button, .rte-color { width: 38px; height: 38px; }
   .rte-body { padding: 14px; font-size: var(--fs-lg); }
   .rte-figure-toolbar { opacity: 1; top: 6px; right: 6px; }

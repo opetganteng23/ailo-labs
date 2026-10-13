@@ -3,6 +3,10 @@
 Rules: see [CLAUDE.md](CLAUDE.md). `[ ]` belum · `[~]` sedang dikerjakan · `[x]` selesai · `[!]` perlu keputusan user.
 Sumber: `AILO_Evaluasi_Menyeluruh_dan_Rencana_Perbaikan.md` (evaluasi 30 Sep 2026).
 
+## Bug: toolbar rich text editor "ketutupan" di Settings > About (13 Okt)
+- [x] Dilaporkan user (screenshot): toolbar rich text editor di Settings > About section tampil 3 baris, tombol-tombolnya terasa berdempetan/tertutup. Diselidiki (repro lokal di luar DB, pakai struktur DOM admin yang sama): kolom editor di About hanya ~676px (lebih sempit dari News/Research karena ada sidebar nav khusus Settings di kirinya), sedangkan toolbar penuh butuh ~1200px supaya muat 1 baris - jadi dia pecah jadi 3 baris sempit. Root cause dikonfirmasi lewat screenshot reproduksi yang identik dengan punya user.
+- [x] Diperbaiki: `.rte-toolbar` sekarang pakai CSS container query (`container-type: inline-size` di `.rte`) - begitu lebar KOLOM editor sendiri (bukan lebar layar) di bawah 760px, toolbar berubah jadi 1 baris yang bisa digeser horizontal (dulu perilaku ini cuma aktif di layar HP via media query lebar layar, jadi tidak pernah kepakai untuk kasus "layar lebar tapi kolom sempit" seperti Settings). Editor News/Research/Projects yang kolomnya masih lebar (>760px) tidak berubah (tetap wrap 2 baris nyaman seperti sebelumnya). Verifikasi: typecheck+build lulus; dicek visual (halaman uji sementara, sudah dihapus, + Playwright) di 3 lebar kolom - 676px (kasus Settings, sekarang 1 baris bisa digeser, sebelumnya 3 baris), 900px (kasus News, tetap 2 baris seperti semula, tidak berubah), 1548px (lebar, 1 baris natural) - dan di layar HP 390px (tetap 1 baris, tidak ada scroll horizontal halaman). **Belum** dicek di live dengan login admin sungguhan.
+
 ## Keputusan user untuk evaluasi ini
 - Header halaman dalam: tetap logo + Back (bukan nav lengkap), tapi satu komponen yang seragam.
 - Research & Projects: halaman editor penuh (drawer dihapus), sama seperti News.
