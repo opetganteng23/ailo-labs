@@ -215,26 +215,29 @@ export function ModelSettingsForm({ settings }: { settings: Settings }) {
             </div>
           </div>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(3, minmax(0, 1fr))", gap: 16 }}>
-            <div className="admin2-field">
-              <label htmlFor="temp" style={{ display: "flex" }}>
-                Creativity<span style={{ marginLeft: "auto", color: "#15201f" }}>{temperature.toFixed(1)}</span>
-              </label>
-              <input
-                id="temp"
-                name="temperature"
-                type="range"
-                min={0}
-                max={1}
-                step={0.1}
-                value={temperature}
-                onChange={(e) => setTemperature(Number(e.target.value))}
-                style={{ accentColor: "#0e6b73", margin: 0, background: "none", border: 0, padding: 0, height: "auto" }}
-              />
-              <span style={{ display: "flex", fontSize: 12, color: "#6b7573" }}>
-                <span>Precise</span>
-                <span style={{ marginLeft: "auto" }}>Creative</span>
-              </span>
-            </div>
+            {/* Claude 5 models reject a temperature parameter, so the slider would do nothing for Anthropic. */}
+            {provider !== "anthropic" && (
+              <div className="admin2-field">
+                <label htmlFor="temp" style={{ display: "flex" }}>
+                  Creativity<span style={{ marginLeft: "auto", color: "#15201f" }}>{temperature.toFixed(1)}</span>
+                </label>
+                <input
+                  id="temp"
+                  name="temperature"
+                  type="range"
+                  min={0}
+                  max={1}
+                  step={0.1}
+                  value={temperature}
+                  onChange={(e) => setTemperature(Number(e.target.value))}
+                  style={{ accentColor: "#0e6b73", margin: 0, background: "none", border: 0, padding: 0, height: "auto" }}
+                />
+                <span style={{ display: "flex", fontSize: 12, color: "#6b7573" }}>
+                  <span>Precise</span>
+                  <span style={{ marginLeft: "auto" }}>Creative</span>
+                </span>
+              </div>
+            )}
             <div className="admin2-field">
               <label htmlFor="maxt">Max answer length</label>
               <input id="maxt" name="maxTokens" type="number" defaultValue={settings.maxTokens} />

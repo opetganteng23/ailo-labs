@@ -53,7 +53,10 @@ type ChatbotSettings = {
 
 /** Ranks indexed chunks by how rare their matched words are (IDF), so a distinctive word like "SATRIA" outweighs a common one like "riset". */
 async function findRelevantChunks(queryWords: string[], topK: number): Promise<{ chunkText: string; score: number }[]> {
-  const chunks = await ChatEmbedding.find({}).lean<{ chunkText: string }[]>();
+  const chunks = (await ChatEmbedding.find({}).lean<{ chunkText: string }[]>()).map((c) => ({
+    // The index built before HTML stripping existed still holds raw markup; never quote that to a visitor.
+    chunkText: stripHtml(c.chunkText).replace(/\s+/g, " ").trim(),
+  }));
   const tokenSets = chunks.map((chunk) => new Set(tokenize(chunk.chunkText)));
   const docFreq = new Map<string, number>();
   for (const set of tokenSets) for (const word of set) docFreq.set(word, (docFreq.get(word) ?? 0) + 1);
@@ -114,7 +117,6 @@ async function buildBaseContext(question: string): Promise<string[]> {
 async function askClaude(options: {
   apiKey: string;
   model: string;
-  temperature: number;
   maxTokens: number;
   systemPrompt: string;
   question: string;
@@ -136,7 +138,6 @@ async function askClaude(options: {
       body: JSON.stringify({
         model: options.model,
         max_tokens: options.maxTokens,
-        temperature: options.temperature,
         system: options.systemPrompt,
         messages: [{ role: "user", content: `${contextBlock}\n\nPertanyaan pengunjung: ${options.question}` }],
       }),
@@ -245,7 +246,6 @@ export async function POST(request: NextRequest) {
           const result = await askClaude({
             apiKey,
             model: cb.chatModel?.trim() || "claude-haiku-5-5",
-            temperature: cb.temperature ?? 0.3,
             maxTokens: cb.maxTokens ?? 800,
             systemPrompt: cb.systemPrompt ? `${PERSONA}
 
