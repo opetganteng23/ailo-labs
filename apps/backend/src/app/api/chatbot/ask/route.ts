@@ -1,11 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 
+import { stripHtml } from "@/lib/htmlText";
 import { connectToDatabase } from "@/lib/mongodb";
 import { clientIp, rateLimited } from "@/lib/rateLimit";
 import { decryptSecret } from "@/lib/secretCrypto";
 import { ChatbotQA } from "@/models/ChatbotQA";
 import { ChatEmbedding } from "@/models/ChatEmbedding";
+import { News } from "@/models/News";
 import { SiteSettings } from "@/models/SiteSettings";
 
 export const dynamic = "force-dynamic";
@@ -74,6 +76,35 @@ async function findRelevantChunks(queryWords: string[], topK: number): Promise<{
   return scored.sort((a, b) => b.score - a.score).slice(0, Math.max(1, topK));
 }
 
+const PERSONA = `Kamu adalah "Ask AILO", asisten virtual resmi CoE AILO (AI Learning For Optimization), Center of Excellence di Telkom University. Tugasmu menjadi informan: pengunjung bertanya, kamu menjawab berdasarkan informasi dari situs AILO yang diberikan di pesan.
+
+Aturan:
+- Perkenalkan diri dengan singkat bila disapa (halo, hai, selamat pagi, dst.) atau ditanya siapa kamu, lalu tawarkan bantuan seputar berita, riset, proyek, tim, lab, layanan, buku, dan mitra AILO.
+- Jawab dalam bahasa yang dipakai pengunjung, ringkas, ramah, dan natural. Jangan menyalin mentah potongan teks; susun jawaban sendiri.
+- Untuk fakta (nama, tanggal, angka, kerja sama), hanya gunakan informasi yang diberikan. Jangan mengarang. Jika belum ada informasinya, katakan terus terang dan arahkan ke halaman Kontak (ailo@telkomuniversity.ac.id).
+- Jangan menampilkan kode, HTML, atau format teknis.`;
+
+const NEWS_INTENT = /(berita|news|terbaru|terkini|baru|update|kabar|info terbaru)/i;
+
+/** Always-available grounding: what AILO is (from the About section) and, for news-type questions, the latest published headlines. */
+async function buildBaseContext(question: string): Promise<string[]> {
+  const out: string[] = [];
+  const settings = await SiteSettings.findOne({ key: "global" }).select("about").lean<{ about?: { title?: string; body?: string } }>();
+  const about = [settings?.about?.title, settings?.about?.body ? stripHtml(settings.about.body) : ""].filter(Boolean).join(" ").replace(/\s+/g, " ").trim();
+  if (about) out.push(`Tentang AILO: ${about.slice(0, 1200)}`);
+
+  if (NEWS_INTENT.test(question)) {
+    const latest = await News.find({ status: "published" }).sort({ publishedAt: -1, createdAt: -1 }).limit(6).select("title summary publishedAt").lean<{ title: string; summary?: string; publishedAt?: Date }[]>();
+    if (latest.length > 0) {
+      out.push(
+        "Berita terbaru AILO (dari yang paling baru):\n" +
+          latest.map((n, i) => `${i + 1}. ${n.title}${n.publishedAt ? ` (${new Date(n.publishedAt).toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric" })})` : ""}${n.summary ? ` - ${stripHtml(n.summary).replace(/\s+/g, " ").trim().slice(0, 200)}` : ""}`).join("\n"),
+      );
+    }
+  }
+  return out;
+}
+
 /**
  * Calls Claude with the visitor's question and the retrieved content as grounding context,
  * so it answers in natural language instead of handing back a raw excerpt. Returns null on
@@ -111,7 +142,10 @@ async function askClaude(options: {
       }),
       signal: controller.signal,
     });
-    if (!res.ok) return null;
+    if (!res.ok) {
+      console.error("Claude call failed", res.status, await res.text().catch(() => ""));
+      return null;
+    }
 
     const json = (await res.json()) as { content?: { type: string; text?: string }[]; usage?: { input_tokens?: number; output_tokens?: number } };
     const answer = (json.content ?? [])
@@ -119,13 +153,17 @@ async function askClaude(options: {
       .map((block) => block.text)
       .join("\n")
       .trim();
-    if (!answer) return null;
+    if (!answer) {
+      console.error("Claude call returned no text content", JSON.stringify(json).slice(0, 500));
+      return null;
+    }
 
     return {
       answer,
       usage: json.usage ? { input: json.usage.input_tokens ?? 0, output: json.usage.output_tokens ?? 0 } : undefined,
     };
-  } catch {
+  } catch (error) {
+    console.error("Claude call threw", error);
     return null;
   } finally {
     clearTimeout(timeout);
@@ -192,26 +230,29 @@ export async function POST(request: NextRequest) {
     if (cb?.provider === "anthropic" && cb.apiKeyEncrypted) {
       const withinBudget = !cb.monthlyTokenBudget || (cb.tokensUsedThisMonth ?? 0) < cb.monthlyTokenBudget;
       const withinDailyLimit = !rateLimited(`chatbot-ai:${clientIp(request.headers)}`, cb.perVisitorDailyLimit ?? 20, 24 * 60 * 60 * 1000);
+      if (!withinBudget) console.error("Chatbot: monthly token budget reached, falling back to keyword search");
+      if (!withinDailyLimit) console.error("Chatbot: visitor hit the daily AI question limit, falling back to keyword search");
 
       if (withinBudget && withinDailyLimit) {
         let apiKey: string | null = null;
         try {
           apiKey = decryptSecret(cb.apiKeyEncrypted);
-        } catch {
-          // Stored key is unreadable (e.g. NEXTAUTH_SECRET changed) - fall through to the plain-text fallback below.
+        } catch (error) {
+          console.error("Chatbot: could not decrypt stored API key", error);
         }
 
         if (apiKey) {
           const result = await askClaude({
             apiKey,
-            model: cb.chatModel?.trim() || "claude-haiku-4-5",
+            model: cb.chatModel?.trim() || "claude-haiku-5-5",
             temperature: cb.temperature ?? 0.3,
             maxTokens: cb.maxTokens ?? 800,
-            systemPrompt:
-              cb.systemPrompt ||
-              "Kamu adalah asisten virtual CoE AILO Telkom University. Jawab dengan bahasa yang sopan dan ringkas, hanya berdasarkan knowledge yang tersedia. Jika tidak tahu, katakan tidak tahu dan arahkan pengguna ke halaman kontak.",
+            systemPrompt: cb.systemPrompt ? `${PERSONA}
+
+Instruksi tambahan dari admin:
+${cb.systemPrompt}` : PERSONA,
             question: parsed.data.message,
-            context: topChunks.map((c) => c.chunkText),
+            context: [...(await buildBaseContext(parsed.data.message)), ...topChunks.map((c) => c.chunkText)],
           });
 
           if (result) {

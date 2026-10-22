@@ -3,6 +3,7 @@ import crypto from "node:crypto";
 import { NextRequest, NextResponse } from "next/server";
 
 import { requireAdmin } from "@/lib/auth";
+import { stripHtml } from "@/lib/htmlText";
 import { connectToDatabase } from "@/lib/mongodb";
 import { ChatEmbedding } from "@/models/ChatEmbedding";
 import { News } from "@/models/News";
@@ -20,7 +21,7 @@ export const dynamic = "force-dynamic";
 const CHUNK_SIZE = 800;
 
 function chunkText(text: string): string[] {
-  const clean = text.replace(/<style[\s\S]*?<\/style>/gi, " ").replace(/\s+/g, " ").trim();
+  const clean = stripHtml(text).replace(/\s+/g, " ").trim();
   const chunks: string[] = [];
   for (let i = 0; i < clean.length; i += CHUNK_SIZE) {
     chunks.push(clean.slice(i, i + CHUNK_SIZE));
