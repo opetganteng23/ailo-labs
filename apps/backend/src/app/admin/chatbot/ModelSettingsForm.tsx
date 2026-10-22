@@ -5,6 +5,13 @@ import { useFormStatus } from "react-dom";
 
 import { saveModelSettingsAction } from "./actions";
 
+const CHAT_MODEL_PLACEHOLDER: Record<string, string> = {
+  openai: "e.g. gpt-4o-mini",
+  anthropic: "e.g. claude-haiku-4-5",
+  gemini: "e.g. gemini-2.0-flash",
+  custom: "model name",
+};
+
 const PROVIDERS = [
   { key: "openai", name: "OpenAI", sub: "Chat + embeddings" },
   { key: "anthropic", name: "Anthropic", sub: "Chat only" },
@@ -169,11 +176,23 @@ export function ModelSettingsForm({ settings }: { settings: Settings }) {
           <div style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: 16 }}>
             <div className="admin2-field">
               <label htmlFor="chatm">Chat model</label>
-              <input id="chatm" name="chatModel" type="text" placeholder="e.g. gpt-4o-mini" defaultValue={settings.chatModel} />
+              <input id="chatm" name="chatModel" type="text" placeholder={CHAT_MODEL_PLACEHOLDER[provider] ?? "model name"} defaultValue={settings.chatModel} />
             </div>
             <div className="admin2-field">
-              <label htmlFor="embm">Embedding model</label>
-              <input id="embm" name="embeddingModel" type="text" placeholder="e.g. text-embedding-3-small" defaultValue={settings.embeddingModel} />
+              <label htmlFor="embm">
+                Embedding model{provider === "anthropic" && <span style={{ fontWeight: 500, color: "#6b7573" }}> — not used by Anthropic</span>}
+              </label>
+              <input
+                id="embm"
+                name="embeddingModel"
+                type="text"
+                placeholder={provider === "anthropic" ? "Not applicable" : "e.g. text-embedding-3-small"}
+                defaultValue={settings.embeddingModel}
+                disabled={provider === "anthropic"}
+              />
+              {provider === "anthropic" && (
+                <span style={{ fontSize: 12.5, color: "#6b7573" }}>Anthropic has no embeddings API. Relevant content is still found by keyword search, then Claude writes the answer from it.</span>
+              )}
             </div>
           </div>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(3, minmax(0, 1fr))", gap: 16 }}>

@@ -107,6 +107,10 @@ const siteSettingsSchema = new Schema(
       monthlyTokenBudget: Number,
       perVisitorDailyLimit: { type: Number, default: 20 },
       tokensUsedThisMonth: { type: Number, default: 0 },
+      // "YYYY-MM" of the period `tokensUsedThisMonth` is counting. When a request lands in a
+      // different month, the counter resets to 0 first - otherwise it would hit the budget once
+      // and stay capped forever, with nothing to roll it over.
+      tokensUsagePeriod: String,
     },
     featureToggles: {
       booking: { type: Boolean, default: true },

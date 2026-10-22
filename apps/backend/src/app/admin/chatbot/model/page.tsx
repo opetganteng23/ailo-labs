@@ -36,10 +36,13 @@ export default async function AdminChatbotModelPage() {
   const chatbot = settingsDoc?.chatbot ?? {};
   const hasApiKey = !!chatbot.apiKeyEncrypted;
 
+  // Anthropic has no embeddings API - this app's retrieval is keyword-based regardless of
+  // provider, so an embedding model is only meaningful (and only asked for) for the others.
   const checklist = [
     { label: "Knowledge sources chosen", done: (chatbot.knowledgeSources?.length ?? 0) > 0 },
     { label: "API key connected", done: hasApiKey },
-    { label: "Embedding model selected", done: !!chatbot.embeddingModel },
+    { label: "Chat model selected", done: !!chatbot.chatModel },
+    ...(chatbot.provider !== "anthropic" ? [{ label: "Embedding model selected", done: !!chatbot.embeddingModel }] : []),
     { label: "Knowledge re-indexed", done: chunkCount > 0 },
   ];
   const doneCount = checklist.filter((c) => c.done).length;
