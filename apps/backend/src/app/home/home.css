@@ -175,7 +175,8 @@ html:has(.hm-root) { scroll-behavior: smooth; scroll-padding-top: 84px; }
   .hm-link-card small{font-size:11.5px; color:var(--teal-dark); font-weight:600;}
   .hm-link-card:hover{border-color:var(--teal); border-left-color:var(--teal); box-shadow:0 6px 16px -10px rgba(18,24,27,.4);}
   .hm-chips{display:flex; flex-wrap:wrap; gap:6px;}
-  .hm-chip{font:inherit; font-size:12.5px; font-weight:600; color:var(--teal-dark); background:#fff; border:1px solid var(--teal); border-radius:999px; padding:6px 12px; cursor:pointer; transition:background .15s ease, color .15s ease;}
+  .hm-chips{min-width:0;}
+  .hm-chip{max-width:100%; text-align:left; font:inherit; font-size:12.5px; font-weight:600; color:var(--teal-dark); background:#fff; border:1px solid var(--teal); border-radius:999px; padding:6px 12px; cursor:pointer; transition:background .15s ease, color .15s ease;}
   .hm-chip:hover:not(:disabled){background:var(--teal); color:#fff;}
   .hm-chip:disabled{opacity:.5; cursor:default;}
   .hm-typing{align-self:flex-start; display:flex; gap:4px; padding:12px 16px;}
@@ -183,8 +184,8 @@ html:has(.hm-root) { scroll-behavior: smooth; scroll-padding-top: 84px; }
   .hm-typing span:nth-child(2){animation-delay:.15s;} .hm-typing span:nth-child(3){animation-delay:.3s;}
   @keyframes blink{0%,80%,100%{opacity:.25} 40%{opacity:1}}
   .hm-cfoot{border-top:1px solid var(--line); padding:14px; display:flex; gap:8px;}
-  .hm-cfoot input{flex:1; border:1px solid var(--line); border-radius:10px; padding:0 14px; height:46px; font-size:13px; font-family:var(--sans); background:#fff;}
-  .hm-cfoot button{background:var(--orange); color:#1E1206; border:none; border-radius:10px; padding:0 16px; font-size:13px; font-weight:700; cursor:pointer;}
+  .hm-cfoot input{flex:1; min-width:0; border:1px solid var(--line); border-radius:10px; padding:0 14px; height:46px; font-size:13px; font-family:var(--sans); background:#fff;}
+  .hm-cfoot button{flex-shrink:0; background:var(--orange); color:#1E1206; border:none; border-radius:10px; padding:0 16px; font-size:13px; font-weight:700; cursor:pointer;}
 
   .hm-feature-text .hm-eyebrow{color:#B4530F; font-weight:700; font-size:13px; letter-spacing:.14em; margin-bottom:16px;}
   .hm-feature-text h2{font-family:var(--serif); font-size:clamp(28px,3.4vw,40px); font-weight:800; line-height:1.15; margin-bottom:18px;}
@@ -366,7 +367,7 @@ html:has(.hm-root) { scroll-behavior: smooth; scroll-padding-top: 84px; }
   .hm-fab svg{width:24px; height:24px;}
   .hm-fab-pulse{position:absolute; inset:0; border-radius:50%; background:var(--orange); animation:pulse 2.4s infinite ease-out; z-index:-1;}
   @keyframes pulse{0%{transform:scale(1); opacity:.55} 100%{transform:scale(1.9); opacity:0}}
-  .hm-fab-panel{position:fixed; bottom:100px; right:28px; z-index:200; width:min(340px, calc(100vw - 48px)); max-height:min(620px, calc(100vh - 100px - 20px));}
+  .hm-fab-panel{position:fixed; bottom:100px; right:28px; z-index:200; width:min(340px, calc(100vw - 48px)); max-height:min(620px, calc(100vh - 100px - 20px)); max-height:min(620px, calc(100dvh - 100px - 20px));}
   /* A column that never outgrows the space above the chat button: header and footer keep their size, only the messages scroll. */
   .hm-fab-panel.hm-chat-mock{display:flex; flex-direction:column;}
   .hm-fab-panel[hidden]{display:none;}
@@ -429,7 +430,7 @@ html:has(.hm-root) { scroll-behavior: smooth; scroll-padding-top: 84px; }
 
 /* ===== Books: floating button (stacked above the chat button) + reading window ===== */
 .hm-fab-books{bottom:104px; background:var(--teal-dark);}
-.hm-fab-panel{bottom:176px; max-height:min(620px, calc(100vh - 176px - 20px));}
+.hm-fab-panel{bottom:176px; max-height:min(620px, calc(100vh - 176px - 20px)); max-height:min(620px, calc(100dvh - 176px - 20px));}
 .hm-books-overlay{position:fixed; inset:0; z-index:400; background:rgba(8,24,30,0.55); -webkit-backdrop-filter:blur(4px); backdrop-filter:blur(4px); display:flex; align-items:center; justify-content:center; padding:24px;}
 .hm-books-modal{width:min(980px,100%); height:min(86vh,780px); background:#fff; border-radius:22px; box-shadow:0 40px 90px -30px rgba(0,0,0,.55); display:flex; flex-direction:column; overflow:hidden;}
 .hm-books-head{display:flex; align-items:center; gap:14px; padding:16px 20px; border-bottom:1px solid var(--line); flex-shrink:0;}
