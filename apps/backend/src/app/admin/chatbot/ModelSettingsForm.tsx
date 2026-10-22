@@ -7,10 +7,19 @@ import { saveModelSettingsAction } from "./actions";
 
 const CHAT_MODEL_PLACEHOLDER: Record<string, string> = {
   openai: "e.g. gpt-4o-mini",
-  anthropic: "e.g. claude-haiku-4-5",
+  anthropic: "e.g. claude-haiku-5-5",
   gemini: "e.g. gemini-2.0-flash",
   custom: "model name",
 };
+
+// The model id the API actually expects (e.g. "claude-sonnet-5-5"), not the display name shown
+// on claude.ai (e.g. "Claude Sonnet 5.5") - typing the display name here is a dead end the API
+// rejects, so Anthropic gets a dropdown of real ids instead of a free-text field to get wrong.
+const ANTHROPIC_MODELS = [
+  { value: "claude-haiku-5-5", label: "Claude Haiku 5.5 — fastest & cheapest" },
+  { value: "claude-sonnet-5-5", label: "Claude Sonnet 5.5 — balanced (recommended)" },
+  { value: "claude-opus-5-5", label: "Claude Opus 5.5 — highest quality, highest cost" },
+] as const;
 
 const PROVIDERS = [
   { key: "openai", name: "OpenAI", sub: "Chat + embeddings" },
@@ -176,7 +185,17 @@ export function ModelSettingsForm({ settings }: { settings: Settings }) {
           <div style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: 16 }}>
             <div className="admin2-field">
               <label htmlFor="chatm">Chat model</label>
-              <input id="chatm" name="chatModel" type="text" placeholder={CHAT_MODEL_PLACEHOLDER[provider] ?? "model name"} defaultValue={settings.chatModel} />
+              {provider === "anthropic" ? (
+                <select id="chatm" name="chatModel" defaultValue={ANTHROPIC_MODELS.some((m) => m.value === settings.chatModel) ? settings.chatModel : ANTHROPIC_MODELS[1].value}>
+                  {ANTHROPIC_MODELS.map((m) => (
+                    <option key={m.value} value={m.value}>
+                      {m.label}
+                    </option>
+                  ))}
+                </select>
+              ) : (
+                <input id="chatm" name="chatModel" type="text" placeholder={CHAT_MODEL_PLACEHOLDER[provider] ?? "model name"} defaultValue={settings.chatModel} />
+              )}
             </div>
             <div className="admin2-field">
               <label htmlFor="embm">
