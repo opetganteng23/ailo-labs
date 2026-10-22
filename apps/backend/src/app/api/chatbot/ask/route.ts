@@ -86,11 +86,45 @@ async function findRelevantChunks(queryWords: string[], topK: number): Promise<{
 
 const PERSONA = `Kamu adalah "Ask AILO", asisten virtual resmi CoE AILO (AI Learning For Optimization), Center of Excellence di Telkom University. Tugasmu menjadi informan: pengunjung bertanya, kamu menjawab berdasarkan informasi dari situs AILO yang diberikan di pesan.
 
-Aturan:
-- Perkenalkan diri dengan singkat bila disapa (halo, hai, selamat pagi, dst.) atau ditanya siapa kamu, lalu tawarkan bantuan seputar berita, riset, proyek, tim, lab, layanan, buku, dan mitra AILO.
-- Jawab dalam bahasa yang dipakai pengunjung, ringkas, ramah, dan natural. Jangan menyalin mentah potongan teks; susun jawaban sendiri.
+Gaya menjawab (wajib):
+- Jawab BERTAHAP, jangan membuang semua informasi sekaligus. Beri pembuka singkat 1 sampai 3 kalimat yang langsung menjawab inti pertanyaan, sebut paling banyak 3 contoh atau poin, lalu tanyakan dengan ramah bagian mana yang ingin diketahui lebih lanjut.
+- Maksimal sekitar 70 kata untuk bagian jawaban. Satu hal per baris. Gunakan baris kosong antar bagian.
+- TEKS POLOS saja: tanpa markdown, tanpa tanda bintang, tanpa pagar, tanpa tabel, tanpa emoji berlebihan. Untuk daftar pendek, tulis tiap item di baris sendiri diawali "- ".
+- DILARANG memakai tanda pisah panjang (em dash) maupun en dash. Pakai koma, titik, atau tanda hubung biasa.
+- Di baris TERAKHIR selalu tulis satu baris pilihan lanjutan dengan format persis: PILIHAN: opsi satu | opsi dua | opsi tiga
+  Isi 2 sampai 4 opsi pendek (maksimal 5 kata) yang bisa langsung diucapkan pengunjung sebagai pertanyaan berikutnya. Jangan menulis kalimat setelah baris PILIHAN.
+
+Aturan isi:
+- Perkenalkan diri dengan singkat bila disapa (halo, hai, selamat pagi, dst.) atau ditanya siapa kamu, lalu tanyakan mau tahu tentang apa (berita, riset, proyek, tim, lab, layanan, buku, mitra).
+- Jawab dalam bahasa yang dipakai pengunjung. Jangan menyalin mentah potongan teks; susun jawaban sendiri.
 - Untuk fakta (nama, tanggal, angka, kerja sama), hanya gunakan informasi yang diberikan. Jangan mengarang. Jika belum ada informasinya, katakan terus terang dan arahkan ke halaman Kontak (ailo@telkomuniversity.ac.id).
 - Jangan menampilkan kode, HTML, atau format teknis.`;
+
+/**
+ * Cleans what the model returns so the widget never shows markup or dashes: strips markdown,
+ * swaps em/en dashes, and splits off the trailing "PILIHAN:" line into clickable follow-up options.
+ */
+function polishAnswer(raw: string): { answer: string; suggestions: string[] } {
+  let text = raw.replace(/\r/g, "");
+  let suggestions: string[] = [];
+  const match = text.match(/(?:^|\n)\s*PILIHAN\s*:\s*([\s\S]+?)\s*$/i);
+  if (match) {
+    suggestions = match[1].split("|").map((o) => o.replace(/[*_`#]/g, "").replace(/\s+/g, " ").trim()).filter(Boolean).slice(0, 4);
+    text = text.slice(0, match.index).trimEnd();
+  }
+  text = text
+    .replace(/\*\*([\s\S]+?)\*\*/g, "$1")
+    .replace(/(?<!\w)__([\s\S]+?)__(?!\w)/g, "$1")
+    .replace(/`+/g, "")
+    .replace(/^#{1,6}\s*/gm, "")
+    .replace(/^\s*[*•]\s+/gm, "- ")
+    .replace(/\s*[—–]\s*/g, ", ")
+    .replace(/[ ]{2,}/g, " ")
+    .replace(/\n{3,}/g, "\n\n")
+    .trim();
+  suggestions = suggestions.map((o) => o.replace(/\s*[—–]\s*/g, " ").trim());
+  return { answer: text, suggestions };
+}
 
 const short = (text: string | undefined, max: number) => stripHtml(text ?? "").replace(/\s+/g, " ").trim().slice(0, max);
 const idDate = (d?: Date) => (d ? new Date(d).toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric" }) : "");
@@ -297,7 +331,7 @@ export async function POST(request: NextRequest) {
       }
     }
     if (bestQA) {
-      return NextResponse.json({ success: true, data: { answer: bestQA.answer } });
+      return NextResponse.json({ success: true, data: polishAnswer(bestQA.answer) });
     }
 
     const settingsDoc = await SiteSettings.findOne({ key: "global" }).lean<{ chatbot?: ChatbotSettings }>();
@@ -334,7 +368,7 @@ ${cb.systemPrompt}` : PERSONA,
 
           if (result) {
             if (result.usage) await recordTokenUsage(result.usage.input + result.usage.output);
-            return NextResponse.json({ success: true, data: { answer: result.answer } });
+            return NextResponse.json({ success: true, data: polishAnswer(result.answer) });
           }
         }
       }
@@ -347,7 +381,7 @@ ${cb.systemPrompt}` : PERSONA,
       : cb?.fallbackReply ||
         "Saya belum menemukan jawaban pasti untuk itu di konten AILO yang ter-index. Coba tanyakan seputar riset, proyek, tim, atau lab kami, atau hubungi ailo@telkomuniversity.ac.id untuk bantuan langsung.";
 
-    return NextResponse.json({ success: true, data: { answer } });
+    return NextResponse.json({ success: true, data: polishAnswer(answer) });
   } catch (error) {
     console.error("Failed to answer chatbot query", error);
     return NextResponse.json({ success: false, error: "Unable to answer right now." }, { status: 500 });

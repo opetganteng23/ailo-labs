@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 
 import { hm } from "./util";
 
-type Bubble = { who: "bot" | "user"; text: string };
+type Bubble = { who: "bot" | "user"; text: string; suggestions?: string[] };
 
 /** The floating "Ask AILO" chatbot: a button that opens a small panel talking to /api/chatbot/ask. */
 export function ChatWidget() {
@@ -12,7 +12,11 @@ export function ChatWidget() {
   const [busy, setBusy] = useState(false);
   const [text, setText] = useState("");
   const [bubbles, setBubbles] = useState<Bubble[]>([
-    { who: "bot", text: "Halo! Saya asisten AILO. Ada yang bisa saya bantu seputar riset, proyek, tim, atau peminjaman lab?" },
+    {
+      who: "bot",
+      text: "Halo! Saya Ask AILO, asisten virtual CoE AILO Telkom University. Mau tahu tentang apa?",
+      suggestions: ["Berita terbaru", "Tim di balik AILO", "Layanan AILO", "Cara booking lab"],
+    },
   ]);
   const body = useRef<HTMLDivElement>(null);
   const input = useRef<HTMLInputElement>(null);
@@ -25,23 +29,32 @@ export function ChatWidget() {
     if (open) input.current?.focus();
   }, [open]);
 
-  async function send(e: React.FormEvent) {
-    e.preventDefault();
-    const message = text.trim();
+  async function ask(message: string) {
     if (!message || busy) return;
-    setBubbles((b) => [...b, { who: "user", text: message }]);
+    // Options under earlier answers go stale once the visitor moves on, so only the newest reply keeps its buttons.
+    setBubbles((b) => [...b.map((x) => ({ ...x, suggestions: undefined })), { who: "user", text: message }]);
     setText("");
     setBusy(true);
     try {
       const res = await fetch("/api/chatbot/ask", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ message }) });
       const data = await res.json();
-      setBubbles((b) => [...b, { who: "bot", text: data.data ? data.data.answer : "Maaf, terjadi kesalahan. Coba lagi sebentar lagi." }]);
+      setBubbles((b) => [
+        ...b,
+        data.data
+          ? { who: "bot", text: data.data.answer, suggestions: data.data.suggestions }
+          : { who: "bot", text: "Maaf, terjadi kesalahan. Coba lagi sebentar lagi." },
+      ]);
     } catch {
       setBubbles((b) => [...b, { who: "bot", text: "Maaf, tidak bisa terhubung ke server sekarang." }]);
     } finally {
       setBusy(false);
       window.setTimeout(() => input.current?.focus(), 0);
     }
+  }
+
+  function send(e: React.FormEvent) {
+    e.preventDefault();
+    void ask(text.trim());
   }
 
   return (
@@ -63,10 +76,20 @@ export function ChatWidget() {
         </div>
         <div className={hm("cbody")} id="fabBody" ref={body}>
           {bubbles.map((b, i) => (
-            <div key={i} className={hm(`bubble ${b.who}`)}>
-              {b.text}
+            <div key={i} className={hm(`bubble-group ${b.who}`)}>
+              <div className={hm(`bubble ${b.who}`)}>{b.text}</div>
+              {b.suggestions && b.suggestions.length > 0 && (
+                <div className={hm("chips")}>
+                  {b.suggestions.map((option) => (
+                    <button key={option} type="button" className={hm("chip")} disabled={busy} onClick={() => void ask(option)}>
+                      {option}
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
           ))}
+          {busy && <div className={hm("bubble bot typing")}>Mengetik...</div>}
         </div>
         <form className={hm("cfoot")} id="fabForm" onSubmit={send}>
           <input ref={input} type="text" id="fabInput" placeholder="Tanyakan sesuatu tentang AILO..." autoComplete="off" value={text} disabled={busy} onChange={(e) => setText(e.target.value)} />
