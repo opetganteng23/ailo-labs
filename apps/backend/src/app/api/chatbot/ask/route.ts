@@ -172,7 +172,8 @@ async function buildBaseContext(question: string): Promise<BaseContext> {
     links.set(code, { label: label.length > 48 ? `${label.slice(0, 45).trimEnd()}...` : label, href });
     return `[${code}]`;
   };
-  const page = (code: string, label: string, href: string) => `${reg(code, label, href)} halaman ${label} (${href})`;
+  // Worded as a page the visitor can open, so the model says "halaman daftar lengkapnya" rather than parroting the button label.
+  const page = (code: string, label: string, href: string) => `${reg(code, label, href)} halaman daftar lengkap atau detail (tombol: ${label})`;
 
   const settings = await SiteSettings.findOne({ key: "global" })
     .select("about contact")
