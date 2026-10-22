@@ -26,6 +26,16 @@ Sumber: `AILO_Evaluasi_Menyeluruh_dan_Rencana_Perbaikan.md` (evaluasi 30 Sep 202
   - Batas yang sudah ada tapi tidak pernah dipakai kini berfungsi: anggaran token bulanan (reset otomatis tiap bulan lewat `tokensUsagePeriod`) dan batas pertanyaan per pengunjung per hari (pakai IP). Kena batas / error / tanpa kunci -> fallback ke perilaku lama (potongan teks), bot tidak pernah diam.
   - DEPLOYED & VERIFIED on live (c79e103): baterai 18 pertanyaan lewat endpoint publik (sapaan, siapa kamu, AILO itu apa, berita terbaru, orang di balik AILO, pimpinan, mitra, riset, proyek, lab + cara booking, cara jadi member, layanan, SAFE AI, buku, pertanyaan di luar topik (bitcoin, ditolak sopan), terima kasih, pertanyaan bahasa Inggris, kontak) - semua dijawab natural dan sesuai data web; jawaban Q4 memakai 4 berita paling baru asli dari DB, Q5 memuat seluruh 10 anggota tim sesuai jabatan. Catatan: jawaban soal riset menyebut entri riset yang tampaknya masih contoh/placeholder di database (2 entri "NLP & RAG", "Optimization & RL") - itu isi data, bukan bug bot; sebaiknya admin mengganti dengan riset asli. Rotasi kunci: user sempat menempelkan kunci di chat; disarankan dibuat ulang.
 
+## Next (disimpan 22 Okt, belum dikerjakan)
+- [ ] QR pendaftaran member: halaman admin untuk membuat QR yang mengarah ke `/join` (unduh PNG/PDF siap cetak untuk poster/banner acara). Library `qrcode` sudah terpasang. Varian per jenis, misalnya `/join?type=dosen`, supaya kategori terpilih otomatis dan bisa dibuat QR khusus dosen. (User bilang "udah bisa" - mungkin sudah cukup; konfirmasi dulu sebelum dikerjakan.)
+- [ ] Form Join yang lebih ringkas untuk dosen: lewat `?type=dosen` hanya tanya yang relevan (NIDN, unit, profil Scopus/SINTA), lewati kolom yang tidak perlu.
+- [ ] (Ditunda, besar) Pertanyaan form Join yang bisa diatur admin seperti form builder; kolom sekarang sudah mencakup data kartu member, jadi baru dikerjakan bila benar-benar dibutuhkan.
+- [ ] Isi data "Karya dan Kontribusi" di profil People (butuh daftar dari user: judul, jenis, tahun, tautan per orang) - fiturnya sudah live tapi masih kosong, tidak mengarang data untuk orang nyata.
+- [ ] Form Proyek (admin/dosen): pilihan anggota tim, supaya "Proyek AILO" di profil orang terisi otomatis (`Project.teamMembers` sudah ada di model; belum dicek apakah form-nya punya pilihannya).
+- [ ] Ganti entri Riset placeholder di database ("NLP & RAG", "Optimization & RL" - tampak contoh) dengan riset asli; chatbot menjawab riset dari data ini.
+- [ ] User: buat ulang (rotate) API key Anthropic yang sempat tertempel di chat, lalu simpan yang baru di Admin > Chatbot > Model.
+- [ ] Opsional: pulihkan bagian "Dosen" otomatis (sekarang kosong karena semua dosen masuk Director & Vice Director) - tidak perlu tindakan, muncul sendiri saat ada dosen lain.
+
 ## Profil seperti LinkedIn: Karya dan Kontribusi (22 Okt)
 - [x] Permintaan user: dari tiap orang di People bisa di-list ciptaannya, penelitiannya, produknya (seperti LinkedIn versi AILO), lengkap dengan path/tautan yang bisa diklik.
   - Model: `Team.works` (`kind` riset/produk/publikasi/hki/buku/lainnya, `title`, `year`, `url`, `description`), helper bersama `lib/teamWorks.ts` (daftar jenis, `cleanWorks`, `readWorksFromForm`, `safeHref`: tautan hanya boleh path di situs `/...` atau `http(s)://...`, selain itu dibuang).
