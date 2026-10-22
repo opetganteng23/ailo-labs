@@ -3,8 +3,6 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
-import crypto from "node:crypto";
-
 import { getSession, isAdminRole } from "@/lib/auth";
 import { getBaseUrl } from "@/lib/baseUrl";
 import { flash, FlashError, withFlash } from "@/lib/flash";
@@ -16,6 +14,7 @@ import { connectToDatabase } from "@/lib/mongodb";
 import { Member } from "@/models/Member";
 import { Team } from "@/models/Team";
 import { readCategories } from "@/lib/teamCats";
+import { syncMemberTeamBoard } from "@/lib/teamBoardSync";
 import { MEMBER_CATEGORIES } from "@/lib/memberCategories";
 
 async function requireAdmin() {
@@ -89,6 +88,21 @@ export async function approveMemberAction(formData: FormData) {
         }
       }
 
+      // Member decided at registration whether their name/profile should go public once
+      // approved ("Show my name and profile links on the AILO website once approved" -
+      // optional, unchecked by default). If they opted in, approval is also the moment
+      // they appear on the public Team page - no separate admin step needed. Their
+      // approved membership type doubles as the Team category (both use the same list).
+      // An admin can still remove them again from Admin > Members afterwards.
+      if (member.showProfilePublicly && !member.includeInTeamBoard) {
+        const category = member.approvedAs || member.requestedAs;
+        member.includeInTeamBoard = true;
+        member.teamCategory = category;
+        member.teamCategories = [category];
+        await member.save();
+        await syncMemberTeamBoard(member, { include: true, categories: [category] });
+      }
+
       const validText = `berlaku sampai ${validUntil.toLocaleDateString("id-ID")}`;
       const cardUrl = `${await getBaseUrl()}/verify/${cardId}`;
       const mail = await sendMail({
@@ -155,10 +169,6 @@ export async function revokeMemberAction(formData: FormData) {
   revalidatePath("/admin/members");
 }
 
-function slugify(input: string) {
-  return input.toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
-}
-
 /**
  * Admin-only control over who appears on the public Team page (§12-14 of the
  * eval doc). Only approved members are eligible. Turning it on creates or
@@ -190,40 +200,7 @@ export async function setMemberTeamBoardAction(formData: FormData) {
       }
       await member.save();
 
-      let team = await Team.findOne({ member: member._id }).catch(() => null);
-      if (!team) team = await Team.findOne({ email: member.email.toLowerCase() });
-
-      if (!include) {
-        // Leave the profile in place (a lecturer's edits, Scopus data, etc. aren't lost) - just hide it.
-        if (team) {
-          team.isActive = false;
-          await team.save();
-        }
-        return;
-      }
-
-      if (team) {
-        team.category = categories[0];
-        team.categories = categories;
-        team.isActive = true;
-        team.member = member._id;
-        if (!team.photo && member.photo) team.photo = member.photo;
-        await team.save();
-      } else {
-        let slug = slugify(member.name) || "member";
-        if (await Team.exists({ slug })) slug = `${slug}-${crypto.randomBytes(2).toString("hex")}`;
-        await Team.create({
-          name: member.name,
-          slug,
-          position: member.approvedAs ?? member.requestedAs,
-          category: categories[0],
-          categories,
-          email: member.email.toLowerCase(),
-          photo: member.photo,
-          member: member._id,
-          isActive: true,
-        });
-      }
+      await syncMemberTeamBoard(member, { include, categories });
     },
     {
       success: include ? "Added to the Team Board." : "Removed from the Team Board.",
