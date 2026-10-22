@@ -1,4 +1,4 @@
-import { categoriesOf, sortTeamByRank } from "@/lib/teamCats";
+import { categoriesOf, groupTeamByRank, sortTeamByRank } from "@/lib/teamCats";
 import Link from "next/link";
 
 import { SiteFooter } from "@/components/SiteFooter";
@@ -84,49 +84,59 @@ export default async function TeamListPage({ searchParams }: { searchParams: Pro
 
         {items.length === 0 && <EmptyState variant="public" title="No team members yet" message="Our researchers and lecturers will appear here soon." actionHref="/" actionLabel="Back to homepage" />}
 
-        <div className="team-grid">
-          {items.map((item) => {
-            const badges = [
-              item.profiles?.scopus ? "Scopus" : null,
-              item.profiles?.googleScholar ? "Scholar" : null,
-              item.profiles?.sinta ? "SINTA" : null,
-            ].filter(Boolean) as string[];
-            return (
-              <Link key={item._id} href={`/team/${item.slug}`} className="tcard">
-                <div className="tphoto">
-                  {item.photo && (
-                    // eslint-disable-next-line @next/next/no-img-element -- arbitrary uploaded image, no static optimization needed
-                    <img src={item.photo} alt={item.name} />
-                  )}
-                </div>
-                <h4>{item.name}</h4>
-                <span className="role">{item.position}</span>
-                {(item.researchInterests?.length ?? 0) > 0 && (
-                  <div className="tinterests">
-                    {item.researchInterests!.slice(0, 3).map((i) => (
-                      <span key={i}>{i}</span>
-                    ))}
-                  </div>
-                )}
-                {item.scopusData?.hIndex !== undefined && (
-                  <span className="met">
-                    h-index {item.scopusData.hIndex}
-                    {item.scopusData.documentCount ? ` · ${item.scopusData.documentCount} publications` : ""}
-                  </span>
-                )}
-                {badges.length > 0 && (
-                  <div className="tbadges">
-                    {badges.map((b) => (
-                      <span key={b} className="tbadge">
-                        {b}
+        {/* One section per category, most senior first, so lecturers, advisors and students don't blur together.
+            Filtering to a category shows just that section. */}
+        {(category ? [{ category, items }] : groupTeamByRank(items, categories)).map((group) => (
+          <div key={group.category} className="team-section" role="group" aria-labelledby={`team-${group.category}`}>
+            <div className="team-section-head">
+              <h2 id={`team-${group.category}`}>{group.category}</h2>
+              <span className="team-section-count">{group.items.length}</span>
+            </div>
+            <div className="team-grid">
+              {group.items.map((item) => {
+                const badges = [
+                  item.profiles?.scopus ? "Scopus" : null,
+                  item.profiles?.googleScholar ? "Scholar" : null,
+                  item.profiles?.sinta ? "SINTA" : null,
+                ].filter(Boolean) as string[];
+                return (
+                  <Link key={item._id} href={`/team/${item.slug}`} className="tcard">
+                    <div className="tphoto">
+                      {item.photo && (
+                        // eslint-disable-next-line @next/next/no-img-element -- arbitrary uploaded image, no static optimization needed
+                        <img src={item.photo} alt={item.name} />
+                      )}
+                    </div>
+                    <h4>{item.name}</h4>
+                    <span className="role">{item.position}</span>
+                    {(item.researchInterests?.length ?? 0) > 0 && (
+                      <div className="tinterests">
+                        {item.researchInterests!.slice(0, 3).map((i) => (
+                          <span key={i}>{i}</span>
+                        ))}
+                      </div>
+                    )}
+                    {item.scopusData?.hIndex !== undefined && (
+                      <span className="met">
+                        h-index {item.scopusData.hIndex}
+                        {item.scopusData.documentCount ? ` · ${item.scopusData.documentCount} publications` : ""}
                       </span>
-                    ))}
-                  </div>
-                )}
-              </Link>
-            );
-          })}
-        </div>
+                    )}
+                    {badges.length > 0 && (
+                      <div className="tbadges">
+                        {badges.map((b) => (
+                          <span key={b} className="tbadge">
+                            {b}
+                          </span>
+                        ))}
+                      </div>
+                    )}
+                  </Link>
+                );
+              })}
+            </div>
+          </div>
+        ))}
       </main>
       <SiteFooter />
     </>

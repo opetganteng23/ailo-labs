@@ -34,3 +34,30 @@ export function sortTeamByRank<T extends { category?: string; categories?: strin
   };
   return [...items].sort((a, b) => rankOf(a) - rankOf(b) || (a.displayOrder ?? 0) - (b.displayOrder ?? 0) || a.name.localeCompare(b.name));
 }
+
+/**
+ * Groups already-ranked team profiles into sections, one per category, in the admin-managed
+ * seniority order. A person in several categories sits under their most senior one, so nobody
+ * appears twice. People with no category land in a final "Lainnya" section.
+ */
+export function groupTeamByRank<T extends { category?: string; categories?: string[] }>(
+  items: T[],
+  orderedCategories: string[],
+): { category: string; items: T[] }[] {
+  const rank = new Map(orderedCategories.map((c, i) => [c, i]));
+  const rankOf = (c: string) => rank.get(c) ?? orderedCategories.length;
+  const primary = (item: T) => {
+    const cats = categoriesOf(item);
+    return cats.length === 0 ? "Lainnya" : cats.reduce((best, c) => (rankOf(c) < rankOf(best) ? c : best), cats[0]);
+  };
+  const groups = new Map<string, T[]>();
+  for (const item of items) {
+    const key = primary(item);
+    const list = groups.get(key);
+    if (list) list.push(item);
+    else groups.set(key, [item]);
+  }
+  return Array.from(groups.entries())
+    .sort((a, b) => rankOf(a[0]) - rankOf(b[0]))
+    .map(([category, list]) => ({ category, items: list }));
+}

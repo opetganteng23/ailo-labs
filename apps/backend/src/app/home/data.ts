@@ -118,7 +118,7 @@ export async function getHomeData(): Promise<HomeData> {
 
     // Published partners feed the strip, but only as logos (never as text); with no logo uploaded yet the strip stays hidden.
     // With no partners at all, the Settings strip items are used.
-    const rankedTeam = sortTeamByRank(team, teamCategories).slice(0, 8);
+    const rankedTeam = sortTeamByRank(team, teamCategories);
 
     const partnerLogos = partners.filter((p) => p.image).map((p) => ({ text: p.title, image: p.image, dark: p.logoDark }));
     const strip = partners.length > 0 ? (partnerLogos.length > 0 ? partnerLogos : null) : settings?.homepage?.marqueeItems?.length ? settings.homepage.marqueeItems : undefined;

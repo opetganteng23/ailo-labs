@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 
+import { groupTeamByRank } from "@/lib/teamCats";
+
 import type { TeamCard } from "./data";
 import { hm } from "./util";
 
@@ -15,11 +17,45 @@ const SAMPLE: TeamCard[] = [
 /** Short labels for the filter chips; any category an admin adds later uses its own name. */
 const SHORT: Record<string, string> = { "Peneliti Alumni": "Alumni", "Honorary Advisory Board": "Advisory Board" };
 
-/** Team preview with client-side category filter chips. */
+/** Cards shown per section on the homepage; the rest are one click away on /team. */
+const PER_SECTION = 4;
+
+function Card({ t }: { t: TeamCard }) {
+  const cats = t.categories?.length ? t.categories : t.category ? [t.category] : [];
+  const metrics =
+    t.hIndex !== undefined ? `h-index ${t.hIndex}${t.documentCount ? ` · ${t.documentCount} publications` : ""}` : t.documentCount ? `${t.documentCount} publications` : "";
+  return (
+    <a className={hm("tcard")} href={t.slug ? `/team/${t.slug}` : "/team"} data-category={cats.join("|")}>
+      <div className={hm("tphoto")} style={t.photo ? { backgroundImage: `url('${t.photo}')`, backgroundSize: "cover", backgroundPosition: "center" } : undefined} />
+      <h4>{t.name}</h4>
+      <div className={hm("role")}>{t.position}</div>
+      {metrics && <div className={hm("met")}>{metrics}</div>}
+      {t.badges.length > 0 && (
+        <div className={hm("tbadges")}>
+          {t.badges.map((b) => (
+            <span key={b} className={hm("tbadge")}>
+              {b}
+            </span>
+          ))}
+        </div>
+      )}
+    </a>
+  );
+}
+
+/**
+ * Team preview grouped into one section per category (most senior first), with filter chips.
+ * "All" shows a few people per section with a link to the rest; picking a category shows that
+ * whole section.
+ */
 export function TeamGrid({ items, categories }: { items: TeamCard[]; categories: string[] }) {
   const list = items.length > 0 ? items : SAMPLE;
-  const chips = categories.length > 0 ? categories : ["Dosen", "Peneliti", "Peneliti Mahasiswa", "Peneliti Alumni", "Honorary Advisory Board"];
+  const chips = categories.length > 0 ? categories : ["Honorary Advisory Board", "Dosen", "Peneliti", "Peneliti Alumni", "Peneliti Mahasiswa"];
   const [filter, setFilter] = useState("");
+
+  const sections = filter
+    ? [{ category: filter, items: list.filter((t) => (t.categories?.length ? t.categories : t.category ? [t.category] : []).includes(filter)) }]
+    : groupTeamByRank(list, chips);
 
   return (
     <>
@@ -33,39 +69,40 @@ export function TeamGrid({ items, categories }: { items: TeamCard[]; categories:
           </button>
         ))}
       </div>
-      <div className={hm("team-grid")} id="team-grid">
-        {list.map((t, i) => {
-          const cats = t.categories?.length ? t.categories : t.category ? [t.category] : [];
-          const match = !filter || cats.includes(filter);
-          const metrics =
-            t.hIndex !== undefined ? `h-index ${t.hIndex}${t.documentCount ? ` · ${t.documentCount} publications` : ""}` : t.documentCount ? `${t.documentCount} publications` : "";
+      <div id="team-grid">
+        {sections.map((section) => {
+          const shown = filter ? section.items : section.items.slice(0, PER_SECTION);
+          const hidden = section.items.length - shown.length;
           return (
-            <a key={`${t.slug}-${i}`} className={hm(match ? "tcard" : "tcard hidden")} href={t.slug ? `/team/${t.slug}` : "/team"} data-category={cats.join("|")}>
-              <div className={hm("tphoto")} style={t.photo ? { backgroundImage: `url('${t.photo}')`, backgroundSize: "cover", backgroundPosition: "center" } : undefined} />
-              <h4>{t.name}</h4>
-              <div className={hm("role")}>{t.position}</div>
-              {metrics && <div className={hm("met")}>{metrics}</div>}
-              {t.badges.length > 0 && (
-                <div className={hm("tbadges")}>
-                  {t.badges.map((b) => (
-                    <span key={b} className={hm("tbadge")}>
-                      {b}
-                    </span>
-                  ))}
-                </div>
-              )}
-            </a>
+            <div key={section.category} className={hm("team-section")} role="group" aria-label={section.category}>
+              <div className={hm("team-section-head")}>
+                <h3>{section.category}</h3>
+                <span className={hm("team-section-count")}>{section.items.length}</span>
+                {hidden > 0 && (
+                  <a className={hm("team-section-more")} href={`/team?category=${encodeURIComponent(section.category)}`}>
+                    Lihat semua {section.items.length}
+                  </a>
+                )}
+              </div>
+              <div className={hm("team-grid")}>
+                {shown.map((t, i) => (
+                  <Card key={`${t.slug}-${i}`} t={t} />
+                ))}
+              </div>
+            </div>
           );
         })}
-        <a className={hm("tcard tcard-cta")} href="/join">
-          <span className={hm("icon")}>
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-              <path d="M12 5v14M5 12h14" />
-            </svg>
-          </span>
-          <h4>Your profile could be here</h4>
-          <p>Register as an AILO member and join the network.</p>
-        </a>
+        <div className={hm("team-grid")}>
+          <a className={hm("tcard tcard-cta")} href="/join">
+            <span className={hm("icon")}>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+                <path d="M12 5v14M5 12h14" />
+              </svg>
+            </span>
+            <h4>Your profile could be here</h4>
+            <p>Register as an AILO member and join the network.</p>
+          </a>
+        </div>
       </div>
     </>
   );

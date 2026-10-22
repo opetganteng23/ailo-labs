@@ -1542,3 +1542,10 @@ html.reader-dark [data-reader-keep] img, html.reader-dark header.site img { filt
    white backing so transparent PNG/SVG logos don't lose their dark parts on the dark page. */
 html.reader-dark header.site { filter: invert(1) hue-rotate(180deg); }
 html.reader-dark main img { background: #fff; }
+
+/* People page sections: one block per category so ranks don't blur together. */
+.team-section { margin-top: 44px; }
+.team-section:first-of-type { margin-top: 28px; }
+.team-section-head { display: flex; align-items: center; gap: 12px; padding-bottom: 12px; margin-bottom: 22px; border-bottom: 1px solid var(--line); }
+.team-section-head h2 { margin: 0; font-size: 22px; font-weight: 700; letter-spacing: -0.01em; }
+.team-section-count { font-size: 12px; font-weight: 700; color: var(--teal-dark); background: rgba(0, 128, 157, 0.1); border-radius: 999px; padding: 3px 10px; }
