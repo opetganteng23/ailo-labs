@@ -355,8 +355,12 @@ html:has(.hm-root) { scroll-behavior: smooth; scroll-padding-top: 84px; }
   .hm-fab svg{width:24px; height:24px;}
   .hm-fab-pulse{position:absolute; inset:0; border-radius:50%; background:var(--orange); animation:pulse 2.4s infinite ease-out; z-index:-1;}
   @keyframes pulse{0%{transform:scale(1); opacity:.55} 100%{transform:scale(1.9); opacity:0}}
-  .hm-fab-panel{position:fixed; bottom:100px; right:28px; z-index:200; width:min(340px, calc(100vw - 48px)); max-height:60vh;}
-  .hm-fab-panel .hm-cbody{overflow-y:auto; max-height:38vh;}
+  .hm-fab-panel{position:fixed; bottom:100px; right:28px; z-index:200; width:min(340px, calc(100vw - 48px)); max-height:min(620px, calc(100vh - 100px - 20px));}
+  /* A column that never outgrows the space above the chat button: header and footer keep their size, only the messages scroll. */
+  .hm-fab-panel.hm-chat-mock{display:flex; flex-direction:column;}
+  .hm-fab-panel[hidden]{display:none;}
+  .hm-fab-panel .hm-chead, .hm-fab-panel .hm-cfoot{flex-shrink:0;}
+  .hm-fab-panel .hm-cbody{flex:1 1 auto; min-height:0; overflow-y:auto; max-height:none;}
 
   @media (max-width:980px){
     .hm-feature{grid-template-columns:1fr; gap:40px;}
@@ -414,7 +418,7 @@ html:has(.hm-root) { scroll-behavior: smooth; scroll-padding-top: 84px; }
 
 /* ===== Books: floating button (stacked above the chat button) + reading window ===== */
 .hm-fab-books{bottom:104px; background:var(--teal-dark);}
-.hm-fab-panel{bottom:176px;}
+.hm-fab-panel{bottom:176px; max-height:min(620px, calc(100vh - 176px - 20px));}
 .hm-books-overlay{position:fixed; inset:0; z-index:400; background:rgba(8,24,30,0.55); -webkit-backdrop-filter:blur(4px); backdrop-filter:blur(4px); display:flex; align-items:center; justify-content:center; padding:24px;}
 .hm-books-modal{width:min(980px,100%); height:min(86vh,780px); background:#fff; border-radius:22px; box-shadow:0 40px 90px -30px rgba(0,0,0,.55); display:flex; flex-direction:column; overflow:hidden;}
 .hm-books-head{display:flex; align-items:center; gap:14px; padding:16px 20px; border-bottom:1px solid var(--line); flex-shrink:0;}
