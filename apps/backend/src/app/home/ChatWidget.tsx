@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 
 import { hm } from "./util";
 
-type Bubble = { who: "bot" | "user"; text: string; suggestions?: string[] };
+type Bubble = { who: "bot" | "user"; text: string; suggestions?: string[]; links?: { label: string; href: string }[] };
 
 /** The floating "Ask AILO" chatbot: a button that opens a small panel talking to /api/chatbot/ask. */
 export function ChatWidget() {
@@ -41,7 +41,7 @@ export function ChatWidget() {
       setBubbles((b) => [
         ...b,
         data.data
-          ? { who: "bot", text: data.data.answer, suggestions: data.data.suggestions }
+          ? { who: "bot", text: data.data.answer, suggestions: data.data.suggestions, links: data.data.links }
           : { who: "bot", text: "Maaf, terjadi kesalahan. Coba lagi sebentar lagi." },
       ]);
     } catch {
@@ -78,6 +78,16 @@ export function ChatWidget() {
           {bubbles.map((b, i) => (
             <div key={i} className={hm(`bubble-group ${b.who}`)}>
               <div className={hm(`bubble ${b.who}`)}>{b.text}</div>
+              {b.links && b.links.length > 0 && (
+                <div className={hm("links")}>
+                  {b.links.map((link) => (
+                    <a key={link.href} className={hm("link-card")} href={link.href} target="_blank" rel="noopener noreferrer">
+                      <span>{link.label}</span>
+                      <small>Buka halaman</small>
+                    </a>
+                  ))}
+                </div>
+              )}
               {b.suggestions && b.suggestions.length > 0 && (
                 <div className={hm("chips")}>
                   {b.suggestions.map((option) => (

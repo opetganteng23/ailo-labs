@@ -91,6 +91,8 @@ Gaya menjawab (wajib):
 - Maksimal sekitar 70 kata untuk bagian jawaban. Satu hal per baris. Gunakan baris kosong antar bagian.
 - TEKS POLOS saja: tanpa markdown, tanpa tanda bintang, tanpa pagar, tanpa tabel, tanpa emoji berlebihan. Untuk daftar pendek, tulis tiap item di baris sendiri diawali "- ".
 - DILARANG memakai tanda pisah panjang (em dash) maupun en dash. Pakai koma, titik, atau tanda hubung biasa.
+- Item di informasi bisa punya kode dalam kurung siku, misalnya [n1] atau [t2]. Jika kamu menyebut item atau halaman yang punya kode, tambahkan SATU baris tepat sebelum baris PILIHAN dengan format persis: TAUTAN: n1 | t2
+  Isi maksimal 3 kode dari informasi yang diberikan, hanya untuk item yang benar-benar kamu bahas, supaya pengunjung bisa membuka halaman detailnya. Jangan menulis kode di dalam kalimat jawaban, dan jangan mengarang kode.
 - Di baris TERAKHIR selalu tulis satu baris pilihan lanjutan dengan format persis: PILIHAN: opsi satu | opsi dua | opsi tiga
   Isi 2 sampai 4 opsi pendek (maksimal 5 kata) yang bisa langsung diucapkan pengunjung sebagai pertanyaan berikutnya. Jangan menulis kalimat setelah baris PILIHAN.
 
@@ -102,45 +104,79 @@ Aturan isi:
 
 /**
  * Cleans what the model returns so the widget never shows markup or dashes: strips markdown,
- * swaps em/en dashes, and splits off the trailing "PILIHAN:" line into clickable follow-up options.
+ * swaps em/en dashes, splits off the trailing "PILIHAN:" line into clickable follow-up options,
+ * and turns a "TAUTAN:" line of item codes into real page links. Only codes the server handed out
+ * are accepted, so a hallucinated or malicious code can never become a URL.
  */
-function polishAnswer(raw: string): { answer: string; suggestions: string[] } {
+function polishAnswer(raw: string, known?: Map<string, LinkEntry>): { answer: string; suggestions: string[]; links: LinkEntry[] } {
   let text = raw.replace(/\r/g, "");
   let suggestions: string[] = [];
-  const match = text.match(/(?:^|\n)\s*PILIHAN\s*:\s*([\s\S]+?)\s*$/i);
-  if (match) {
-    suggestions = match[1].split("|").map((o) => o.replace(/[*_`#]/g, "").replace(/\s+/g, " ").trim()).filter(Boolean).slice(0, 4);
-    text = text.slice(0, match.index).trimEnd();
+  const links: LinkEntry[] = [];
+
+  const choice = text.match(/(?:^|\n)\s*PILIHAN\s*:\s*([\s\S]+?)\s*$/i);
+  if (choice) {
+    suggestions = choice[1].split("|").map((o) => o.replace(/[*_`#]/g, "").replace(/\s+/g, " ").trim()).filter(Boolean).slice(0, 4);
+    text = text.slice(0, choice.index).trimEnd();
   }
+
+  const linkLine = text.match(/(?:^|\n)[ \t]*TAUTAN[ \t]*:[ \t]*([^\n]*)/i);
+  if (linkLine) {
+    const seen = new Set<string>();
+    for (const code of linkLine[1].toLowerCase().split(/[^a-z0-9]+/).filter(Boolean)) {
+      const entry = known?.get(code);
+      if (entry && !seen.has(entry.href)) {
+        seen.add(entry.href);
+        links.push(entry);
+      }
+      if (links.length >= 3) break;
+    }
+    text = text.replace(linkLine[0], "");
+  }
+
   text = text
     .replace(/\*\*([\s\S]+?)\*\*/g, "$1")
     .replace(/(?<!\w)__([\s\S]+?)__(?!\w)/g, "$1")
     .replace(/`+/g, "")
     .replace(/^#{1,6}\s*/gm, "")
     .replace(/^\s*[*•]\s+/gm, "- ")
+    .replace(/[ \t]*\[[a-z]{1,10}\d{0,3}\]/gi, "")
     .replace(/\s*[—–]\s*/g, ", ")
     .replace(/[ ]{2,}/g, " ")
     .replace(/\n{3,}/g, "\n\n")
     .trim();
-  suggestions = suggestions.map((o) => o.replace(/\s*[—–]\s*/g, " ").trim());
-  return { answer: text, suggestions };
+  suggestions = suggestions.map((o) => o.replace(/\s*[—–]\s*/g, " ").replace(/[ \t]*\[[a-z]{1,10}\d{0,3}\]/gi, "").trim());
+  return { answer: text, suggestions, links };
 }
 
 const short = (text: string | undefined, max: number) => stripHtml(text ?? "").replace(/\s+/g, " ").trim().slice(0, max);
 const idDate = (d?: Date) => (d ? new Date(d).toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric" }) : "");
+
+type LinkEntry = { label: string; href: string };
+type BaseContext = { context: string[]; links: Map<string, LinkEntry> };
 
 /**
  * Live, structured grounding fetched straight from the database according to what the visitor asks.
  * Keyword retrieval over indexed chunks can't answer "who is on the team", "what's new" or "who are
  * the partners" (those are lists, not passages), and an index can be stale - so these come from the
  * source of truth every time. Always includes what AILO is, from the About section.
+ *
+ * Every item that has a page on the site gets a short code like [n1] or [t2]. The model only ever
+ * picks codes; the server maps them to real paths, so a visitor can never be sent to an invented URL.
  */
-async function buildBaseContext(question: string): Promise<string[]> {
+async function buildBaseContext(question: string): Promise<BaseContext> {
   const q = question.toLowerCase();
   const has = (re: RegExp) => re.test(q);
   const out: string[] = [];
+  const links = new Map<string, LinkEntry>();
+  const reg = (code: string, label: string, href: string) => {
+    links.set(code, { label: label.length > 48 ? `${label.slice(0, 45).trimEnd()}...` : label, href });
+    return `[${code}]`;
+  };
+  const page = (code: string, label: string, href: string) => `${reg(code, label, href)} halaman ${label} (${href})`;
 
-  const settings = await SiteSettings.findOne({ key: "global" }).select("about contact").lean<{ about?: { title?: string; body?: string }; contact?: { email?: string; phone?: string; address?: string; address2?: string } }>();
+  const settings = await SiteSettings.findOne({ key: "global" })
+    .select("about contact")
+    .lean<{ about?: { title?: string; body?: string }; contact?: { email?: string; phone?: string; address?: string; address2?: string } }>();
   const about = [settings?.about?.title, short(settings?.about?.body, 1200)].filter(Boolean).join(" ").trim();
   if (about) out.push(`Tentang AILO: ${about}`);
 
@@ -148,75 +184,139 @@ async function buildBaseContext(question: string): Promise<string[]> {
 
   if (has(/berita|news|terbaru|terkini|\bbaru\b|update|kabar|pengumuman/)) {
     jobs.push(
-      News.find({ status: "published" }).sort({ publishedAt: -1, createdAt: -1 }).limit(8).select("title summary publishedAt").lean<{ title: string; summary?: string; publishedAt?: Date }[]>().then((rows) => {
-        if (rows.length) out.push("Berita terbaru AILO (dari yang paling baru):\n" + rows.map((n, i) => `${i + 1}. ${n.title}${n.publishedAt ? ` (${idDate(n.publishedAt)})` : ""}${n.summary ? ` - ${short(n.summary, 200)}` : ""}`).join("\n"));
-      }),
+      News.find({ status: "published" })
+        .sort({ publishedAt: -1, createdAt: -1 })
+        .limit(8)
+        .select("title slug summary publishedAt")
+        .lean<{ title: string; slug: string; summary?: string; publishedAt?: Date }[]>()
+        .then((rows) => {
+          if (!rows.length) return;
+          out.push(
+            "Berita terbaru AILO (dari yang paling baru):\n" +
+              rows.map((n, i) => `${reg(`n${i + 1}`, n.title, `/news/${n.slug}`)} ${n.title}${n.publishedAt ? ` (${idDate(n.publishedAt)})` : ""}${n.summary ? ` - ${short(n.summary, 200)}` : ""}`).join("\n") +
+              `\n${page("pnews", "Semua berita", "/news")}`,
+          );
+        }),
     );
   }
   if (has(/tim|orang|siapa|anggota|peneliti|dosen|team|people|pimpin|ketua|direktur|dewan|advisor|member|mahasiswa/)) {
     jobs.push(
-      Team.find({ isActive: true }).select("name position category categories displayOrder").lean<{ name: string; position?: string; category?: string; categories?: string[] }[]>().then((rows) => {
-        if (rows.length) out.push("Tim / orang di balik AILO (nama - jabatan - kategori):\n" + rows.map((t) => `- ${t.name} - ${t.position ?? "-"} - ${(t.categories?.length ? t.categories : [t.category]).filter(Boolean).join(", ")}`).join("\n"));
-      }),
+      Team.find({ isActive: true })
+        .select("name slug position category categories")
+        .lean<{ name: string; slug: string; position?: string; category?: string; categories?: string[] }[]>()
+        .then((rows) => {
+          if (!rows.length) return;
+          out.push(
+            "Tim / orang di balik AILO (kode, nama, jabatan, kategori):\n" +
+              rows.map((t, i) => `${reg(`t${i + 1}`, t.name, `/team/${t.slug}`)} ${t.name} | ${t.position ?? "-"} | ${(t.categories?.length ? t.categories : [t.category]).filter(Boolean).join(", ")}`).join("\n") +
+              `\n${page("pteam", "Semua anggota tim", "/team")}`,
+          );
+        }),
     );
   }
   if (has(/kerja ?sama|mitra|partner|kolaborasi|bekerja|rekan/)) {
     jobs.push(
-      Partner.find({ status: "published" }).select("title description").lean<{ title: string; description?: string }[]>().then((rows) => {
-        if (rows.length) out.push("Mitra kerja sama AILO:\n" + rows.map((p) => `- ${p.title}${p.description ? `: ${short(p.description, 160)}` : ""}`).join("\n"));
-      }),
+      Partner.find({ status: "published" })
+        .select("title description")
+        .lean<{ title: string; description?: string }[]>()
+        .then((rows) => {
+          if (rows.length) out.push("Mitra kerja sama AILO:\n" + rows.map((p) => `- ${p.title}${p.description ? `: ${short(p.description, 160)}` : ""}`).join("\n") + `\n${page("ppartners", "Mitra AILO", "/partners")}`);
+        }),
     );
   }
   if (has(/proyek|project/)) {
     jobs.push(
-      Project.find({ publishStatus: { $nin: ["review", "archived"] } }).sort({ publishedAt: -1, createdAt: -1 }).limit(12).select("title description status").lean<{ title: string; description?: string; status?: string }[]>().then((rows) => {
-        if (rows.length) out.push("Proyek AILO:\n" + rows.map((p) => `- ${p.title}${p.status ? ` [${p.status}]` : ""}: ${short(p.description, 200)}`).join("\n"));
-      }),
+      Project.find({ publishStatus: { $nin: ["review", "archived"] } })
+        .sort({ publishedAt: -1, createdAt: -1 })
+        .limit(12)
+        .select("title slug description status")
+        .lean<{ title: string; slug: string; description?: string; status?: string }[]>()
+        .then((rows) => {
+          if (!rows.length) return;
+          out.push(
+            "Proyek AILO:\n" +
+              rows.map((p, i) => `${reg(`p${i + 1}`, p.title, `/projects/${p.slug}`)} ${p.title}${p.status ? ` (${p.status})` : ""}: ${short(p.description, 200)}`).join("\n") +
+              `\n${page("pprojects", "Semua proyek", "/projects")}`,
+          );
+        }),
     );
   }
   if (has(/riset|penelitian|research|publikasi/)) {
     jobs.push(
-      Research.find({ status: "published" }).sort({ publishedAt: -1, createdAt: -1 }).limit(12).select("title description").lean<{ title: string; description?: string }[]>().then((rows) => {
-        if (rows.length) out.push("Riset AILO:\n" + rows.map((r) => `- ${r.title}: ${short(r.description, 200)}`).join("\n"));
-      }),
+      Research.find({ status: "published" })
+        .sort({ publishedAt: -1, createdAt: -1 })
+        .limit(12)
+        .select("title slug description")
+        .lean<{ title: string; slug: string; description?: string }[]>()
+        .then((rows) => {
+          if (!rows.length) return;
+          out.push(
+            "Riset AILO:\n" +
+              rows.map((r, i) => `${reg(`r${i + 1}`, r.title, `/research/${r.slug}`)} ${r.title}: ${short(r.description, 200)}`).join("\n") +
+              `\n${page("presearch", "Semua riset", "/research")}`,
+          );
+        }),
     );
   }
   if (has(/\blab|laboratorium|booking|pesan|pinjam|alat|fasilitas|ruang/)) {
     jobs.push(
-      Lab.find({ isActive: true }).select("name location capacity facilities description").lean<{ name: string; location?: string; capacity?: number; facilities?: string; description?: string }[]>().then((rows) => {
-        const how = "Cara booking lab: pengunjung membuka halaman Labs di situs AILO, memilih lab dan slot waktu, lalu mengisi nomor kartu member AILO. Booking harus disetujui admin dan hanya anggota (member) yang kartunya aktif yang bisa memesan.";
-        out.push(rows.length ? `Lab AILO:
-${rows.map((l) => `- ${l.name}${l.location ? ` (${l.location})` : ""}${l.capacity ? `, kapasitas ${l.capacity} orang` : ""}${l.facilities ? `, fasilitas: ${short(l.facilities, 160)}` : ""}`).join("\n")}
-${how}` : how);
-      }),
+      Lab.find({ isActive: true })
+        .select("name slug location capacity facilities")
+        .lean<{ name: string; slug: string; location?: string; capacity?: number; facilities?: string }[]>()
+        .then((rows) => {
+          const how =
+            "Cara booking lab: pengunjung membuka halaman Labs di situs AILO, memilih lab dan slot waktu, lalu mengisi nomor kartu member AILO. Booking harus disetujui admin dan hanya anggota (member) yang kartunya aktif yang bisa memesan.";
+          const list = rows.map((l, i) => `${reg(`l${i + 1}`, l.name, `/labs/${l.slug}`)} ${l.name}${l.location ? ` (${l.location})` : ""}${l.capacity ? `, kapasitas ${l.capacity} orang` : ""}${l.facilities ? `, fasilitas: ${short(l.facilities, 160)}` : ""}`);
+          out.push([rows.length ? `Lab AILO:\n${list.join("\n")}` : "", how, page("plabs", "Semua lab dan booking", "/labs")].filter(Boolean).join("\n"));
+        }),
     );
   }
   if (has(/member|anggota|daftar|join|gabung|kartu|keanggotaan|registrasi/)) {
     out.push(
-      "Cara menjadi member AILO: buka halaman Join di situs AILO, isi formulir (nama, email, afiliasi, jenis keanggotaan seperti Dosen, Peneliti, Peneliti Mahasiswa, Peneliti Alumni, atau Honorary Advisory Board) dan unggah dokumen bukti. Tidak perlu membuat password. Admin akan meninjau; jika disetujui, pemohon mendapat kartu member digital (ID kartu dan QR) lewat email. Kartu dipakai untuk booking lab dan bisa diverifikasi lewat halaman verifikasi. Pemohon bisa memilih apakah nama dan profilnya ditampilkan di halaman People.",
+      "Cara menjadi member AILO: buka halaman Join di situs AILO, isi formulir (nama, email, afiliasi, jenis keanggotaan seperti Dosen, Peneliti, Peneliti Mahasiswa, Peneliti Alumni, atau Honorary Advisory Board) dan unggah dokumen bukti. Tidak perlu membuat password. Admin akan meninjau; jika disetujui, pemohon mendapat kartu member digital (ID kartu dan QR) lewat email. Kartu dipakai untuk booking lab dan bisa diverifikasi lewat halaman verifikasi. Pemohon bisa memilih apakah nama dan profilnya ditampilkan di halaman People.\n" +
+        page("pjoin", "Daftar jadi member", "/join"),
     );
   }
   if (has(/layanan|service|jasa|konsultasi|pesan solusi|aplikasi|pelatihan/)) {
     jobs.push(
-      Service.find({ status: "published" }).select("title description").lean<{ title: string; description?: string }[]>().then((rows) => {
-        if (rows.length) out.push("Layanan AILO:\n" + rows.map((v) => `- ${v.title}: ${short(v.description, 200)}`).join("\n"));
-      }),
+      Service.find({ status: "published" })
+        .select("title slug description")
+        .lean<{ title: string; slug: string; description?: string }[]>()
+        .then((rows) => {
+          if (!rows.length) return;
+          out.push(
+            "Layanan AILO:\n" +
+              rows.map((v, i) => `${reg(`s${i + 1}`, v.title, `/services/${v.slug}`)} ${v.title}: ${short(v.description, 200)}`).join("\n") +
+              `\n${page("pservices", "Semua layanan", "/services")}`,
+          );
+        }),
     );
   }
   if (has(/buku|book|baca|ebook/)) {
     jobs.push(
-      Book.find({ status: "published" }).select("title author year description").lean<{ title: string; author?: string; year?: number; description?: string }[]>().then((rows) => {
-        if (rows.length) out.push("Buku AILO:\n" + rows.map((b) => `- ${b.title}${b.author ? ` oleh ${b.author}` : ""}${b.year ? ` (${b.year})` : ""}: ${short(b.description, 200)}`).join("\n"));
-      }),
+      Book.find({ status: "published" })
+        .select("title slug author year description")
+        .lean<{ title: string; slug: string; author?: string; year?: number; description?: string }[]>()
+        .then((rows) => {
+          if (!rows.length) return;
+          out.push(
+            "Buku AILO:\n" +
+              rows.map((b, i) => `${reg(`b${i + 1}`, b.title, `/books/${b.slug}`)} ${b.title}${b.author ? ` oleh ${b.author}` : ""}${b.year ? ` (${b.year})` : ""}: ${short(b.description, 200)}`).join("\n") +
+              `\n${page("pbooks", "Semua buku", "/books")}`,
+          );
+        }),
     );
   }
   if (has(/kontak|hubungi|alamat|telepon|email|lokasi|kantor|whatsapp/) && settings?.contact) {
     const c = settings.contact;
-    out.push(`Kontak AILO: ${[c.email && `email ${c.email}`, c.phone && `telepon ${c.phone}`, c.address && `alamat ${c.address}`, c.address2 && `alamat kedua ${c.address2}`].filter(Boolean).join("; ")}`);
+    out.push(
+      `Kontak AILO: ${[c.email && `email ${c.email}`, c.phone && `telepon ${c.phone}`, c.address && `alamat ${c.address}`, c.address2 && `alamat kedua ${c.address2}`].filter(Boolean).join("; ")}\n` +
+        page("pcontact", "Hubungi AILO", "/contact"),
+    );
   }
 
   await Promise.all(jobs);
-  return out;
+  return { context: out, links };
 }
 
 /**
@@ -354,6 +454,7 @@ export async function POST(request: NextRequest) {
         }
 
         if (apiKey) {
+          const base = await buildBaseContext(parsed.data.message);
           const result = await askClaude({
             apiKey,
             model: cb.chatModel?.trim() || "claude-haiku-5-5",
@@ -363,12 +464,12 @@ export async function POST(request: NextRequest) {
 Instruksi tambahan dari admin:
 ${cb.systemPrompt}` : PERSONA,
             question: parsed.data.message,
-            context: [...(await buildBaseContext(parsed.data.message)), ...topChunks.map((c) => c.chunkText)],
+            context: [...base.context, ...topChunks.map((c) => c.chunkText)],
           });
 
           if (result) {
             if (result.usage) await recordTokenUsage(result.usage.input + result.usage.output);
-            return NextResponse.json({ success: true, data: polishAnswer(result.answer) });
+            return NextResponse.json({ success: true, data: polishAnswer(result.answer, base.links) });
           }
         }
       }
