@@ -34,6 +34,17 @@ const teamSchema = new Schema(
       publications: [{ title: String, year: Number, journal: String, doi: String, link: String }],
       lastFetchedAt: Date,
     },
+    // "Karya dan Kontribusi": research, products, publications, IP, books... each with an optional link.
+    works: [
+      {
+        _id: false,
+        kind: { type: String, enum: ["riset", "produk", "publikasi", "hki", "buku", "lainnya"], default: "lainnya" },
+        title: { type: String, required: true },
+        year: Number,
+        url: String,
+        description: String,
+      },
+    ],
     isActive: { type: Boolean, default: true, index: true },
     // Edits a lecturer made from the dosen dashboard, applied once an admin approves them.
     pendingChanges: { type: Schema.Types.Mixed },

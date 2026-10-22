@@ -9,6 +9,7 @@ import { connectToDatabase } from "@/lib/mongodb";
 import { Member } from "@/models/Member";
 import { Team } from "@/models/Team";
 import { readCategories } from "@/lib/teamCats";
+import { readWorksFromForm } from "@/lib/teamWorks";
 
 function slugify(input: string) {
   return input.toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
@@ -52,6 +53,7 @@ function readMember(formData: FormData) {
     email: String(formData.get("email") ?? "") || undefined,
     photo: String(formData.get("photo") ?? "") || undefined,
     profiles: profilesFromForm(formData),
+    works: readWorksFromForm(formData),
   };
 }
 

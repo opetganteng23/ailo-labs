@@ -1560,3 +1560,26 @@ html.reader-dark main img { background: #fff; }
 .scroll-row-btn.prev { left: -14px; }
 .scroll-row-btn.next { right: -14px; }
 @media (max-width: 720px) { .scroll-row-btn { display: none; } }
+
+/* Profile "Karya dan Kontribusi" (app/team/[slug]) */
+.contrib { margin-top: 36px; }
+.contrib-title { margin: 0 0 4px; font-size: 22px; font-weight: 700; letter-spacing: -0.01em; }
+.contrib-group { margin-top: 24px; }
+.contrib-group h3 { margin: 0 0 10px; font-size: 13px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--teal-dark); }
+.contrib-group ul { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+.contrib-item { display: flex; flex-direction: column; gap: 3px; padding: 14px 16px; background: #fff; border: 1px solid var(--line); border-left: 3px solid var(--orange); border-radius: 12px; text-decoration: none; color: var(--ink); transition: border-color 0.15s ease, box-shadow 0.15s ease; }
+a.contrib-item:hover { border-color: var(--teal); border-left-color: var(--teal); box-shadow: 0 8px 20px -14px rgba(18, 24, 27, 0.4); }
+.contrib-item.static { border-left-color: var(--line); }
+.contrib-name { font-size: 15.5px; font-weight: 700; line-height: 1.35; }
+.contrib-meta { font-size: 12.5px; font-weight: 600; color: #6b7573; }
+.contrib-desc { font-size: 14px; line-height: 1.55; color: #4e5957; }
+.contrib-open { margin-top: 4px; font-size: 12.5px; font-weight: 700; color: var(--teal-dark); }
+
+/* Works editor rows (components/WorksEditor.tsx) */
+.works-editor { display: flex; flex-direction: column; gap: 12px; }
+.works-row { display: flex; flex-direction: column; gap: 8px; padding: 14px; border: 1px solid #e3e1da; border-radius: 12px; background: #fbfaf7; }
+.works-row-top { display: grid; grid-template-columns: minmax(0, 1fr) 110px 36px; gap: 8px; align-items: center; }
+.works-row input, .works-row select, .works-row textarea { width: 100%; font: inherit; font-size: 14px; padding: 10px 12px; border: 1px solid #dad7cf; border-radius: 10px; background: #fff; color: var(--ink); }
+.works-row textarea { resize: vertical; }
+.works-remove { width: 36px; height: 36px; border: 1px solid #e3e1da; border-radius: 10px; background: #fff; color: #9d1b1b; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; padding: 0; }
+.works-remove:hover { background: #fdecec; border-color: #f0b8b8; }

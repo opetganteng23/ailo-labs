@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { readWorksFromForm } from "@/lib/teamWorks";
 
 import { getSession } from "@/lib/auth";
 import { FlashError, withFlash } from "@/lib/flash";
@@ -236,6 +237,7 @@ export async function saveDosenProfileAction(formData: FormData) {
         .map((t) => t.trim())
         .filter(Boolean)
         .slice(0, 12);
+      changes.works = readWorksFromForm(formData);
       changes.profiles = {
         linkedin: String(formData.get("linkedin") ?? "").trim(),
         orcid: String(formData.get("orcid") ?? "").trim(),

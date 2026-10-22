@@ -200,16 +200,17 @@ async function buildBaseContext(question: string): Promise<BaseContext> {
         }),
     );
   }
-  if (has(/tim|orang|siapa|anggota|peneliti|dosen|team|people|pimpin|ketua|direktur|dewan|advisor|member|mahasiswa/)) {
+  if (has(/tim|orang|siapa|anggota|peneliti|dosen|team|people|pimpin|ketua|direktur|dewan|advisor|member|mahasiswa|karya|produk|ciptaan|paten|hki|publikasi|membuat|dibuat|menciptakan/)) {
     jobs.push(
       Team.find({ isActive: true })
-        .select("name slug position category categories")
-        .lean<{ name: string; slug: string; position?: string; category?: string; categories?: string[] }[]>()
+        .select("name slug position category categories works")
+        .lean<{ name: string; slug: string; position?: string; category?: string; categories?: string[]; works?: { kind?: string; title: string; year?: number }[] }[]>()
         .then((rows) => {
           if (!rows.length) return;
+          const worksOf = (t: (typeof rows)[number]) => (t.works?.length ? ` | karya: ${t.works.slice(0, 6).map((w) => `${w.title}${w.kind ? ` (${w.kind}${w.year ? ` ${w.year}` : ""})` : ""}`).join("; ")}` : "");
           out.push(
-            "Tim / orang di balik AILO (kode, nama, jabatan, kategori):\n" +
-              rows.map((t, i) => `${reg(`t${i + 1}`, t.name, `/team/${t.slug}`)} ${t.name} | ${t.position ?? "-"} | ${(t.categories?.length ? t.categories : [t.category]).filter(Boolean).join(", ")}`).join("\n") +
+            "Tim / orang di balik AILO (kode, nama, jabatan, kategori, karya):\n" +
+              rows.map((t, i) => `${reg(`t${i + 1}`, t.name, `/team/${t.slug}`)} ${t.name} | ${t.position ?? "-"} | ${(t.categories?.length ? t.categories : [t.category]).filter(Boolean).join(", ")}${worksOf(t)}`).join("\n") +
               `\n${page("pteam", "Semua anggota tim", "/team")}`,
           );
         }),

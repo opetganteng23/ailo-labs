@@ -6,6 +6,8 @@ import { SiteFooter } from "@/components/SiteFooter";
 import { SiteHeader } from "@/components/SiteHeader";
 import { ReaderToolbar } from "@/components/ReaderToolbar";
 import { connectToDatabase } from "@/lib/mongodb";
+import { isExternalHref, safeHref, WORK_KINDS, type Work } from "@/lib/teamWorks";
+import { Project } from "@/models/Project";
 import { Team } from "@/models/Team";
 
 export const dynamic = "force-dynamic";
@@ -22,6 +24,7 @@ export default async function TeamDetailPage({ params }: { params: Promise<{ slu
   const { slug } = await params;
   await connectToDatabase();
   const item = await Team.findOne({ slug, isActive: true }).lean<{
+    _id: unknown;
     name: string;
     position: string;
     category?: string;
@@ -32,12 +35,22 @@ export default async function TeamDetailPage({ params }: { params: Promise<{ slu
     email?: string;
     photo?: string;
     profiles?: Record<string, string | undefined>;
+    works?: Work[];
     scopusData?: { hIndex?: number; citationCount?: number; documentCount?: number };
   }>();
 
   if (!item) notFound();
 
   const profileEntries = Object.entries(item.profiles ?? {}).filter(([, url]) => !!url);
+
+  // Projects on this site that list the person as a team member (the link runs from the project side).
+  const projects = await Project.find({ teamMembers: item._id, publishStatus: { $nin: ["review", "archived"] } })
+    .sort({ publishedAt: -1, createdAt: -1 })
+    .select("title slug description status")
+    .lean<{ title: string; slug: string; description?: string; status?: string }[]>();
+  const works = item.works ?? [];
+  const workGroups = WORK_KINDS.map((k) => ({ ...k, items: works.filter((w) => w.kind === k.value) })).filter((g) => g.items.length > 0);
+  const hasContributions = workGroups.length > 0 || projects.length > 0;
 
   return (
     <>
@@ -86,6 +99,62 @@ export default async function TeamDetailPage({ params }: { params: Promise<{ slu
         </div>
 
         {item.bio && <p style={{ marginTop: 28, fontSize: 16, lineHeight: 1.6, color: "#3a4348" }}>{item.bio}</p>}
+
+        {hasContributions && (
+          <section className="contrib" aria-label="Karya dan kontribusi">
+            <h2 className="contrib-title">Karya dan Kontribusi</h2>
+            {projects.length > 0 && (
+              <div className="contrib-group">
+                <h3>Proyek AILO</h3>
+                <ul>
+                  {projects.map((p) => (
+                    <li key={p.slug}>
+                      <Link href={`/projects/${p.slug}`} className="contrib-item">
+                        <span className="contrib-name">{p.title}</span>
+                        {p.status && <span className="contrib-meta">{p.status}</span>}
+                        {p.description && <span className="contrib-desc">{p.description.length > 160 ? `${p.description.slice(0, 157)}...` : p.description}</span>}
+                        <span className="contrib-open">Buka proyek</span>
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+            {workGroups.map((group) => (
+              <div key={group.value} className="contrib-group">
+                <h3>{group.label}</h3>
+                <ul>
+                  {group.items.map((w, i) => {
+                    const href = safeHref(w.url);
+                    const body = (
+                      <>
+                        <span className="contrib-name">{w.title}</span>
+                        {w.year && <span className="contrib-meta">{w.year}</span>}
+                        {w.description && <span className="contrib-desc">{w.description}</span>}
+                        {href && <span className="contrib-open">{isExternalHref(href) ? "Buka tautan" : "Buka halaman"}</span>}
+                      </>
+                    );
+                    return (
+                      <li key={`${w.title}-${i}`}>
+                        {!href ? (
+                          <div className="contrib-item static">{body}</div>
+                        ) : isExternalHref(href) ? (
+                          <a href={href} target="_blank" rel="noopener noreferrer" className="contrib-item">
+                            {body}
+                          </a>
+                        ) : (
+                          <Link href={href} className="contrib-item">
+                            {body}
+                          </Link>
+                        )}
+                      </li>
+                    );
+                  })}
+                </ul>
+              </div>
+            ))}
+          </section>
+        )}
 
         <div className="rcard" style={{ marginTop: 24, maxWidth: 420 }}>
           <h3 style={{ fontSize: 17 }}>Scopus metrics</h3>

@@ -2,6 +2,8 @@
 
 import { ImageUploadField } from "@/components/ImageUploadField";
 import { TagInput } from "@/components/TagInput";
+import { WorksEditor } from "@/components/WorksEditor";
+import type { Work } from "@/lib/teamWorks";
 
 import { createTeamAction, updateTeamAction } from "./actions";
 
@@ -25,6 +27,7 @@ type TeamFormProps = {
     email?: string;
     photo?: string;
     profiles?: { linkedin?: string; orcid?: string; googleScholar?: string; sinta?: string; scopus?: string };
+    works?: Work[];
     isActive?: boolean;
   };
 };
@@ -82,6 +85,12 @@ export function TeamForm({ mode = "create", initial, categories, interestSuggest
               <label htmlFor="bio">Bio</label>
               <textarea id="bio" name="bio" rows={4} defaultValue={initial?.bio} />
             </div>
+          </section>
+
+          <section className="admin2-section">
+            <h2 style={{ fontSize: 17 }}>Karya dan kontribusi</h2>
+            <p style={{ margin: 0, fontSize: 13.5, color: "#5b6664" }}>Riset, produk atau ciptaan, publikasi, paten, dan buku yang ditampilkan di profil publik. Isi tautan agar pengunjung bisa membuka detailnya.</p>
+            <WorksEditor defaultValue={initial?.works} />
           </section>
 
           <section className="admin2-section">

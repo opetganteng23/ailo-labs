@@ -1,3 +1,4 @@
+import type { Work } from "@/lib/teamWorks";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
@@ -18,9 +19,13 @@ const FIELD_LABELS: Record<string, string> = {
   photo: "Photo",
   researchInterests: "Research interests",
   profiles: "Academic profiles",
+  works: "Karya dan kontribusi",
 };
 
 function show(v: unknown): string {
+  if (Array.isArray(v) && v.some((x) => x && typeof x === "object")) {
+    return v.map((w: { kind?: string; title?: string; year?: number; url?: string }) => `${w.title}${w.year ? ` (${w.year})` : ""}${w.kind ? ` [${w.kind}]` : ""}${w.url ? ` ${w.url}` : ""}`).join("\n") || "-";
+  }
   if (Array.isArray(v)) return v.join(", ") || "-";
   if (v && typeof v === "object") {
     return Object.entries(v as Record<string, string>)
@@ -50,6 +55,7 @@ export default async function AdminTeamEditPage({ params }: { params: Promise<{ 
     email?: string;
     photo?: string;
     profiles?: { linkedin?: string; orcid?: string; googleScholar?: string; sinta?: string; scopus?: string };
+    works?: Work[];
     isActive: boolean;
     pendingChanges?: Record<string, unknown>;
     pendingSince?: Date;
@@ -127,6 +133,7 @@ export default async function AdminTeamEditPage({ params }: { params: Promise<{ 
           email: item.email,
           photo: item.photo,
           profiles: item.profiles,
+          works: item.works,
           isActive: item.isActive,
         }}
       />

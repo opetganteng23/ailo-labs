@@ -1,8 +1,10 @@
 import { ImageUploadField } from "@/components/ImageUploadField";
 import { TagInput } from "@/components/TagInput";
+import { WorksEditor } from "@/components/WorksEditor";
 import { getSession } from "@/lib/auth";
 import { connectToDatabase } from "@/lib/mongodb";
 import { listResearchInterests } from "@/lib/researchInterests";
+import type { Work } from "@/lib/teamWorks";
 import { Team } from "@/models/Team";
 import { User } from "@/models/User";
 
@@ -17,6 +19,7 @@ type Profile = {
   bio?: string;
   photo?: string;
   researchInterests?: string[];
+  works?: Work[];
   profiles?: { linkedin?: string; orcid?: string; googleScholar?: string; sinta?: string; scopus?: string };
 };
 
@@ -119,6 +122,12 @@ export default async function DosenProfilePage() {
               <label htmlFor="bio">Bio</label>
               <textarea id="bio" name="bio" rows={5} defaultValue={v.bio} />
             </div>
+          </section>
+
+          <section className="admin2-section">
+            <h2 style={{ fontSize: 17 }}>Karya dan kontribusi</h2>
+            <p style={{ margin: 0, fontSize: 13.5, color: "#5b6664" }}>Riset, produk atau ciptaan, publikasi, paten, dan buku Anda. Isi tautan agar pengunjung bisa membuka detailnya.</p>
+            <WorksEditor defaultValue={v.works} />
           </section>
 
           <section className="admin2-section">
