@@ -162,8 +162,6 @@ html:has(.hm-root) { scroll-behavior: smooth; scroll-padding-top: 84px; }
   .hm-team-section-head{display:flex; align-items:center; gap:12px; padding-bottom:12px; margin-bottom:20px; border-bottom:1px solid var(--line);}
   .hm-team-section-head h3{margin:0; font-size:20px; font-weight:700; letter-spacing:-.01em;}
   .hm-team-section-count{font-size:12px; font-weight:700; color:var(--teal-dark); background:rgba(0,128,157,.1); border-radius:999px; padding:3px 10px;}
-  .hm-team-section-more{margin-left:auto; font-size:13.5px; font-weight:700; color:var(--teal-dark);}
-  .hm-team-section-more:hover{text-decoration:underline;}
   #team-grid > .hm-team-grid{margin-top:40px;}
   .hm-bubble.hm-user{background:var(--teal); color:#fff; align-self:flex-end; border-bottom-right-radius:4px;}
   .hm-bubble{white-space:pre-wrap; overflow-wrap:anywhere;}

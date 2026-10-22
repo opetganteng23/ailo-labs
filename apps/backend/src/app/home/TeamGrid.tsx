@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 
+import { ScrollRow } from "@/components/ScrollRow";
 import { groupTeamByRank } from "@/lib/teamCats";
 
 import type { TeamCard } from "./data";
@@ -16,9 +17,6 @@ const SAMPLE: TeamCard[] = [
 
 /** Short labels for the filter chips; any category an admin adds later uses its own name. */
 const SHORT: Record<string, string> = { "Peneliti Alumni": "Alumni", "Honorary Advisory Board": "Advisory Board" };
-
-/** Cards shown per section on the homepage; the rest are one click away on /team. */
-const PER_SECTION = 4;
 
 function Card({ t }: { t: TeamCard }) {
   const cats = t.categories?.length ? t.categories : t.category ? [t.category] : [];
@@ -45,8 +43,8 @@ function Card({ t }: { t: TeamCard }) {
 
 /**
  * Team preview grouped into one section per category (most senior first), with filter chips.
- * "All" shows a few people per section with a link to the rest; picking a category shows that
- * whole section.
+ * Each section is one horizontally scrolling row, so a long category never makes the page taller;
+ * picking a chip shows just that section.
  */
 export function TeamGrid({ items, categories }: { items: TeamCard[]; categories: string[] }) {
   const list = items.length > 0 ? items : SAMPLE;
@@ -71,24 +69,17 @@ export function TeamGrid({ items, categories }: { items: TeamCard[]; categories:
       </div>
       <div id="team-grid">
         {sections.map((section) => {
-          const shown = filter ? section.items : section.items.slice(0, PER_SECTION);
-          const hidden = section.items.length - shown.length;
           return (
             <div key={section.category} className={hm("team-section")} role="group" aria-label={section.category}>
               <div className={hm("team-section-head")}>
                 <h3>{section.category}</h3>
                 <span className={hm("team-section-count")}>{section.items.length}</span>
-                {hidden > 0 && (
-                  <a className={hm("team-section-more")} href={`/team?category=${encodeURIComponent(section.category)}`}>
-                    Lihat semua {section.items.length}
-                  </a>
-                )}
               </div>
-              <div className={hm("team-grid")}>
-                {shown.map((t, i) => (
+              <ScrollRow label={section.category}>
+                {section.items.map((t, i) => (
                   <Card key={`${t.slug}-${i}`} t={t} />
                 ))}
-              </div>
+              </ScrollRow>
             </div>
           );
         })}

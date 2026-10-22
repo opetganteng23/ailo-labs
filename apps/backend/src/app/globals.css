@@ -1549,3 +1549,14 @@ html.reader-dark main img { background: #fff; }
 .team-section-head { display: flex; align-items: center; gap: 12px; padding-bottom: 12px; margin-bottom: 22px; border-bottom: 1px solid var(--line); }
 .team-section-head h2 { margin: 0; font-size: 22px; font-weight: 700; letter-spacing: -0.01em; }
 .team-section-count { font-size: 12px; font-weight: 700; color: var(--teal-dark); background: rgba(0, 128, 157, 0.1); border-radius: 999px; padding: 3px 10px; }
+
+/* Horizontally scrolling row (components/ScrollRow.tsx): one line per list, never taller than its cards. */
+.scroll-row-wrap { position: relative; }
+.scroll-row { display: flex; gap: 24px; overflow-x: auto; overscroll-behavior-x: contain; scroll-snap-type: x proximity; padding: 4px 2px 14px; scrollbar-width: thin; scrollbar-color: #c9c5bb transparent; -webkit-overflow-scrolling: touch; }
+.scroll-row:focus-visible { outline: 2px solid var(--teal); outline-offset: 4px; border-radius: 12px; }
+.scroll-row > * { flex: 0 0 min(240px, 72vw); scroll-snap-align: start; }
+.scroll-row-btn { position: absolute; top: 118px; z-index: 2; width: 36px; height: 36px; border-radius: 999px; display: inline-flex; align-items: center; justify-content: center; background: rgba(255, 255, 255, 0.94); color: var(--ink); border: 1px solid var(--line); box-shadow: 0 2px 10px rgba(18, 24, 27, 0.14); cursor: pointer; padding: 0; transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease; }
+.scroll-row-btn:hover { background: var(--teal); color: #fff; border-color: var(--teal); }
+.scroll-row-btn.prev { left: -14px; }
+.scroll-row-btn.next { right: -14px; }
+@media (max-width: 720px) { .scroll-row-btn { display: none; } }

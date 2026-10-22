@@ -1,6 +1,7 @@
 import { categoriesOf, groupTeamByRank, sortTeamByRank } from "@/lib/teamCats";
 import Link from "next/link";
 
+import { ScrollRow } from "@/components/ScrollRow";
 import { SiteFooter } from "@/components/SiteFooter";
 import { SiteHeader } from "@/components/SiteHeader";
 import { connectToDatabase } from "@/lib/mongodb";
@@ -92,7 +93,7 @@ export default async function TeamListPage({ searchParams }: { searchParams: Pro
               <h2 id={`team-${group.category}`}>{group.category}</h2>
               <span className="team-section-count">{group.items.length}</span>
             </div>
-            <div className="team-grid">
+            <ScrollRow label={group.category}>
               {group.items.map((item) => {
                 const badges = [
                   item.profiles?.scopus ? "Scopus" : null,
@@ -134,7 +135,7 @@ export default async function TeamListPage({ searchParams }: { searchParams: Pro
                   </Link>
                 );
               })}
-            </div>
+            </ScrollRow>
           </div>
         ))}
       </main>
