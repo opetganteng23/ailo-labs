@@ -72,6 +72,35 @@ export async function renameTeamCategoryAction(formData: FormData) {
   refresh();
 }
 
+/** Swaps a category with its neighbour above/below, so admins can rank them (most senior first) without retyping every `order` value. */
+export async function moveTeamCategoryAction(formData: FormData) {
+  await requireAdmin();
+  await withFlash(
+    async () => {
+      await connectToDatabase();
+      const id = String(formData.get("id"));
+      const direction = String(formData.get("direction"));
+      const ordered = await TeamCategory.find().sort({ order: 1, name: 1 });
+      const index = ordered.findIndex((c) => String(c._id) === id);
+      if (index === -1) throw new FlashError("That category no longer exists.");
+      const swapWith = direction === "up" ? index - 1 : index + 1;
+      if (swapWith < 0 || swapWith >= ordered.length) return;
+
+      // Orders are just a sequence (0, 1, 2, ...), so swapping the two documents' `order`
+      // values is enough - no need to renumber the rest of the list.
+      const a = ordered[index];
+      const b = ordered[swapWith];
+      const aOrder = a.order;
+      a.order = b.order;
+      b.order = aOrder;
+      await a.save();
+      await b.save();
+    },
+    { success: "Order updated.", error: "Couldn't change the order. Please try again." },
+  );
+  refresh();
+}
+
 export async function deleteTeamCategoryAction(formData: FormData) {
   await requireAdmin();
   await withFlash(

@@ -1,4 +1,4 @@
-import { categoriesOf } from "@/lib/teamCats";
+import { categoriesOf, sortTeamByRank } from "@/lib/teamCats";
 import Link from "next/link";
 
 import { SiteFooter } from "@/components/SiteFooter";
@@ -17,6 +17,7 @@ type TeamItem = {
   position: string;
   category?: string;
   categories?: string[];
+  displayOrder?: number;
   researchInterests?: string[];
   photo?: string;
   scopusData?: { hIndex?: number; documentCount?: number };
@@ -27,9 +28,10 @@ export default async function TeamListPage({ searchParams }: { searchParams: Pro
   const { category, interest } = await searchParams;
   await connectToDatabase();
   const categories = await listTeamCategories();
-  const all = (await Team.find({ isActive: true })
-    .sort({ category: 1, displayOrder: 1, name: 1 })
-    .lean()) as unknown as TeamItem[];
+  const all = sortTeamByRank(
+    (await Team.find({ isActive: true }).lean()) as unknown as TeamItem[],
+    categories,
+  );
   const interests = Array.from(new Set(all.flatMap((i) => i.researchInterests ?? []))).sort((a, b) => a.localeCompare(b));
   const items = all
     .filter((i) => !category || categoriesOf(i).includes(category))

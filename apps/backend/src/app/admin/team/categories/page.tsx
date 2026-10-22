@@ -8,7 +8,7 @@ import { Member } from "@/models/Member";
 import { Team } from "@/models/Team";
 import { TeamCategory } from "@/models/TeamCategory";
 
-import { createTeamCategoryAction, deleteTeamCategoryAction, renameTeamCategoryAction } from "./actions";
+import { createTeamCategoryAction, deleteTeamCategoryAction, moveTeamCategoryAction, renameTeamCategoryAction } from "./actions";
 
 export const dynamic = "force-dynamic";
 
@@ -32,7 +32,7 @@ export default async function TeamCategoriesPage() {
       <div className="admin2-header">
         <div>
           <h1>Team categories</h1>
-          <p>Categories group people on the public Team page, in the order shown here. Renaming updates every profile that uses it.</p>
+          <p>Categories group people on the public Team page, in the order shown here (most senior first) - use the arrows to reorder. Renaming updates every profile that uses it.</p>
         </div>
       </div>
 
@@ -52,14 +52,35 @@ export default async function TeamCategoriesPage() {
       </section>
 
       <section className="admin2-panel">
-        <div className="admin2-table-head" style={{ gridTemplateColumns: "minmax(0, 1fr) 120px 96px" }}>
+        <div className="admin2-table-head" style={{ gridTemplateColumns: "72px minmax(0, 1fr) 120px 96px" }}>
+          <span>ORDER</span>
           <span>NAME</span>
           <span>PEOPLE</span>
           <span></span>
         </div>
         {categories.length === 0 && <EmptyState title="No categories yet" message="Add a category above to group your team." />}
-        {categories.map((c) => (
-          <div key={String(c._id)} className="admin2-table-row" style={{ gridTemplateColumns: "minmax(0, 1fr) 120px 96px" }}>
+        {categories.map((c, i) => (
+          <div key={String(c._id)} className="admin2-table-row" style={{ gridTemplateColumns: "72px minmax(0, 1fr) 120px 96px" }}>
+            <div style={{ display: "flex", gap: 2 }}>
+              <form action={moveTeamCategoryAction}>
+                <input type="hidden" name="id" value={String(c._id)} />
+                <input type="hidden" name="direction" value="up" />
+                <button type="submit" className="admin2-btn outline" style={{ width: 30, height: 30, padding: 0, display: "inline-flex", alignItems: "center", justifyContent: "center" }} disabled={i === 0} aria-label={`Move ${c.name} up`} title="Move up">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                    <path d="M12 19V5M6 11l6-6 6 6" />
+                  </svg>
+                </button>
+              </form>
+              <form action={moveTeamCategoryAction}>
+                <input type="hidden" name="id" value={String(c._id)} />
+                <input type="hidden" name="direction" value="down" />
+                <button type="submit" className="admin2-btn outline" style={{ width: 30, height: 30, padding: 0, display: "inline-flex", alignItems: "center", justifyContent: "center" }} disabled={i === categories.length - 1} aria-label={`Move ${c.name} down`} title="Move down">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                    <path d="M12 5v14M6 13l6 6 6-6" />
+                  </svg>
+                </button>
+              </form>
+            </div>
             <form action={renameTeamCategoryAction} style={{ display: "flex", gap: 8, alignItems: "center" }}>
               <input type="hidden" name="id" value={String(c._id)} />
               <input name="name" type="text" required maxLength={40} defaultValue={c.name} className="admin2-inline-input" aria-label={`Rename ${c.name}`} />

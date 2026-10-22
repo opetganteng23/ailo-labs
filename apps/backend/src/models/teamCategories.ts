@@ -4,4 +4,5 @@
  * breaks the browser bundle if a client component imports the constant from
  * there instead of here).
  */
-export const TEAM_CATEGORIES = ["Dosen", "Peneliti", "Peneliti Mahasiswa", "Peneliti Alumni", "Honorary Advisory Board"] as const;
+// Seniority order (also the default display order on /team and the homepage): most senior first.
+export const TEAM_CATEGORIES = ["Honorary Advisory Board", "Dosen", "Peneliti", "Peneliti Alumni", "Peneliti Mahasiswa"] as const;

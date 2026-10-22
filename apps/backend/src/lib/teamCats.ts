@@ -14,3 +14,23 @@ export function readCategoryList(formData: FormData, field = "categories"): stri
   const raw = formData.getAll(field).flatMap((v) => String(v).split(","));
   return Array.from(new Set(raw.map((v) => v.trim().replace(/\s+/g, " ").slice(0, 40)).filter(Boolean))).slice(0, 8);
 }
+
+/**
+ * Sorts team profiles by seniority: their most senior category first, per the admin-managed
+ * category order (Admin > Team > Categories), then `displayOrder`, then name. Someone in
+ * several categories is ranked by whichever of theirs sits highest - e.g. a Dosen who is
+ * also Peneliti shows with the other Dosen, not buried under Peneliti. A category the admin
+ * list doesn't know about (shouldn't normally happen) sorts last, not first.
+ */
+export function sortTeamByRank<T extends { category?: string; categories?: string[]; displayOrder?: number; name: string }>(
+  items: T[],
+  orderedCategories: string[],
+): T[] {
+  const rank = new Map(orderedCategories.map((c, i) => [c, i]));
+  const rankOf = (item: T) => {
+    const cats = categoriesOf(item);
+    if (cats.length === 0) return orderedCategories.length;
+    return Math.min(...cats.map((c) => rank.get(c) ?? orderedCategories.length));
+  };
+  return [...items].sort((a, b) => rankOf(a) - rankOf(b) || (a.displayOrder ?? 0) - (b.displayOrder ?? 0) || a.name.localeCompare(b.name));
+}

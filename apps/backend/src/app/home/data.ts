@@ -1,4 +1,4 @@
-import { categoriesOf } from "@/lib/teamCats";
+import { categoriesOf, sortTeamByRank } from "@/lib/teamCats";
 import { connectToDatabase } from "@/lib/mongodb";
 import { listTeamCategories } from "@/lib/teamCategoriesDb";
 import { Book, Partner } from "@/models/catalog";
@@ -88,10 +88,10 @@ export async function getHomeData(): Promise<HomeData> {
         .limit(4)
         .select("title description slug status images")
         .lean<{ title: string; description: string; slug: string; status: string; images?: string[] }[]>(),
+      // Ranked below (by category seniority, not name) and trimmed to 8 after - a plain
+      // .sort().limit(8) here would cut off before rank is even known.
       Team.find({ isActive: true })
-        .sort({ name: 1 })
-        .limit(8)
-        .select("name position slug photo category categories profiles scopusData")
+        .select("name position slug photo category categories displayOrder profiles scopusData")
         .lean<
           {
             name: string;
@@ -100,6 +100,7 @@ export async function getHomeData(): Promise<HomeData> {
             photo?: string;
             category?: string;
             categories?: string[];
+            displayOrder?: number;
             profiles?: { scopus?: string; googleScholar?: string; sinta?: string };
             scopusData?: { hIndex?: number; documentCount?: number };
           }[]
@@ -117,6 +118,8 @@ export async function getHomeData(): Promise<HomeData> {
 
     // Published partners feed the strip, but only as logos (never as text); with no logo uploaded yet the strip stays hidden.
     // With no partners at all, the Settings strip items are used.
+    const rankedTeam = sortTeamByRank(team, teamCategories).slice(0, 8);
+
     const partnerLogos = partners.filter((p) => p.image).map((p) => ({ text: p.title, image: p.image, dark: p.logoDark }));
     const strip = partners.length > 0 ? (partnerLogos.length > 0 ? partnerLogos : null) : settings?.homepage?.marqueeItems?.length ? settings.homepage.marqueeItems : undefined;
 
@@ -128,7 +131,7 @@ export async function getHomeData(): Promise<HomeData> {
       research,
       projects: projects.map((p) => ({ title: p.title, description: p.description, slug: p.slug, status: p.status, image: p.images?.[0] })),
       news: news.map((n) => ({ title: n.title, summary: n.summary, slug: n.slug, category: n.category, categories: categoriesOf(n), publishedAt: n.publishedAt ? new Date(n.publishedAt).toISOString() : undefined, image: n.images?.[0] })),
-      team: team.map((t) => ({
+      team: rankedTeam.map((t) => ({
         name: t.name,
         position: t.position,
         slug: t.slug,
