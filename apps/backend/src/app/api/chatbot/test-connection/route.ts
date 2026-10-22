@@ -36,7 +36,25 @@ async function pingProvider(provider: string, apiKey: string, baseUrl?: string):
       });
     }
     if (res.ok) return { ok: true, message: "Connection successful." };
-    return { ok: false, message: `Provider responded with status ${res.status}.` };
+    // Surface the provider's own explanation (e.g. "invalid x-api-key", "model not found")
+    // instead of a bare status code - that's the difference between a wrong/expired key,
+    // a key of the wrong kind (not every "sk-ant-..." string is a Console API key), and a
+    // request this code is building wrong, and only the provider's own wording tells them apart.
+    let detail = "";
+    try {
+      const text = (await res.text()).trim();
+      if (text) {
+        try {
+          const parsed = JSON.parse(text) as { error?: { message?: string } | string; message?: string };
+          detail = (typeof parsed.error === "string" ? parsed.error : parsed.error?.message) || parsed.message || text;
+        } catch {
+          detail = text;
+        }
+      }
+    } catch {
+      // Body unreadable - fall back to just the status below.
+    }
+    return { ok: false, message: detail ? `Provider responded with status ${res.status}: ${detail.slice(0, 300)}` : `Provider responded with status ${res.status}.` };
   } catch {
     return { ok: false, message: "Could not reach the provider." };
   } finally {
