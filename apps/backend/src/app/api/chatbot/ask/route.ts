@@ -7,6 +7,7 @@ import { clientIp, rateLimited } from "@/lib/rateLimit";
 import { decryptSecret } from "@/lib/secretCrypto";
 import { ChatbotQA } from "@/models/ChatbotQA";
 import { ChatEmbedding } from "@/models/ChatEmbedding";
+import { KnowledgeDoc } from "@/models/KnowledgeDoc";
 import { Book, Partner, Service } from "@/models/catalog";
 import { Lab } from "@/models/Lab";
 import { News } from "@/models/News";
@@ -56,19 +57,15 @@ type ChatbotSettings = {
   tokensUsagePeriod?: string;
 };
 
-/** Ranks indexed chunks by how rare their matched words are (IDF), so a distinctive word like "SATRIA" outweighs a common one like "riset". */
-async function findRelevantChunks(queryWords: string[], topK: number): Promise<{ chunkText: string; score: number }[]> {
-  const chunks = (await ChatEmbedding.find({}).lean<{ chunkText: string }[]>()).map((c) => ({
-    // The index built before HTML stripping existed still holds raw markup; never quote that to a visitor.
-    chunkText: stripHtml(c.chunkText).replace(/\s+/g, " ").trim(),
-  }));
-  const tokenSets = chunks.map((chunk) => new Set(tokenize(chunk.chunkText)));
+/** Ranks texts by how rare their matched words are (IDF), so a distinctive word like "SATRIA" outweighs a common one like "riset". */
+function rankTexts(texts: string[], queryWords: string[], topK: number): { chunkText: string; score: number }[] {
+  const tokenSets = texts.map((text) => new Set(tokenize(text)));
   const docFreq = new Map<string, number>();
   for (const set of tokenSets) for (const word of set) docFreq.set(word, (docFreq.get(word) ?? 0) + 1);
-  const idf = (word: string) => Math.log(1 + chunks.length / (docFreq.get(word) ?? 1));
+  const idf = (word: string) => Math.log(1 + texts.length / (docFreq.get(word) ?? 1));
 
   const scored: { chunkText: string; score: number }[] = [];
-  for (let i = 0; i < chunks.length; i++) {
+  for (let i = 0; i < texts.length; i++) {
     let score = 0;
     let matched = 0;
     for (const word of queryWords) {
@@ -79,9 +76,37 @@ async function findRelevantChunks(queryWords: string[], topK: number): Promise<{
     }
     if (matched === 0) continue;
     score *= 1 + matched / queryWords.length;
-    scored.push({ chunkText: chunks[i].chunkText, score });
+    scored.push({ chunkText: texts[i], score });
   }
   return scored.sort((a, b) => b.score - a.score).slice(0, Math.max(1, topK));
+}
+
+async function findRelevantChunks(queryWords: string[], topK: number): Promise<{ chunkText: string; score: number }[]> {
+  // The index built before HTML stripping existed still holds raw markup; never quote that to a visitor.
+  const texts = (await ChatEmbedding.find({}).lean<{ chunkText: string }[]>()).map((c) => stripHtml(c.chunkText).replace(/\s+/g, " ").trim());
+  return rankTexts(texts, queryWords, topK);
+}
+
+/**
+ * Reference documents (Admin > Chatbot > Documents, e.g. the user guide) are searched live, so a new or edited
+ * document answers questions at once instead of waiting for someone to press Reindex. Paragraphs are grouped
+ * into ~700 character passages, each prefixed with its document title.
+ */
+async function findKnowledgeChunks(queryWords: string[], topK: number): Promise<string[]> {
+  const docs = await KnowledgeDoc.find({ status: "published" }).select("title content").lean<{ title: string; content: string }[]>();
+  const passages: string[] = [];
+  for (const doc of docs) {
+    let current = "";
+    for (const para of doc.content.split(/\n{2,}/).map((p) => p.replace(/\s+/g, " ").trim()).filter(Boolean)) {
+      if (current && current.length + para.length > 700) {
+        passages.push(`${doc.title}\n${current}`);
+        current = "";
+      }
+      current = current ? `${current} ${para}` : para;
+    }
+    if (current) passages.push(`${doc.title}\n${current}`);
+  }
+  return rankTexts(passages, queryWords, topK).map((r) => r.chunkText);
 }
 
 const PERSONA = `Kamu adalah "Ask AILO", asisten virtual resmi CoE AILO (AI Learning For Optimization), Center of Excellence di Telkom University. Tugasmu menjadi informan: pengunjung bertanya, kamu menjawab berdasarkan informasi dari situs AILO yang diberikan di pesan.
@@ -466,7 +491,7 @@ export async function POST(request: NextRequest) {
 Instruksi tambahan dari admin:
 ${cb.systemPrompt}` : PERSONA,
             question: parsed.data.message,
-            context: [...base.context, ...topChunks.map((c) => c.chunkText)],
+            context: [...base.context, ...(await findKnowledgeChunks(queryWords, 3)), ...topChunks.map((c) => c.chunkText)],
           });
 
           if (result) {
