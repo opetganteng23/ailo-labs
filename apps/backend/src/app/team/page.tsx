@@ -8,6 +8,7 @@ import { connectToDatabase } from "@/lib/mongodb";
 import { listTeamCategories } from "@/lib/teamCategoriesDb";
 import { Team } from "@/models/Team";
 import { EmptyState } from "@/components/EmptyState";
+import { TeamFilterBar } from "./TeamFilterBar";
 
 export const dynamic = "force-dynamic";
 
@@ -25,8 +26,9 @@ type TeamItem = {
   profiles?: { linkedin?: string; orcid?: string; googleScholar?: string; sinta?: string; scopus?: string };
 };
 
-export default async function TeamListPage({ searchParams }: { searchParams: Promise<{ category?: string; interest?: string }> }) {
-  const { category, interest } = await searchParams;
+export default async function TeamListPage({ searchParams }: { searchParams: Promise<{ category?: string; interest?: string; q?: string }> }) {
+  const { category, interest, q } = await searchParams;
+  const needle = (q ?? "").trim().toLowerCase();
   await connectToDatabase();
   const categories = await listTeamCategories();
   const all = sortTeamByRank(
@@ -36,14 +38,11 @@ export default async function TeamListPage({ searchParams }: { searchParams: Pro
   const interests = Array.from(new Set(all.flatMap((i) => i.researchInterests ?? []))).sort((a, b) => a.localeCompare(b));
   const items = all
     .filter((i) => !category || categoriesOf(i).includes(category))
-    .filter((i) => !interest || (i.researchInterests ?? []).includes(interest));
-  const hrefWith = (params: { category?: string; interest?: string }) => {
-    const q = new URLSearchParams();
-    if (params.category) q.set("category", params.category);
-    if (params.interest) q.set("interest", params.interest);
-    const s = q.toString();
-    return s ? `/team?${s}` : "/team";
-  };
+    .filter((i) => !interest || (i.researchInterests ?? []).includes(interest))
+    .filter((i) => !needle || i.name.toLowerCase().includes(needle));
+  // A tab for a category nobody is in is just clutter.
+  const usedCategories = categories.filter((c) => all.some((i) => categoriesOf(i).includes(c)));
+  const filtered = Boolean(category || interest || needle);
 
   return (
     <>
@@ -59,31 +58,17 @@ export default async function TeamListPage({ searchParams }: { searchParams: Pro
           </div>
         </div>
 
-        <div className="team-filters">
-          <Link href={hrefWith({ interest })} className={`team-filter${!category ? " active" : ""}`}>
-            All
-          </Link>
-          {categories.map((cat) => (
-            <Link key={cat} href={hrefWith({ category: cat, interest })} className={`team-filter${category === cat ? " active" : ""}`}>
-              {cat}
-            </Link>
-          ))}
-        </div>
-        {interests.length > 0 && (
-          <div className="team-interest-filters" aria-label="Filter by research interest">
-            <span>Research interest</span>
-            <Link href={hrefWith({ category })} className={`interest-chip${!interest ? " active" : ""}`}>
-              Any
-            </Link>
-            {interests.map((i) => (
-              <Link key={i} href={hrefWith({ category, interest: i })} className={`interest-chip${interest === i ? " active" : ""}`}>
-                {i}
-              </Link>
-            ))}
-          </div>
-        )}
+        <TeamFilterBar categories={usedCategories} interests={interests} current={{ category, interest, q: needle ? (q ?? "").trim() : undefined }} total={items.length} />
 
-        {items.length === 0 && <EmptyState variant="public" title="No team members yet" message="Our researchers and lecturers will appear here soon." actionHref="/" actionLabel="Back to homepage" />}
+        {items.length === 0 && (
+          <EmptyState
+            variant="public"
+            title={filtered ? "Tidak ada hasil" : "No team members yet"}
+            message={filtered ? "Tidak ada orang yang cocok dengan filter ini. Coba hapus salah satu filter di atas." : "Our researchers and lecturers will appear here soon."}
+            actionHref={filtered ? "/team" : "/"}
+            actionLabel={filtered ? "Lihat semua" : "Back to homepage"}
+          />
+        )}
 
         {/* One section per category, most senior first, so lecturers, advisors and students don't blur together.
             Filtering to a category shows just that section. */}

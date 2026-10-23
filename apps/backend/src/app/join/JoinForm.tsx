@@ -4,6 +4,8 @@ import Link from "next/link";
 import { useState } from "react";
 
 import { MemberCardFront } from "@/components/MemberCardFront";
+import { WorksEditor } from "@/components/WorksEditor";
+import type { Work } from "@/lib/teamWorks";
 
 const CATEGORY_DEFS = [
   { name: "Peneliti Mahasiswa", hint: "S1, S2 or S3 student doing research with AILO" },
@@ -36,6 +38,8 @@ type FormState = {
   sinta: string;
   scopus: string;
   motivation: string;
+  referee: string;
+  works: Work[];
   agreeTerms: boolean;
   showProfilePublicly: boolean;
 };
@@ -60,6 +64,8 @@ const INITIAL_STATE: FormState = {
   sinta: "",
   scopus: "",
   motivation: "",
+  referee: "",
+  works: [],
   agreeTerms: false,
   showProfilePublicly: false,
 };
@@ -100,6 +106,7 @@ export function JoinForm({ faculties }: { faculties: string[] }) {
   }
 
   const isStudent = state.categoryIndex === 0;
+  const isLecturer = CATEGORY_DEFS[state.categoryIndex].name === "Dosen";
   const categoryLabel = CATEGORY_DEFS[state.categoryIndex].name + (isStudent ? ` · ${state.studyLevel}` : "");
   const affiliation = [
     state.institution,
@@ -147,6 +154,9 @@ export function JoinForm({ faculties }: { faculties: string[] }) {
           researchInterests: state.researchInterests,
           motivation: state.motivation || undefined,
           showProfilePublicly: state.showProfilePublicly,
+          // A referee only helps validate students, researchers and alumni; a lecturer is not asked for one.
+          referee: !isLecturer && state.referee.trim() ? state.referee.trim() : undefined,
+          works: state.works.filter((w) => w.title.trim()),
           profiles: {
             linkedin: state.linkedin || undefined,
             orcid: state.orcid || undefined,
@@ -450,6 +460,15 @@ export function JoinForm({ faculties }: { faculties: string[] }) {
                 })}
               </div>
             </div>
+            {!isLecturer && (
+              <div className="join-field">
+                <label htmlFor="jref">
+                  Referee Dosen <span style={{ fontWeight: 500, color: "#6b7573" }}>(optional)</span>
+                </label>
+                <input id="jref" type="text" maxLength={160} placeholder="Nama dosen, mis. Prof. Dr. Suyanto" value={state.referee} onChange={(e) => set("referee", e.target.value)} />
+                <span style={{ fontSize: 13, color: "#6b7573" }}>Cukup ketik namanya. Ini hanya membantu admin memvalidasi pengajuanmu.</span>
+              </div>
+            )}
           </>
         )}
 
@@ -493,6 +512,13 @@ export function JoinForm({ faculties }: { faculties: string[] }) {
                 Scopus
               </label>
               <input id="jsc" type="text" placeholder="Scopus Author ID or URL" value={state.scopus} onChange={(e) => set("scopus", e.target.value)} style={{ height: 46 }} />
+            </div>
+            <div className="join-field">
+              <label>
+                {isLecturer ? "Jurnal dan karya" : "Karya"} <span style={{ fontWeight: 500, color: "#6b7573" }}>(optional)</span>
+              </label>
+              <span style={{ fontSize: 13, color: "#6b7573" }}>Tautkan jurnal, riset, produk, atau ciptaan milikmu. Akan tampil di profilmu setelah disetujui.</span>
+              <WorksEditor onChange={(works) => set("works", works)} />
             </div>
             <div className="join-field">
               <label htmlFor="jmot">

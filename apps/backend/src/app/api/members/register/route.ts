@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 
 import { sendMail } from "@/lib/mailer";
+import { cleanWorks } from "@/lib/teamWorks";
 import { duplicateMessage, findDuplicateMember } from "@/lib/memberDuplicate";
 import { connectToDatabase } from "@/lib/mongodb";
 import { MEMBER_CATEGORIES, Member } from "@/models/Member";
@@ -21,6 +22,8 @@ const registerSchema = z.object({
   researchInterests: z.array(z.string().trim().max(60)).max(10).optional(),
   motivation: z.string().trim().max(1000).optional(),
   showProfilePublicly: z.boolean().optional(),
+  referee: z.string().trim().max(160).optional(),
+  works: z.array(z.object({ kind: z.string().max(20).optional(), title: z.string().max(200).optional(), year: z.union([z.string(), z.number()]).optional(), url: z.string().max(500).optional(), description: z.string().max(600).optional() })).max(30).optional(),
   profiles: z
     .object({
       linkedin: z.string().trim().max(300).optional(),
@@ -52,7 +55,7 @@ export async function POST(request: NextRequest) {
 
     // Members don't get a login; their card and status arrive by email. A lecturer
     // (Dosen) gets a dosen account when an admin approves the application.
-    const member = await Member.create({ ...parsed.data, status: "pending" });
+    const member = await Member.create({ ...parsed.data, referee: parsed.data.referee || undefined, works: cleanWorks(parsed.data.works ?? []), status: "pending" });
 
     await sendMail({
       to: parsed.data.email,

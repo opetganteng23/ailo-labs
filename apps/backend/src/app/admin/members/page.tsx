@@ -27,6 +27,8 @@ type MemberItem = {
   status: "pending" | "approved" | "rejected" | "expired";
   studyLevel?: string;
   faculty?: string;
+  referee?: string;
+  works?: { kind?: string; title: string; year?: number; url?: string }[];
   cardId?: string;
   validUntil?: string;
   createdAt: string;
@@ -227,6 +229,27 @@ export default async function AdminMembersPage({
                     <span style={{ fontWeight: 600 }}>{selected.affiliation}</span>
                     <span style={{ color: "#6b7573" }}>Study level</span>
                     <span style={{ fontWeight: 600 }}>{selected.studyLevel || "Not applicable"}</span>
+                    <span style={{ color: "#6b7573" }}>Referee Dosen</span>
+                    <span style={{ fontWeight: 600 }}>{selected.referee || "Not provided"}</span>
+                    {(selected.works?.length ?? 0) > 0 && (
+                      <>
+                        <span style={{ color: "#6b7573" }}>Karya</span>
+                        <span style={{ fontWeight: 600, display: "flex", flexDirection: "column", gap: 4 }}>
+                          {selected.works!.map((w, i) => (
+                            <span key={i}>
+                              {w.url ? (
+                                <a href={w.url} target="_blank" rel="noopener noreferrer">
+                                  {w.title}
+                                </a>
+                              ) : (
+                                w.title
+                              )}
+                              {w.year ? ` (${w.year})` : ""}
+                            </span>
+                          ))}
+                        </span>
+                      </>
+                    )}
                     <span style={{ color: "#6b7573" }}>Phone</span>
                     <span style={{ fontWeight: 600 }}>{selected.phone || "Not provided"}</span>
                     <span style={{ color: "#6b7573" }}>Submitted</span>

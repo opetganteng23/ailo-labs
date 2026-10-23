@@ -26,6 +26,19 @@ const memberSchema = new Schema(
     researchInterests: { type: [String], default: [] },
     motivation: String,
     showProfilePublicly: { type: Boolean, default: false },
+    // Optional: the lecturer who can vouch for this applicant. Free text, only there to make validation easier.
+    referee: { type: String, trim: true },
+    // Papers, products, etc. listed when applying; copied to the Team profile when they go on the Team Board.
+    works: [
+      {
+        _id: false,
+        kind: { type: String, enum: ["riset", "produk", "publikasi", "hki", "buku", "lainnya"], default: "lainnya" },
+        title: { type: String, required: true },
+        year: Number,
+        url: String,
+        description: String,
+      },
+    ],
     status: {
       type: String,
       enum: ["pending", "approved", "rejected", "expired"],

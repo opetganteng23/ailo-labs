@@ -13,6 +13,7 @@ type TeamBoardMember = {
   photo?: string;
   approvedAs?: string;
   requestedAs?: string;
+  works?: unknown[];
 };
 
 /**
@@ -40,6 +41,8 @@ export async function syncMemberTeamBoard(member: TeamBoardMember, options: { in
     team.isActive = true;
     team.member = member._id;
     if (!team.photo && member.photo) team.photo = member.photo;
+    // Works listed when applying seed an empty profile, but never overwrite what's already there.
+    if ((!team.works || team.works.length === 0) && member.works?.length) team.works = member.works;
     await team.save();
   } else {
     let slug = slugify(member.name) || "member";
@@ -53,6 +56,7 @@ export async function syncMemberTeamBoard(member: TeamBoardMember, options: { in
       email: member.email.toLowerCase(),
       photo: member.photo,
       member: member._id,
+      works: member.works ?? [],
       isActive: true,
     });
   }
