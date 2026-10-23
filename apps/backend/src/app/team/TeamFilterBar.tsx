@@ -32,6 +32,15 @@ function hrefFor(next: Current) {
 export function TeamFilterBar({ categories, interests, current, total }: { categories: string[]; interests: string[]; current: Current; total: number }) {
   const router = useRouter();
   const [query, setQuery] = useState(current.q ?? "");
+  const [focused, setFocused] = useState(false);
+  const [seenQ, setSeenQ] = useState(current.q ?? "");
+
+  // The URL can change without typing (removing the search chip, browser back). Mirror it into the box,
+  // but never while the visitor is typing - that would overwrite keystrokes made since the last request.
+  if ((current.q ?? "") !== seenQ) {
+    setSeenQ(current.q ?? "");
+    if (!focused) setQuery(current.q ?? "");
+  }
 
   // Search as you type, without a request per keystroke.
   useEffect(() => {
@@ -66,7 +75,7 @@ export function TeamFilterBar({ categories, interests, current, total }: { categ
             <circle cx="11" cy="11" r="7" />
             <path d="m20 20-3.5-3.5" />
           </svg>
-          <input type="search" placeholder="Cari nama" value={query} onChange={(e) => setQuery(e.target.value)} aria-label="Cari nama" />
+          <input type="search" placeholder="Cari nama" value={query} onChange={(e) => setQuery(e.target.value)} onFocus={() => setFocused(true)} onBlur={() => setFocused(false)} aria-label="Cari nama" />
         </label>
         {interests.length > 0 && (
           <select className="people-select" value={current.interest ?? ""} onChange={(e) => router.push(hrefFor({ ...current, interest: e.target.value || undefined }), { scroll: false })} aria-label="Filter minat riset">
