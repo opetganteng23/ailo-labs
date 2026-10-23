@@ -491,7 +491,7 @@ export async function POST(request: NextRequest) {
 Instruksi tambahan dari admin:
 ${cb.systemPrompt}` : PERSONA,
             question: parsed.data.message,
-            context: [...base.context, ...(await findKnowledgeChunks(queryWords, 3)), ...topChunks.map((c) => c.chunkText)],
+            context: [...base.context, ...(await findKnowledgeChunks(queryWords, 5)), ...topChunks.map((c) => c.chunkText)],
           });
 
           if (result) {

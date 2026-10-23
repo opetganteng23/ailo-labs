@@ -44,7 +44,7 @@ Sumber: `AILO_Evaluasi_Menyeluruh_dan_Rencana_Perbaikan.md` (evaluasi 30 Sep 202
 
 ## Panduan PDF jadi knowledge base chatbot (23 Okt)
 - [x] Permintaan user: isi `docs/Panduan-Penggunaan-AILO.pdf` dimasukkan ke knowledge base chatbot. Teks dibersihkan dari HTML panduan (tanpa keterangan gambar; tabel dan diagram alur diubah jadi kalimat) dan dimasukkan sebagai 7 dokumen pengetahuan (satu per bab, `source: panduan-penggunaan-ailo.pdf`, status published) lewat skrip sekali jalan dengan persetujuan user; skrip idempoten (mengganti dokumen bersumber sama). Penomoran langkah di panduan disamakan dengan formulir asli (4 langkah) dan PDF dibuat ulang.
-  - Chatbot mencari dokumen pengetahuan **secara langsung** saat ada pertanyaan (`findKnowledgeChunks` di `app/api/chatbot/ask/route.ts`, 3 bagian teratas masuk ke konteks AI), jadi dokumen baru atau yang disunting di Admin > Chatbot > Documents langsung dipakai tanpa menekan Reindex. Pencarian berbasis kata kunci dipisah menjadi `rankTexts` yang dipakai bersama oleh index dan dokumen.
+  - Chatbot mencari dokumen pengetahuan **secara langsung** saat ada pertanyaan (`findKnowledgeChunks` di `app/api/chatbot/ask/route.ts`, 5 bagian teratas masuk ke konteks AI (naik dari 3 setelah satu pertanyaan tentang mengisi karya tidak terjawab)), jadi dokumen baru atau yang disunting di Admin > Chatbot > Documents langsung dipakai tanpa menekan Reindex. Pencarian berbasis kata kunci dipisah menjadi `rankTexts` yang dipakai bersama oleh index dan dokumen.
   - Untuk memperbarui: sunting dokumen "Panduan AILO: ..." di Admin > Chatbot > Documents (atau ganti lewat skrip dengan source yang sama).
 
 ## Panduan PDF bergambar untuk tiap alur (23 Okt)
