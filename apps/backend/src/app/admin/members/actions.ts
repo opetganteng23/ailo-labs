@@ -108,7 +108,7 @@ export async function approveMemberAction(formData: FormData) {
       const mail = await sendMail({
         to: member.email,
         subject: "AILO Membership Approved - Your Digital Card is Ready",
-        text: `Halo ${member.name},\n\nSelamat! Pengajuan keanggotaan AILO Anda sebagai "${member.approvedAs}" telah disetujui.\n\nID kartu: ${cardId}\nMasa berlaku: ${validText}\n\nLihat kartu digital Anda di: ${cardUrl}\n\nBuka tautan itu, lalu klik tombol cetak untuk mencetak kartu atau menyimpannya sebagai PDF. Anda dapat melakukannya kapan saja.\n\nTerima kasih,\nTim AILO`,
+        text: `Halo ${member.name},\n\nSelamat! Pengajuan keanggotaan AILO Anda sebagai "${member.approvedAs}" telah disetujui.\n\nID kartu: ${cardId}\nMasa berlaku: ${validText}\n\nLihat kartu digital Anda di: ${cardUrl}\n\nBuka tautan itu untuk melihat kartu digital Anda (nama, foto, masa berlaku, dan kode QR). Simpan tautan atau tangkapan layarnya agar mudah ditunjukkan kapan saja. Jika Anda memerlukan kartu cetak, silakan hubungi admin AILO.\n\nTerima kasih,\nTim AILO`,
       });
       mailSent = mail.sent;
 
@@ -225,7 +225,7 @@ export async function resendCardEmailAction(formData: FormData) {
       const mail = await sendMail({
         to: member.email,
         subject: "Your AILO Digital Member Card",
-        text: `Halo ${member.name},\n\nBerikut kembali informasi kartu anggota AILO Anda.\n\nID kartu: ${member.cardId}\nMasa berlaku: ${validText}\n\nLihat kartu digital Anda di: ${cardUrl}\n\nBuka tautan itu, lalu klik tombol cetak untuk mencetak kartu atau menyimpannya sebagai PDF. Anda dapat melakukannya kapan saja.\n\nTerima kasih,\nTim AILO`,
+        text: `Halo ${member.name},\n\nBerikut kembali informasi kartu anggota AILO Anda.\n\nID kartu: ${member.cardId}\nMasa berlaku: ${validText}\n\nLihat kartu digital Anda di: ${cardUrl}\n\nBuka tautan itu untuk melihat kartu digital Anda (nama, foto, masa berlaku, dan kode QR). Simpan tautan atau tangkapan layarnya agar mudah ditunjukkan kapan saja. Jika Anda memerlukan kartu cetak, silakan hubungi admin AILO.\n\nTerima kasih,\nTim AILO`,
       });
       if (!mail.sent) throw new FlashError("The card email could not be sent - check the mail settings.");
     },
