@@ -8,6 +8,7 @@ import { ReaderToolbar } from "@/components/ReaderToolbar";
 import { connectToDatabase } from "@/lib/mongodb";
 import { isExternalHref, safeHref, WORK_KINDS, type Work } from "@/lib/teamWorks";
 import { Project } from "@/models/Project";
+import { Research } from "@/models/Research";
 import { Team } from "@/models/Team";
 
 export const dynamic = "force-dynamic";
@@ -36,6 +37,7 @@ export default async function TeamDetailPage({ params }: { params: Promise<{ slu
     photo?: string;
     profiles?: Record<string, string | undefined>;
     works?: Work[];
+    researchInterests?: string[];
     scopusData?: { hIndex?: number; citationCount?: number; documentCount?: number };
   }>();
 
@@ -48,9 +50,14 @@ export default async function TeamDetailPage({ params }: { params: Promise<{ slu
     .sort({ publishedAt: -1, createdAt: -1 })
     .select("title slug description status")
     .lean<{ title: string; slug: string; description?: string; status?: string }[]>();
+  const research = await Research.find({ relatedTeamMembers: item._id, status: "published" })
+    .sort({ publishedAt: -1, createdAt: -1 })
+    .select("title slug description")
+    .lean<{ title: string; slug: string; description?: string }[]>();
   const works = item.works ?? [];
   const workGroups = WORK_KINDS.map((k) => ({ ...k, items: works.filter((w) => w.kind === k.value) })).filter((g) => g.items.length > 0);
-  const hasContributions = workGroups.length > 0 || projects.length > 0;
+  const hasContributions = workGroups.length > 0 || projects.length > 0 || research.length > 0;
+  const hasMetrics = [item.scopusData?.hIndex, item.scopusData?.citationCount, item.scopusData?.documentCount].some((n) => n !== undefined && n !== null);
 
   return (
     <>
@@ -100,9 +107,37 @@ export default async function TeamDetailPage({ params }: { params: Promise<{ slu
 
         {item.bio && <p style={{ marginTop: 28, fontSize: 16, lineHeight: 1.6, color: "#3a4348" }}>{item.bio}</p>}
 
-        {hasContributions && (
-          <section className="contrib" aria-label="Karya dan kontribusi">
+        {(item.researchInterests?.length ?? 0) > 0 && (
+          <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginTop: 20 }} aria-label="Minat riset">
+            {item.researchInterests!.map((interest) => (
+              <span key={interest} className="interest-chip" style={{ cursor: "default" }}>
+                {interest}
+              </span>
+            ))}
+          </div>
+        )}
+
+        <section className="contrib" aria-label="Karya dan kontribusi">
             <h2 className="contrib-title">Karya dan Kontribusi</h2>
+            {!hasContributions && (
+              <p className="contrib-empty">Belum ada karya yang dicantumkan di profil ini. Riset, proyek, produk, dan publikasi akan tampil di sini.</p>
+            )}
+            {research.length > 0 && (
+              <div className="contrib-group">
+                <h3>Riset AILO</h3>
+                <ul>
+                  {research.map((r) => (
+                    <li key={r.slug}>
+                      <Link href={`/research/${r.slug}`} className="contrib-item">
+                        <span className="contrib-name">{r.title}</span>
+                        {r.description && <span className="contrib-desc">{r.description.length > 160 ? `${r.description.slice(0, 157)}...` : r.description}</span>}
+                        <span className="contrib-open">Buka riset</span>
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
             {projects.length > 0 && (
               <div className="contrib-group">
                 <h3>Proyek AILO</h3>
@@ -154,15 +189,15 @@ export default async function TeamDetailPage({ params }: { params: Promise<{ slu
               </div>
             ))}
           </section>
-        )}
 
-        <div className="rcard" style={{ marginTop: 24, maxWidth: 420 }}>
-          <h3 style={{ fontSize: 17 }}>Scopus metrics</h3>
-          <p style={{ fontSize: 13, color: "#5b6469", margin: 0 }}>Placeholder fields - no live Scopus API call is made yet.</p>
-          <p style={{ margin: 0 }}>h-index: {item.scopusData?.hIndex ?? "-"}</p>
-          <p style={{ margin: 0 }}>Citations: {item.scopusData?.citationCount ?? "-"}</p>
-          <p style={{ margin: 0 }}>Documents: {item.scopusData?.documentCount ?? "-"}</p>
-        </div>
+        {hasMetrics && (
+          <div className="rcard" style={{ marginTop: 24, maxWidth: 420 }}>
+            <h3 style={{ fontSize: 17 }}>Scopus metrics</h3>
+            <p style={{ margin: 0 }}>h-index: {item.scopusData?.hIndex ?? "-"}</p>
+            <p style={{ margin: 0 }}>Citations: {item.scopusData?.citationCount ?? "-"}</p>
+            <p style={{ margin: 0 }}>Documents: {item.scopusData?.documentCount ?? "-"}</p>
+          </div>
+        )}
       </main>
       <ReaderToolbar title={item.name} />
       <SiteFooter />

@@ -5,6 +5,7 @@ import { useState } from "react";
 import { ImageUploadField } from "@/components/ImageUploadField";
 import { RichTextEditor } from "@/components/RichTextEditor";
 import { CategoryField } from "@/components/CategoryField";
+import { TeamMemberPicker } from "@/components/TeamMemberPicker";
 
 import { createProjectAction, updateProjectAction } from "./actions";
 
@@ -21,6 +22,7 @@ type ProjectFormProps = {
   defaultStatus?: string;
   initial?: {
     categories?: string[];
+    teamMembers?: string[];
     _id: string;
     title: string;
     description: string;
@@ -110,6 +112,12 @@ export function ProjectForm({
           <section className="admin2-section pad-sm">
             <h2>Categories</h2>
             <CategoryField kind="project" defaultValue={initial?.categories} />
+          </section>
+
+          <section className="admin2-section pad-sm">
+            <h2>Team members</h2>
+            <p style={{ margin: "0 0 10px", fontSize: 13, color: "#5b6664" }}>Siapa yang mengerjakan ini. Karya ini akan tampil di profil mereka.</p>
+            <TeamMemberPicker defaultValue={initial?.teamMembers} />
           </section>
 
           <section className="admin2-section pad-sm">

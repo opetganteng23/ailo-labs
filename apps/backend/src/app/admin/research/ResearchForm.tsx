@@ -5,6 +5,7 @@ import { useState } from "react";
 import { ImageUploadField } from "@/components/ImageUploadField";
 import { RichTextEditor } from "@/components/RichTextEditor";
 import { CategoryField } from "@/components/CategoryField";
+import { TeamMemberPicker } from "@/components/TeamMemberPicker";
 
 import { createResearchAction, updateResearchAction } from "./actions";
 
@@ -26,6 +27,7 @@ type ResearchFormProps = {
     content: string;
     status: string;
     categories?: string[];
+    teamMembers?: string[];
     image?: string;
     publishedAt?: string;
     publishedAtManual?: boolean;
@@ -109,6 +111,11 @@ export function ResearchForm({
           <section className="admin2-section pad-sm">
             <h2>Categories</h2>
             <CategoryField kind="research" defaultValue={initial?.categories} />
+          </section>
+          <section className="admin2-section pad-sm">
+            <h2>Team members</h2>
+            <p style={{ margin: "0 0 10px", fontSize: 13, color: "#5b6664" }}>Siapa yang mengerjakan ini. Karya ini akan tampil di profil mereka.</p>
+            <TeamMemberPicker defaultValue={initial?.teamMembers} />
           </section>
           {forReview ? (
             <section className="admin2-section pad-sm">

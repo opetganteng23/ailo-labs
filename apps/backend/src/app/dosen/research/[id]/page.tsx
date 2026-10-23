@@ -18,6 +18,7 @@ export default async function DosenResearchEditPage({ params }: { params: Promis
   await connectToDatabase();
   const item = await Research.findOne({ _id: id, owner: session.sub }).lean<{
     categories?: string[];
+    relatedTeamMembers?: unknown[];
     _id: string;
     title: string;
     description: string;
@@ -46,6 +47,7 @@ export default async function DosenResearchEditPage({ params }: { params: Promis
           _id: String(item._id),
           title: item.title,
           categories: item.categories,
+          teamMembers: (item.relatedTeamMembers ?? []).map(String),
           description: item.description,
           content: item.content,
           status: item.status,

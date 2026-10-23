@@ -1,5 +1,6 @@
 "use server";
 
+import { readTeamMemberIds } from "@/lib/teamMembers";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
@@ -32,6 +33,7 @@ async function readProject(formData: FormData) {
     status: formData.get("status") ?? "planned",
     categories: readCategoryList(formData),
     images: formData.get("image") ? [String(formData.get("image"))] : [],
+    teamMembers: readTeamMemberIds(formData),
   };
 }
 

@@ -1,5 +1,6 @@
 "use server";
 
+import { readTeamMemberIds, withOwnProfile } from "@/lib/teamMembers";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { readWorksFromForm } from "@/lib/teamWorks";
@@ -65,6 +66,7 @@ export async function createDosenResearchAction(formData: FormData) {
         ...data,
         slug: await uniqueSlug(Research, data.title),
         image: String(formData.get("image") ?? "") || undefined,
+        relatedTeamMembers: await withOwnProfile(readTeamMemberIds(formData), session.sub),
         status: "review",
         owner: session.sub,
       });
@@ -85,6 +87,7 @@ export async function updateDosenResearchAction(formData: FormData) {
       await Research.findByIdAndUpdate(id, {
         ...readTitleSummary(formData, await isHtmlTrusted(session.sub)),
         image: String(formData.get("image") ?? "") || undefined,
+        relatedTeamMembers: await withOwnProfile(readTeamMemberIds(formData), session.sub),
         status: "review",
       });
     },
@@ -121,6 +124,7 @@ export async function createDosenProjectAction(formData: FormData) {
         slug: await uniqueSlug(Project, data.title),
         status: formData.get("status") ?? "planned",
         images: formData.get("image") ? [String(formData.get("image"))] : [],
+        teamMembers: await withOwnProfile(readTeamMemberIds(formData), session.sub),
         publishStatus: "review",
         owner: session.sub,
       });
@@ -142,6 +146,7 @@ export async function updateDosenProjectAction(formData: FormData) {
         ...readTitleSummary(formData, await isHtmlTrusted(session.sub)),
         status: formData.get("status") ?? "planned",
         images: formData.get("image") ? [String(formData.get("image"))] : [],
+        teamMembers: await withOwnProfile(readTeamMemberIds(formData), session.sub),
         publishStatus: "review",
       });
     },

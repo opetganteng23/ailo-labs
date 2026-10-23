@@ -13,6 +13,7 @@ export default async function AdminResearchEditPage({ params }: { params: Promis
   await connectToDatabase();
   const item = await Research.findById(id).lean<{
     categories?: string[];
+    relatedTeamMembers?: unknown[];
     _id: string;
     title: string;
     description: string;
@@ -39,6 +40,7 @@ export default async function AdminResearchEditPage({ params }: { params: Promis
           _id: String(item._id),
           title: item.title,
           categories: item.categories,
+          teamMembers: (item.relatedTeamMembers ?? []).map(String),
           description: item.description,
           content: item.content,
           status: item.status,

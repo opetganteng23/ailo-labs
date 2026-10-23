@@ -18,6 +18,7 @@ export default async function DosenProjectEditPage({ params }: { params: Promise
   await connectToDatabase();
   const item = await Project.findOne({ _id: id, owner: session.sub }).lean<{
     categories?: string[];
+    teamMembers?: unknown[];
     _id: string;
     title: string;
     description: string;
@@ -47,6 +48,7 @@ export default async function DosenProjectEditPage({ params }: { params: Promise
           _id: String(item._id),
           title: item.title,
           categories: item.categories,
+          teamMembers: (item.teamMembers ?? []).map(String),
           description: item.description,
           content: item.content,
           status: item.status,

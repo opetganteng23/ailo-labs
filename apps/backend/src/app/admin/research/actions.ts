@@ -1,5 +1,6 @@
 "use server";
 
+import { readTeamMemberIds } from "@/lib/teamMembers";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
@@ -32,6 +33,7 @@ async function readResearch(formData: FormData) {
     status: ["published", "review", "archived"].includes(String(formData.get("status"))) ? String(formData.get("status")) : "draft",
     image: String(formData.get("image") ?? ""),
     categories: readCategoryList(formData),
+    relatedTeamMembers: readTeamMemberIds(formData),
   };
 }
 
