@@ -137,7 +137,7 @@ export function JoinForm({ faculties }: { faculties: string[] }) {
     setState((s) => ({
       ...s,
       customInterest: "",
-      researchInterests: s.researchInterests.some((i) => i.toLowerCase() === value.toLowerCase()) || s.researchInterests.length >= 10 ? s.researchInterests : [...s.researchInterests, value],
+      researchInterests: s.researchInterests.some((i) => i.toLowerCase() === value.toLowerCase()) || s.researchInterests.length >= 30 ? s.researchInterests : [...s.researchInterests, value],
     }));
   }
 
@@ -465,7 +465,7 @@ export function JoinForm({ faculties }: { faculties: string[] }) {
             </div>
             <div className="join-field">
               <label>
-                Research interests <span style={{ fontWeight: 500, color: "#6b7573" }}>(pick up to 10{isLecturer ? ", shown on your People profile" : ""})</span>
+                Research interests <span style={{ fontWeight: 500, color: "#6b7573" }}>(pick as many as fit{isLecturer ? ", shown on your People profile" : ""})</span>
               </label>
               <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
                 {[...RESEARCH_INTEREST_OPTIONS, ...state.researchInterests.filter((i) => !RESEARCH_INTEREST_OPTIONS.includes(i))].map((interest) => {

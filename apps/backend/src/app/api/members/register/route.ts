@@ -21,7 +21,7 @@ const registerSchema = z.object({
   faculty: z.string().trim().max(80).optional(),
   studyProgram: z.string().trim().max(120).optional(),
   bio: z.string().trim().max(800).optional(),
-  researchInterests: z.array(z.string().trim().max(60)).max(10).optional(),
+  researchInterests: z.array(z.string().trim().max(60)).max(30).optional(),
   motivation: z.string().trim().max(1000).optional(),
   showProfilePublicly: z.boolean().optional(),
   referee: z.string().trim().max(160).optional(),
@@ -41,7 +41,10 @@ export async function POST(request: NextRequest) {
   const parsed = registerSchema.safeParse(await request.json());
   if (!parsed.success) {
     return NextResponse.json(
-      { success: false, error: "Please fill in every field, including photo and proof document." },
+      {
+        success: false,
+        error: `Please check: ${Array.from(new Set(parsed.error.issues.map((i) => String(i.path[0] ?? "form")))).join(", ")}. Photo and proof document are required.`,
+      },
       { status: 400 },
     );
   }
