@@ -7,6 +7,7 @@ import { listMemberFaculties } from "@/lib/memberFacultiesDb";
 import { listTeamCategories } from "@/lib/teamCategoriesDb";
 import { MEMBER_CATEGORIES, Member } from "@/models/Member";
 import { MemberCard } from "@/components/MemberCard";
+import { teamCategoryFor } from "@/lib/teamBoardSync";
 
 import { ImageUploadField } from "@/components/ImageUploadField";
 
@@ -94,9 +95,12 @@ export default async function AdminMembersPage({
       <div className="admin2-header">
         <div>
           <h1>Members</h1>
-          <p>Review sign-ups from the public site. Approving one generates and sends a digital member card.</p>
+          <p>Review sign-ups from the public site. Approving one generates and sends a digital member card. You can also add a member yourself.</p>
         </div>
         <div className="admin2-actions">
+          <Link href="/admin/members/new" className="admin2-btn">
+            Add member
+          </Link>
           <Link href="/admin/members/faculties" className="admin2-btn outline">
             Manage faculties
           </Link>
@@ -386,7 +390,7 @@ export default async function AdminMembersPage({
                         Categories <span style={{ fontWeight: 500, color: "#6b7573" }}>(tick all that apply; used only when shown above)</span>
                       </label>
                       {teamCategories.map((cat) => {
-                        const chosen = selected.teamCategories?.length ? selected.teamCategories : [selected.teamCategory ?? selected.approvedAs];
+                        const chosen = selected.teamCategories?.length ? selected.teamCategories : [selected.teamCategory ?? teamCategoryFor(selected.approvedAs ?? selected.requestedAs, selected.studyLevel, teamCategories)];
                         return (
                           <label key={cat} style={{ display: "flex", gap: 10, alignItems: "center", fontSize: 14, fontWeight: 400 }}>
                             <input type="checkbox" name="teamCategories" value={cat} defaultChecked={chosen.includes(cat)} style={{ width: 18, height: 18 }} />
@@ -465,8 +469,14 @@ export default async function AdminMembersPage({
                         <input id="edit-validUntil" name="validUntil" type="date" required defaultValue={selected.validUntil ? new Date(selected.validUntil).toISOString().slice(0, 10) : ""} style={{ height: 42 }} />
                       </div>
                     </div>
+                    <div className="admin2-field">
+                      <label htmlFor="edit-referee">
+                        Referee Dosen <span style={{ fontWeight: 500, color: "#6b7573" }}>(supervising lecturer, shown on the student&apos;s profile)</span>
+                      </label>
+                      <input id="edit-referee" name="referee" type="text" maxLength={160} defaultValue={selected.referee ?? ""} style={{ height: 42 }} />
+                    </div>
                     <ImageUploadField name="photo" label="Photo" defaultValue={selected.photo} hint="Shown on the member card" />
-                    <p style={{ margin: 0, fontSize: 12.5, color: "#6b7573" }}>The email and card ID stay the same. Name and photo are also updated on the member&apos;s Team Board profile.</p>
+                    <p style={{ margin: 0, fontSize: 12.5, color: "#6b7573" }}>The email and card ID stay the same. Name, photo and referee are also updated on the member&apos;s Team Board profile. Changing the category moves their Team profile too, and switches the lecturer login off (or on) as needed.</p>
                     <button type="submit" className="admin2-btn" style={{ height: 44, alignSelf: "flex-start" }}>
                       Save changes
                     </button>

@@ -43,6 +43,7 @@ function readMember(formData: FormData) {
     categories,
     jenjang: String(formData.get("jenjang") ?? "") || undefined,
     studyProgram: String(formData.get("studyProgram") ?? "") || undefined,
+    referee: String(formData.get("referee") ?? "").trim().slice(0, 160) || undefined,
     displayOrder: Number(formData.get("displayOrder") ?? 0) || 0,
     bio: String(formData.get("bio") ?? ""),
     researchInterests: String(formData.get("researchInterests") ?? "")

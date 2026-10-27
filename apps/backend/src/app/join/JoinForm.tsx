@@ -5,6 +5,7 @@ import { useState } from "react";
 
 import { MemberCardFront } from "@/components/MemberCardFront";
 import { WorksEditor } from "@/components/WorksEditor";
+import { RESEARCH_INTEREST_OPTIONS } from "@/lib/researchInterestOptions";
 import type { Work } from "@/lib/teamWorks";
 
 const CATEGORY_DEFS = [
@@ -14,7 +15,6 @@ const CATEGORY_DEFS = [
   { name: "Peneliti Alumni", hint: "Graduate who researched with AILO" },
 ] as const;
 
-const RESEARCH_INTERESTS = ["NLP & RAG", "Optimization & RL", "Computer Vision", "Applied ML & Smart Campus"];
 
 const STEP_NAMES = ["Account", "Affiliation", "Proof & profiles", "Review"];
 
@@ -31,6 +31,8 @@ type FormState = {
   nim: string;
   entryYear: string;
   researchInterests: string[];
+  customInterest: string;
+  bio: string;
   proofDocument: string;
   linkedin: string;
   orcid: string;
@@ -57,6 +59,8 @@ const INITIAL_STATE: FormState = {
   nim: "",
   entryYear: "",
   researchInterests: [],
+  customInterest: "",
+  bio: "",
   proofDocument: "",
   linkedin: "",
   orcid: "",
@@ -126,6 +130,17 @@ export function JoinForm({ faculties }: { faculties: string[] }) {
     }));
   }
 
+  /** Adds a research area typed by the visitor ("Lainnya"), without duplicates (case-insensitive). */
+  function addCustomInterest() {
+    const value = state.customInterest.trim().replace(/\s+/g, " ").slice(0, 60);
+    if (!value) return;
+    setState((s) => ({
+      ...s,
+      customInterest: "",
+      researchInterests: s.researchInterests.some((i) => i.toLowerCase() === value.toLowerCase()) || s.researchInterests.length >= 10 ? s.researchInterests : [...s.researchInterests, value],
+    }));
+  }
+
   function canContinue(): boolean {
     if (step === 1)
       return !!(state.photo && state.name.trim() && state.email.trim());
@@ -151,6 +166,8 @@ export function JoinForm({ faculties }: { faculties: string[] }) {
           proofDocument: state.proofDocument,
           studyLevel: isStudent ? state.studyLevel : undefined,
           faculty: state.faculty || undefined,
+          studyProgram: state.studyProgram.trim() || undefined,
+          bio: state.bio.trim() || undefined,
           researchInterests: state.researchInterests,
           motivation: state.motivation || undefined,
           showProfilePublicly: state.showProfilePublicly,
@@ -447,9 +464,11 @@ export function JoinForm({ faculties }: { faculties: string[] }) {
               </div>
             </div>
             <div className="join-field">
-              <label>Research interests</label>
+              <label>
+                Research interests <span style={{ fontWeight: 500, color: "#6b7573" }}>(pick up to 10{isLecturer ? ", shown on your People profile" : ""})</span>
+              </label>
               <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
-                {RESEARCH_INTERESTS.map((interest) => {
+                {[...RESEARCH_INTEREST_OPTIONS, ...state.researchInterests.filter((i) => !RESEARCH_INTEREST_OPTIONS.includes(i))].map((interest) => {
                   const checked = state.researchInterests.includes(interest);
                   return (
                     <label key={interest} className={`join-interest${checked ? " active" : ""}`}>
@@ -458,6 +477,26 @@ export function JoinForm({ faculties }: { faculties: string[] }) {
                     </label>
                   );
                 })}
+              </div>
+              <div style={{ display: "flex", gap: 8, marginTop: 4 }}>
+                <input
+                  type="text"
+                  aria-label="Minat riset lainnya"
+                  placeholder="Lainnya: ketik lalu tekan Add"
+                  maxLength={60}
+                  value={state.customInterest}
+                  onChange={(e) => set("customInterest", e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      e.preventDefault();
+                      addCustomInterest();
+                    }
+                  }}
+                  style={{ flex: 1, minWidth: 0 }}
+                />
+                <button type="button" className="join-btn join-btn-outline" onClick={addCustomInterest} disabled={!state.customInterest.trim()}>
+                  Add
+                </button>
               </div>
             </div>
             {!isLecturer && (
@@ -476,7 +515,9 @@ export function JoinForm({ faculties }: { faculties: string[] }) {
           <>
             <div>
               <h2 className="join-step-title">Proof &amp; academic profiles</h2>
-              <p className="join-step-sub">Only the proof document is required. Profiles help us feature your work.</p>
+              <p className="join-step-sub">
+                Only the proof document is required. {isLecturer ? "Your academic profiles and bio go straight to your People page once approved, so the admin doesn't have to type them in." : "Profiles help us feature your work."}
+              </p>
             </div>
             <div className="join-field">
               <label>
@@ -521,6 +562,12 @@ export function JoinForm({ faculties }: { faculties: string[] }) {
               <WorksEditor onChange={(works) => set("works", works)} />
             </div>
             <div className="join-field">
+              <label htmlFor="jbio">
+                Short bio <span style={{ fontWeight: 500, color: "#6b7573" }}>(optional, shown on your People profile)</span>
+              </label>
+              <textarea id="jbio" rows={3} maxLength={800} placeholder="Satu atau dua kalimat tentang bidang dan kegiatan risetmu." value={state.bio} onChange={(e) => set("bio", e.target.value)} />
+            </div>
+            <div className="join-field">
               <label htmlFor="jmot">
                 Why do you want to join? <span style={{ fontWeight: 500, color: "#6b7573" }}>(optional)</span>
               </label>
@@ -548,6 +595,26 @@ export function JoinForm({ faculties }: { faculties: string[] }) {
                 <>
                   <span style={{ color: "#6b7573" }}>Faculty</span>
                   <span style={{ fontWeight: 700 }}>{state.faculty}</span>
+                </>
+              )}
+              {state.researchInterests.length > 0 && (
+                <>
+                  <span style={{ color: "#6b7573" }}>Research interests</span>
+                  <span style={{ fontWeight: 700 }}>{state.researchInterests.join(", ")}</span>
+                </>
+              )}
+              {[state.linkedin, state.orcid, state.googleScholar, state.sinta, state.scopus].some(Boolean) && (
+                <>
+                  <span style={{ color: "#6b7573" }}>Academic profiles</span>
+                  <span style={{ fontWeight: 700 }}>
+                    {[state.linkedin && "LinkedIn", state.orcid && "ORCID", state.googleScholar && "Google Scholar", state.sinta && "SINTA", state.scopus && "Scopus"].filter(Boolean).join(", ")}
+                  </span>
+                </>
+              )}
+              {!isLecturer && state.referee.trim() && (
+                <>
+                  <span style={{ color: "#6b7573" }}>Referee Dosen</span>
+                  <span style={{ fontWeight: 700 }}>{state.referee.trim()}</span>
                 </>
               )}
               <span style={{ color: "#6b7573" }}>Proof document</span>

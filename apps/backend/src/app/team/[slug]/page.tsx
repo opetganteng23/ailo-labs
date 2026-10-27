@@ -1,3 +1,4 @@
+import { refereeMatches } from "@/lib/refereeMatch";
 import { categoriesOf } from "@/lib/teamCats";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -32,6 +33,7 @@ export default async function TeamDetailPage({ params }: { params: Promise<{ slu
     categories?: string[];
     jenjang?: string;
     studyProgram?: string;
+    referee?: string;
     bio?: string;
     email?: string;
     photo?: string;
@@ -44,6 +46,13 @@ export default async function TeamDetailPage({ params }: { params: Promise<{ slu
   if (!item) notFound();
 
   const profileEntries = Object.entries(item.profiles ?? {}).filter(([, url]) => !!url);
+
+  // Supervision: who this student's referee/supervisor is (linked when it matches a profile here), and - for a lecturer - which students name them.
+  const others = await Team.find({ isActive: true, _id: { $ne: item._id } })
+    .select("name slug referee photo position")
+    .lean<{ name: string; slug: string; referee?: string; photo?: string; position?: string }[]>();
+  const supervisor = item.referee ? others.find((o) => refereeMatches(item.referee, o.name)) : undefined;
+  const supervisees = others.filter((o) => refereeMatches(o.referee, item.name));
 
   // Projects on this site that list the person as a team member (the link runs from the project side).
   const projects = await Project.find({ teamMembers: item._id, publishStatus: { $nin: ["review", "archived"] } })
@@ -62,12 +71,12 @@ export default async function TeamDetailPage({ params }: { params: Promise<{ slu
   return (
     <>
       <SiteHeader backHref="/team" />
-      <main className="wrap page-head" style={{ maxWidth: 820 }}>
+      <main className="wrap page-head" style={{ maxWidth: 960 }}>
         <Link href="/team" className="sec-link" style={{ fontSize: 14 }}>
           Team
         </Link>
-        <div style={{ display: "flex", gap: 24, alignItems: "flex-start", marginTop: 20, flexWrap: "wrap" }}>
-          <div style={{ width: 140, aspectRatio: "3/3.6", borderRadius: 18, background: "var(--paper-dim)", border: "1px solid var(--line)", overflow: "hidden", flexShrink: 0 }}>
+        <div style={{ display: "flex", gap: 32, alignItems: "flex-start", marginTop: 20, flexWrap: "wrap" }}>
+          <div className="profile-photo">
             {item.photo && (
               // eslint-disable-next-line @next/next/no-img-element -- arbitrary uploaded image, no static optimization needed
               <img src={item.photo} alt={item.name} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
@@ -86,6 +95,18 @@ export default async function TeamDetailPage({ params }: { params: Promise<{ slu
             <h1 style={{ margin: 0 }}>{item.name}</h1>
             <p style={{ color: "var(--teal-dark)", fontWeight: 600, marginTop: 4 }}>{item.position}</p>
             {(item.jenjang || item.studyProgram) && <p style={{ color: "#5b6469", fontSize: 13.5 }}>{[item.jenjang, item.studyProgram].filter(Boolean).join(" - ")}</p>}
+            {item.referee && (
+              <p style={{ color: "#5b6469", fontSize: 13.5 }}>
+                Dosen pembimbing:{" "}
+                {supervisor ? (
+                  <Link href={`/team/${supervisor.slug}`} style={{ color: "var(--teal-dark)", fontWeight: 600 }}>
+                    {supervisor.name}
+                  </Link>
+                ) : (
+                  <strong style={{ fontWeight: 600 }}>{item.referee}</strong>
+                )}
+              </p>
+            )}
             {item.email && (
               <p style={{ fontSize: 14 }}>
                 <a href={`mailto:${item.email}`} style={{ color: "var(--teal-dark)", fontWeight: 600 }}>
@@ -115,6 +136,20 @@ export default async function TeamDetailPage({ params }: { params: Promise<{ slu
               </span>
             ))}
           </div>
+        )}
+
+        {supervisees.length > 0 && (
+          <section className="contrib" aria-label="Mahasiswa bimbingan">
+            <h2 className="contrib-title">Mahasiswa bimbingan</h2>
+            <div className="supervisees">
+              {supervisees.map((s) => (
+                <Link key={s.slug} href={`/team/${s.slug}`} className="supervisee">
+                  <span className="supervisee-photo" style={s.photo ? { backgroundImage: `url('${s.photo}')` } : undefined} />
+                  <span className="supervisee-name">{s.name}</span>
+                </Link>
+              ))}
+            </div>
+          </section>
         )}
 
         <section className="contrib" aria-label="Karya dan kontribusi">

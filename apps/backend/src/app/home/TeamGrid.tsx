@@ -63,7 +63,7 @@ export function TeamGrid({ items, categories }: { items: TeamCard[]; categories:
         </button>
         {chips.map((cat) => (
           <button key={cat} type="button" className={hm(filter === cat ? "team-filter active" : "team-filter")} onClick={() => setFilter(cat)}>
-            {SHORT[cat] ?? cat}
+            {SHORT[cat] ?? cat.replace(/^Peneliti Mahasiswa\b/, "Mahasiswa")}
           </button>
         ))}
       </div>

@@ -15,6 +15,8 @@ const memberSchema = new Schema(
     photo: String,
     proofDocument: String,
     studyLevel: String,
+    studyProgram: String,
+    bio: { type: String, trim: true },
     faculty: String,
     profiles: {
       linkedin: String,

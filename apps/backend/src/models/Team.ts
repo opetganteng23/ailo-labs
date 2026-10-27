@@ -15,6 +15,8 @@ const teamSchema = new Schema(
     categories: { type: [String], default: [], index: true },
     jenjang: String,
     studyProgram: String,
+    // Supervising lecturer (free text, as typed when applying). Matched to a Dosen profile by name for display.
+    referee: { type: String, trim: true },
     displayOrder: { type: Number, default: 0 },
     bio: String,
     researchInterests: { type: [String], default: [], index: true },

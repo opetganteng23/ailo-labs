@@ -49,6 +49,7 @@ export default async function AdminTeamEditPage({ params }: { params: Promise<{ 
     categories?: string[];
     jenjang?: string;
     studyProgram?: string;
+    referee?: string;
     displayOrder?: number;
     bio?: string;
     researchInterests?: string[];
@@ -127,6 +128,7 @@ export default async function AdminTeamEditPage({ params }: { params: Promise<{ 
           categories: item.categories,
           jenjang: item.jenjang,
           studyProgram: item.studyProgram,
+          referee: item.referee,
           displayOrder: item.displayOrder,
           bio: item.bio,
           researchInterests: item.researchInterests ?? [],

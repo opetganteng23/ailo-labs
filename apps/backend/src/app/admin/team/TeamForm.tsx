@@ -21,6 +21,7 @@ type TeamFormProps = {
     categories?: string[];
     jenjang?: string;
     studyProgram?: string;
+    referee?: string;
     displayOrder?: number;
     bio?: string;
     researchInterests?: string[];
@@ -70,6 +71,12 @@ export function TeamForm({ mode = "create", initial, categories, interestSuggest
                 <label htmlFor="displayOrder">Display order</label>
                 <input id="displayOrder" name="displayOrder" type="number" defaultValue={initial?.displayOrder ?? 0} />
               </div>
+            </div>
+            <div className="admin2-field">
+              <label htmlFor="referee">
+                Referee / supervising lecturer <span style={{ fontWeight: 400, color: "#6b7573" }}>(students; shown on their profile and listed on the lecturer&apos;s profile)</span>
+              </label>
+              <input id="referee" name="referee" type="text" maxLength={160} placeholder="e.g. Prof. Dr. Suyanto" defaultValue={initial?.referee} />
             </div>
             <div className="admin2-field">
               <label htmlFor="email">Email</label>

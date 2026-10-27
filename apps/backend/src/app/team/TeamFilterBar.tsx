@@ -13,7 +13,7 @@ const SHORT: Record<string, string> = {
   "Peneliti Alumni": "Alumni",
   "Peneliti Mahasiswa": "Mahasiswa",
 };
-const shortLabel = (name: string) => SHORT[name] ?? name;
+const shortLabel = (name: string) => SHORT[name] ?? name.replace(/^Peneliti Mahasiswa\b/, "Mahasiswa");
 
 function hrefFor(next: Current) {
   const query = new URLSearchParams();

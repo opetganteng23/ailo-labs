@@ -4,6 +4,7 @@ import bcrypt from "bcryptjs";
 
 import { getBaseUrl } from "@/lib/baseUrl";
 import { sendMail } from "@/lib/mailer";
+import { seedTeamFromMember, teamFieldsFromMember } from "@/lib/teamBoardSync";
 import { PasswordReset } from "@/models/PasswordReset";
 import { Team } from "@/models/Team";
 import { User } from "@/models/User";
@@ -14,16 +15,20 @@ function slugify(input: string) {
   return input.toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
 }
 
-type MemberLike = { _id: unknown; name: string; email: string; photo?: string };
+type MemberLike = { _id?: unknown; name: string; email: string; photo?: string; [key: string]: unknown };
 
 /** Finds the lecturer's team profile by email, or creates a hidden one to fill in. */
-export async function ensureTeamProfile(person: { name: string; email: string; photo?: string }) {
+export async function ensureTeamProfile(person: MemberLike) {
   const email = person.email.toLowerCase();
   const existing = await Team.findOne({ email });
-  if (existing) return existing;
+  if (existing) {
+    // Fill in what the lecturer entered when registering (research interests, academic profiles, ...) so nobody retypes it.
+    if (seedTeamFromMember(existing, person as never)) await existing.save();
+    return existing;
+  }
   let slug = slugify(person.name) || "dosen";
   if (await Team.exists({ slug })) slug = `${slug}-${crypto.randomBytes(2).toString("hex")}`;
-  return Team.create({ name: person.name, slug, position: "Dosen", category: "Dosen", email, photo: person.photo, isActive: false });
+  return Team.create({ name: person.name, slug, position: "Dosen", category: "Dosen", categories: ["Dosen"], email, ...(person._id ? { member: person._id } : {}), ...teamFieldsFromMember(person as never), isActive: false });
 }
 
 /**

@@ -1,17 +1,9 @@
 import { connectToDatabase } from "@/lib/mongodb";
+import { RESEARCH_INTEREST_OPTIONS } from "@/lib/researchInterestOptions";
 import { Team } from "@/models/Team";
 
 /** Starting set of AILO research areas, merged with whatever members already use. */
-export const BASE_RESEARCH_INTERESTS = [
-  "NLP",
-  "Retrieval-Augmented Generation",
-  "Optimization",
-  "Reinforcement Learning",
-  "Computer Vision",
-  "Edge AI",
-  "Applied ML",
-  "Smart Campus",
-];
+export const BASE_RESEARCH_INTERESTS = RESEARCH_INTEREST_OPTIONS;
 
 export async function listResearchInterests(): Promise<string[]> {
   await connectToDatabase();
