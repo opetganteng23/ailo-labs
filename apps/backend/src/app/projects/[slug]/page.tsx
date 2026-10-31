@@ -51,7 +51,7 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
             {new Date(item.publishedAt ?? item.createdAt!).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" })}
           </p>
         )}
-        <p style={{ color: "#5b6469", fontSize: 17 }}>{item.description}</p>
+        <p className="lead-justify">{item.description}</p>
         {item.images?.[0] && !isHtmlDocument(item.content) && (
           // eslint-disable-next-line @next/next/no-img-element -- arbitrary uploaded image, no static optimization needed
           <img className="detail-thumb" src={item.images[0]} alt={item.title} style={{ borderRadius: 20 }} />

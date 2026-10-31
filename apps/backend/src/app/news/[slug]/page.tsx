@@ -40,7 +40,7 @@ export default async function NewsDetailPage({ params }: { params: Promise<{ slu
           <CategoryChips categories={categoriesOf(item)} />
         </div>
         <h1 style={{ marginTop: 8 }}>{item.title}</h1>
-        <p style={{ color: "#5b6469", fontSize: 17 }}>{item.summary}</p>
+        <p className="lead-justify">{item.summary}</p>
         {item.images?.[0] && !isHtmlDocument(item.content) && (
           // eslint-disable-next-line @next/next/no-img-element -- arbitrary uploaded image, no static optimization needed
           <img className="detail-thumb" src={item.images[0]} alt={item.title} style={{ borderRadius: 20 }} />

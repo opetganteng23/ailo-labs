@@ -35,7 +35,7 @@ export default async function ServiceDetailPage({ params }: { params: Promise<{ 
         </Link>
         <h1 style={{ marginTop: 12 }}>{item.title}</h1>
         <CategoryChips categories={categoriesOf(item)} style={{ marginTop: 10 }} />
-        {item.description && <p style={{ color: "#5b6469", fontSize: 17 }}>{item.description}</p>}
+        {item.description && <p className="lead-justify">{item.description}</p>}
         {item.image && !isHtmlDocument(item.content) && (
           // eslint-disable-next-line @next/next/no-img-element -- arbitrary uploaded image
           <img className="detail-thumb" src={item.image} alt={item.title} style={{ borderRadius: 20 }} />

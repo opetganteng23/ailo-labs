@@ -1634,3 +1634,6 @@ a.contrib-item:hover { border-color: var(--teal); border-left-color: var(--teal)
 .hm-team-section .hm-tcard h4 { font-size: 15px; margin-bottom: 2px; }
 .hm-team-section .hm-tcard .hm-role { font-size: 12.5px; margin-bottom: 4px; }
 .hm-team-section .scroll-row-btn { top: 70px; }
+
+/* Short description under a detail page title: justified, and the line breaks typed in the admin textarea are kept. */
+.lead-justify { color: #5b6469; font-size: 17px; line-height: 1.75; text-align: justify; text-justify: inter-word; hyphens: auto; white-space: pre-line; overflow-wrap: anywhere; }
