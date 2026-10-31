@@ -472,7 +472,14 @@ export function RichTextEditor({ name, defaultValue = "", placeholder, minHeight
                 Hide preview
               </button>
             )}
-            <span>Scripts, forms and event handlers are removed when you save. Iframes only work for YouTube, Vimeo, Google Maps/Docs/Drive, Canva, Spotify and Figma.</span>
+            <span>
+              Buttons, forms, inputs, SVG, onclick handlers and scripts work on the page. A script from a lecturer stays inactive until an admin saves the item. Iframes only work for YouTube, Vimeo, Google Maps/Docs/Drive, Canva, Spotify and Figma.
+            </span>
+            {/data-pending/.test(source) && (
+              <strong style={{ display: "block", flexBasis: "100%", color: "#8a4b00", background: "#fff4e0", borderRadius: 8, padding: "8px 12px" }}>
+                This page contains a script written by a lecturer. Read the code above first. Saving the item approves it and makes the script run for visitors; the preview does not run it.
+              </strong>
+            )}
           </div>
           {preview !== null && <RichContent className="rte-body rte-preview" html={preview} />}
         </div>

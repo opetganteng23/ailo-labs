@@ -156,6 +156,7 @@ function rewriteTagAttributes(body: string, prefix: string): string {
         return `${head}${tokens.join(" ")}"`;
       })
       .replace(/(\sid=")([^"]*)"/, (_m, head: string, value: string) => `${head}${prefix}${value}"`)
+      .replace(/(\sfor=")([^"]*)"/, (_m, head: string, value: string) => `${head}${prefix}${value}"`)
       .replace(/(\shref="#)([^"]*)"/, (_m, head: string, value: string) => `${head}${prefix}${value}"`);
     return `<${tag}${next}>`;
   });
@@ -189,6 +190,64 @@ export function extractScripts(html: string): { html: string; scripts: string[] 
     return "";
   });
   return { html: rest, scripts };
+}
+
+const HANDLER_TYPES = new Set(["click", "dblclick", "change", "input", "submit", "keydown", "keyup", "keypress", "focus", "blur", "mouseover", "mouseout", "mouseenter", "mouseleave", "mousedown", "mouseup", "touchstart", "touchend", "load", "reset", "select", "toggle", "scroll"]);
+const OPEN_TAG = /<([a-zA-Z][a-zA-Z0-9]*)\b([^>]*)>/g;
+const ON_ATTR = /\s+on([a-z]+)\s*=\s*(?:"([^"]*)"|'([^']*)')/gi;
+
+function decodeAttr(value: string): string {
+  return value.replace(/&quot;/g, '"').replace(/&#39;|&apos;/g, "'").replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&amp;/g, "&");
+}
+
+/**
+ * Inline handlers (onclick="...") cannot be kept as attributes. They are lifted into code instead: each
+ * element gets a numbered marker and the handlers become addEventListener calls that are appended to the
+ * document's script, so they run in the same scope (they can call the functions that script declares) and are
+ * covered by the same signature. Returns the markup without on* attributes and the generated code.
+ */
+export function liftHandlers(html: string): { html: string; code: string } {
+  let n = 0;
+  for (const m of html.matchAll(/data-rte-h="(\d+)"/g)) n = Math.max(n, Number(m[1]) + 1);
+  const parts: string[] = [];
+  const out = html.replace(OPEN_TAG, (whole, tag: string, attrs: string) => {
+    if (!/\son[a-z]+\s*=/i.test(attrs)) return whole;
+    const found: { type: string; code: string }[] = [];
+    const cleaned = attrs.replace(ON_ATTR, (_m, type: string, dq?: string, sq?: string) => {
+      const kind = type.toLowerCase();
+      const code = decodeAttr(dq ?? sq ?? "").trim();
+      if (HANDLER_TYPES.has(kind) && code) {
+        try {
+          // Compile only (never run) so one broken handler cannot break the whole script.
+          new Function("event", code);
+          found.push({ type: kind, code });
+        } catch {
+          /* dropped */
+        }
+      }
+      return "";
+    });
+    if (found.length === 0) return `<${tag}${cleaned}>`;
+    const id = n++;
+    for (const h of found) {
+      parts.push(
+        `document.querySelectorAll('[data-rte-h="${id}"]').forEach(function(el){el.addEventListener('${h.type}',function(event){var r=(function(){\n${h.code}\n}).call(el);if(r===false)event.preventDefault();});});`,
+      );
+    }
+    return `<${tag}${cleaned} data-rte-h="${id}">`;
+  });
+  return { html: out, code: parts.join("\n") };
+}
+
+/** Joins the document's scripts into one (so handlers and functions share a scope), with the lifted handlers last. */
+export function mergeScripts(scripts: string[], handlerCode: string): string[] {
+  const all = [...scripts, handlerCode].map((c) => c.trim()).filter(Boolean);
+  return all.length ? [all.join("\n;\n")] : [];
+}
+
+/** Dosen saves: the script is kept for review but not signed, so it does not run until an admin saves the item. */
+export function attachPendingScripts(stored: string, scripts: string[]): string {
+  return stored + scripts.map((code) => `<script data-pending="1">${code.replace(/<\/script/gi, "<\\/script")}</script>`).join("");
 }
 
 /** Save time (admin only): appends each script with its signature. */

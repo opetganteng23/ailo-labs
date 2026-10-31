@@ -1,6 +1,6 @@
 import sanitize from "sanitize-html";
 
-import { attachSignedScripts, extractScripts, joinDocument, scopeDocumentWithScripts, splitDocument, takeVerifiedScripts } from "./scopedHtml";
+import { attachPendingScripts, attachSignedScripts, extractScripts, joinDocument, liftHandlers, mergeScripts, scopeDocumentWithScripts, splitDocument, takeVerifiedScripts } from "./scopedHtml";
 
 // The browser re-serializes colours as rgb()/rgba() when TipTap reads them back from the DOM, so hex alone would strip every colour on save.
 const HEX_OR_INHERIT = /^(#[0-9a-fA-F]{3,8}|inherit|rgba?\(\s*\d{1,3}\s*,\s*\d{1,3}\s*,\s*\d{1,3}\s*(,\s*(0|1|0?\.\d+)\s*)?\))$/;
@@ -70,7 +70,22 @@ const TRUSTED_STYLES = {
   "object-fit": [/^(?:contain|cover|fill|none)$/],
   float: [/^(?:left|right|none)$/],
   clear: [/^(?:left|right|both|none)$/],
+  cursor: [/^(?:pointer|default|text|not-allowed|grab|move|help)$/],
+  transform: [SAFE_VALUE],
+  transition: [SAFE_VALUE],
+  "text-shadow": [SAFE_VALUE],
+  visibility: [/^(?:visible|hidden)$/],
+  fill: [COLOR_OR_NAME],
+  stroke: [COLOR_OR_NAME],
+  "stroke-width": [/^\d{1,2}(?:\.\d+)?$/],
+  "list-style": [/^(?:none|disc|decimal|circle|square)$/],
 };
+
+/** Form controls and SVG shapes that interactive pages need. None of them can load a resource or run code by itself. */
+const FORM_TAGS = ["button", "input", "select", "option", "optgroup", "textarea", "label", "form", "fieldset", "legend", "output", "progress", "meter"];
+const SVG_TAGS = ["svg", "g", "path", "circle", "ellipse", "rect", "line", "polyline", "polygon", "text", "tspan", "defs", "lineargradient", "radialgradient", "stop", "clippath"];
+const SVG_ATTRS = ["viewbox", "width", "height", "fill", "stroke", "stroke-width", "stroke-linecap", "stroke-linejoin", "stroke-dasharray", "d", "cx", "cy", "r", "rx", "ry", "x", "y", "x1", "y1", "x2", "y2", "points", "transform", "opacity", "offset", "stop-color", "stop-opacity", "gradientunits", "preserveaspectratio", "fill-rule", "clip-rule", "text-anchor", "dominant-baseline", "font-size", "font-weight", "xmlns", "id"];
+const INPUT_TYPES = new Set(["text", "number", "email", "tel", "url", "password", "search", "date", "time", "datetime-local", "month", "week", "color", "range", "checkbox", "radio", "file", "hidden", "button", "submit", "reset"]);
 
 /** Third-party players and maps that may be embedded as an <iframe> in the trusted profile. */
 const IFRAME_HOSTS = [
@@ -100,18 +115,31 @@ const SAFE_ID = /^[A-Za-z][\w-]{0,60}$/;
  * iframes from a short list of known embed hosts, but still no script,
  * forms, event handlers, position/z-index or url()-based styles.
  */
-export function sanitizeRichText(html: string, options: { trusted?: boolean; scripts?: boolean } = {}): string {
+export function sanitizeRichText(html: string, options: { trusted?: boolean; scripts?: boolean; pendingScripts?: boolean } = {}): string {
   if (!options.trusted) return sanitizeBody(html, false);
   // A pasted complete document brings its own <style>: it is cleaned and kept (scoped only when displayed); the shell and the rest are dropped.
-  // Inline scripts are kept (signed) only when `scripts` is set, which the server does for super admin and admin saves.
-  const { html: withoutScripts, scripts } = options.scripts ? extractScripts(html ?? "") : { html: stripStoredScripts(html ?? ""), scripts: [] };
-  const { body, css } = splitDocument(withoutScripts);
-  return attachSignedScripts(joinDocument(css, sanitizeBody(body, true)), scripts);
+  // Inline scripts and onclick-style handlers are kept (signed) only when `scripts` is set, which the server does for super admin and admin saves.
+  // A lecturer with HTML access (`pendingScripts`) keeps them too, but unsigned: they stay inert until an admin saves the item.
+  if (options.scripts || options.pendingScripts) {
+    const extracted = extractScripts(html ?? "");
+    const { body, css } = splitDocument(extracted.html);
+    const lifted = liftHandlers(body);
+    const merged = mergeScripts(extracted.scripts, lifted.code);
+    const stored = joinDocument(css, sanitizeBody(lifted.html, true));
+    return options.scripts ? attachSignedScripts(stored, merged) : attachPendingScripts(stored, merged);
+  }
+  const { body, css } = splitDocument(stripStoredScripts(html ?? ""));
+  return joinDocument(css, sanitizeBody(body, true));
 }
 
 /** Without the scripts permission every <script> block, including already stored signed ones, is removed. */
 function stripStoredScripts(html: string): string {
   return html.replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi, "");
+}
+
+/** Removes scripts that are waiting for an admin (data-pending), e.g. so the admin preview never runs unreviewed code. */
+export function stripPendingScripts(html: string): string {
+  return html.replace(/<script\b[^>]*data-pending[^>]*>[\s\S]*?<\/script>/gi, "");
 }
 
 function sanitizeBody(html: string, trusted: boolean): string {
@@ -121,7 +149,7 @@ function sanitizeBody(html: string, trusted: boolean): string {
       "ul", "ol", "li", "blockquote", "hr", "img", "figure", "figcaption", "pre", "code",
       "table", "thead", "tbody", "tr", "th", "td", "colgroup", "col",
       ...(trusted
-        ? ["div", "section", "article", "aside", "header", "footer", "h5", "h6", "small", "sub", "sup", "abbr", "cite", "kbd", "caption", "tfoot", "dl", "dt", "dd", "details", "summary", "video", "audio", "source", "iframe", "nav", "main", "address", "time"]
+        ? ["div", "section", "article", "aside", "header", "footer", "h5", "h6", "small", "sub", "sup", "abbr", "cite", "kbd", "caption", "tfoot", "dl", "dt", "dd", "details", "summary", "video", "audio", "source", "iframe", "nav", "main", "address", "time", ...FORM_TAGS, ...SVG_TAGS]
         : []),
     ],
     allowedAttributes: {
@@ -139,7 +167,20 @@ function sanitizeBody(html: string, trusted: boolean): string {
       h4: ["style"],
       ...(trusted
         ? {
-            "*": ["class", "id", "style", "title", "lang", "dir", "role", "hidden", "aria-*"],
+            "*": ["class", "id", "style", "title", "lang", "dir", "role", "hidden", "aria-*", "data-*", "tabindex"],
+            button: ["type", "disabled", "name", "value"],
+            input: ["type", "name", "value", "placeholder", "checked", "disabled", "readonly", "required", "min", "max", "step", "maxlength", "minlength", "pattern", "size", "autocomplete", "multiple", "accept"],
+            select: ["name", "disabled", "multiple", "size", "required"],
+            option: ["value", "selected", "disabled", "label"],
+            optgroup: ["label", "disabled"],
+            textarea: ["name", "rows", "cols", "placeholder", "disabled", "readonly", "required", "maxlength"],
+            label: ["for"],
+            form: ["novalidate"],
+            fieldset: ["disabled"],
+            output: ["for", "name"],
+            progress: ["value", "max"],
+            meter: ["value", "min", "max", "low", "high", "optimum"],
+            ...Object.fromEntries(SVG_TAGS.map((t) => [t, SVG_ATTRS])),
             video: ["src", "controls", "poster", "preload", "width", "height", "muted", "loop", "playsinline"],
             audio: ["src", "controls", "preload", "loop"],
             source: ["src", "type"],
@@ -175,6 +216,9 @@ function sanitizeBody(html: string, trusted: boolean): string {
               if (next.id !== undefined && !SAFE_ID.test(next.id)) delete next.id;
               // sanitize-html drops an empty `hidden`; give it a value so hidden elements stay hidden.
               if (next.hidden !== undefined && next.hidden !== "false") next.hidden = "hidden";
+              // A button without a type would submit its form; inputs only get known types.
+              if (tagName === "button" && !["button", "submit", "reset"].includes(next.type ?? "")) next.type = "button";
+              if (tagName === "input" && !INPUT_TYPES.has((next.type ?? "text").toLowerCase())) next.type = "text";
               return { tagName, attribs: next };
             },
             iframe: (tagName: string, attribs: Record<string, string>) => ({

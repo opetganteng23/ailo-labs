@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { isAdminRole, requireSession } from "@/lib/auth";
 import { SCRIPT_ROLES } from "@/lib/htmlTrust";
 import { isHtmlTrusted } from "@/lib/htmlTrust";
-import { renderRichText, sanitizeRichText } from "@/lib/sanitizeHtml";
+import { renderRichText, sanitizeRichText, stripPendingScripts } from "@/lib/sanitizeHtml";
 
 export const dynamic = "force-dynamic";
 
@@ -22,5 +22,9 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ success: false, error: "We could not read that request." }, { status: 400 });
   }
   const html = typeof body.html === "string" ? body.html.slice(0, 500_000) : "";
-  return NextResponse.json({ success: true, data: { html: renderRichText(sanitizeRichText(html, { trusted: true, scripts: SCRIPT_ROLES.includes(auth.session.role) })) } });
+  // An admin's preview never runs a lecturer's unreviewed script (they are marked data-pending until an admin saves them).
+  // A lecturer previewing their own page does run it, in their own session, so they can try it before submitting.
+  const admin = SCRIPT_ROLES.includes(auth.session.role);
+  const source = admin ? stripPendingScripts(html) : html;
+  return NextResponse.json({ success: true, data: { html: renderRichText(sanitizeRichText(source, { trusted: true, scripts: true })) } });
 }
